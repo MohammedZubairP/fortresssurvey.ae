@@ -1,9 +1,59 @@
 <!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gauge — Monitoring Platform | Fortress Surveying Dubai</title>
-<meta name="description" content="Real-time structural monitoring platform by Fortress Surveying. Fortress Surveying Engineering Services L.L.C. Dubai.">
+<title>Gauge — Real-Time Structural Monitoring Platform | Fortress Surveying Dubai</title>
+<meta name="description" content="Gauge is Fortress Surveying's proprietary structural monitoring platform. Live settlement dashboards, automated SMS/email alerts, and PDF reporting for Dubai construction projects.">
+<link rel="canonical" href="https://fortresssurvey.ae/gauge.html">
 <link rel="stylesheet" href="style.css">
-</head><body>
+<style>
+.gauge-hero{background:linear-gradient(135deg,#0F3A27 0%,#0B2D1E 60%,#082415 100%);padding:72px 0;position:relative;overflow:hidden}
+.gauge-hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(200,148,31,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(200,148,31,.04) 1px,transparent 1px);background-size:46px 46px}
+.gauge-hero-in{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+@media(max-width:860px){.gauge-hero-in{grid-template-columns:1fr}}
+.gauge-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(200,148,31,.15);border:1px solid rgba(200,148,31,.3);color:var(--gold);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:6px 15px;border-radius:3px;margin-bottom:18px;font-family:'IBM Plex Mono',monospace}
+.gauge-badge span{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:blink 1.6s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.gauge-hero h1{font-size:clamp(28px,4vw,48px);font-weight:700;color:#fff;margin-bottom:16px;letter-spacing:-.5px;line-height:1.15}
+.gauge-hero h1 em{color:var(--gold);font-style:normal}
+.gauge-hero p{font-size:17px;color:rgba(255,255,255,.6);line-height:1.75;margin-bottom:28px;max-width:480px}
+.gauge-canvas-wrap{border-radius:14px;overflow:hidden;background:#04100A;aspect-ratio:4/3;position:relative;border:1px solid rgba(200,148,31,.2);box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.gauge-canvas-wrap canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+@media(max-width:860px){.feat-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.feat-grid{grid-template-columns:1fr}}
+.feat-card{background:#fff;border:1px solid var(--g200);border-radius:12px;padding:28px 24px;transition:.25s}
+.feat-card:hover{box-shadow:var(--shm);transform:translateY(-4px);border-color:rgba(200,148,31,.3)}
+.feat-ico{width:50px;height:50px;background:var(--goldl);border:1.5px solid rgba(200,148,31,.2);border-radius:11px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.feat-card h3{font-size:16px;font-weight:700;color:var(--forest);margin-bottom:8px}
+.feat-card p{font-size:13.5px;color:var(--g600);line-height:1.65}
+
+.usecase-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:860px){.usecase-row{grid-template-columns:1fr 1fr}}
+.usecase-card{background:var(--forest3);border-radius:10px;padding:22px 18px;text-align:center}
+.usecase-card .ic{font-size:26px;margin-bottom:10px}
+.usecase-card h4{font-size:13.5px;font-weight:700;color:#fff;margin-bottom:6px}
+.usecase-card p{font-size:12px;color:rgba(255,255,255,.5);line-height:1.55}
+
+.gauge-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:36px}
+@media(max-width:860px){.gauge-steps{grid-template-columns:1fr 1fr}}
+.gstep{position:relative;padding:24px 20px;background:var(--off);border-radius:10px}
+.gstep-num{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);font-weight:700;margin-bottom:10px}
+.gstep h4{font-size:14.5px;font-weight:700;color:var(--forest);margin-bottom:6px}
+.gstep p{font-size:12.5px;color:var(--g600);line-height:1.6}
+
+.pricing-card{background:#fff;border:1.5px solid var(--g200);border-radius:14px;padding:32px;text-align:center;position:relative}
+.pricing-card.featured{border-color:var(--gold);box-shadow:0 8px 32px rgba(200,148,31,.15)}
+.pricing-card.featured::before{content:'Most Popular';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gold);color:#fff;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 14px;border-radius:999px}
+.pricing-card h3{font-size:16px;font-weight:700;color:var(--forest);margin-bottom:4px}
+.pricing-card .pr{font-family:'Plus Jakarta Sans',sans-serif;font-size:34px;font-weight:700;color:var(--forest);margin:14px 0 4px}
+.pricing-card .pr span{font-size:13px;color:var(--g400);font-weight:500}
+.pricing-card ul{list-style:none;text-align:left;margin:20px 0;padding:0}
+.pricing-card li{font-size:13.5px;color:var(--g600);padding:7px 0;border-bottom:1px solid var(--g200);display:flex;gap:8px;align-items:flex-start}
+.pricing-card li:last-child{border-bottom:none}
+.pricing-card li svg{width:14px;height:14px;color:var(--gold);flex-shrink:0;margin-top:2px}
+</style>
+</head>
+<body>
 <div class="uae"></div>
 <div class="top-bar">
   <div class="top-bar-in">
@@ -54,24 +104,156 @@
     </div>
   </div>
 </nav>
-<section class="page-hero"><div class="wrap page-hero-in">
-  <div class="breadcrumb"><a href="index.html">Home</a><span>/</span>Gauge — Monitoring Platform</div>
-  <h1>Gauge — Monitoring Platform</h1>
-  <p>This page is coming soon. In the meantime, contact us directly for any enquiries.</p>
-  <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap">
-    <a class="btn-gold" href="contact.html#quote">Get a Free Quote</a>
-    <a class="btn-wa" href="https://wa.me/971503091162" target="_blank">WhatsApp Us</a>
+
+<section class="gauge-hero">
+  <div class="wrap gauge-hero-in">
+    <div>
+      <div class="gauge-badge"><span></span>Fortress Surveying Product</div>
+      <h1>Gauge — See Your<br>Structure <em>Move in<br>Real Time.</em></h1>
+      <p>Gauge connects field sensors to a live web dashboard, tracking settlement, tilt and crack movement on Dubai construction sites — with automated alerts the moment something exceeds your safe threshold.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <a class="btn-gold" href="contact.html#quote">Request Gauge Demo</a>
+        <a class="btn-wa" href="https://wa.me/971503091162?text=Hi%2C%20I%27d%20like%20to%20know%20more%20about%20Gauge" target="_blank">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp Us
+        </a>
+      </div>
+    </div>
+    <div class="gauge-canvas-wrap"><canvas id="cv-gauge-hero" width="560" height="420"></canvas></div>
   </div>
-</div></section>
-<section style="background:var(--off);text-align:center"><div class="wrap">
-  <h2 class="sec-h">While You Wait — Explore</h2>
-  <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:20px">
-    <a class="btn-forest" href="services.html">Our Services</a>
-    <a class="btn-ol" href="about.html">About Us</a>
-    <a class="btn-ol" href="blog.html">Survey Blog</a>
-    <a class="btn-ol" href="contact.html">Contact</a>
+</section>
+
+<section style="background:#fff;padding:64px 0">
+  <div class="wrap">
+    <div class="sec-head c fi">
+      <div class="eyebrow">Why Gauge</div>
+      <h2 class="sec-h">Built for Dubai's Construction Sites</h2>
+      <p class="sec-p">Every feature designed around the real demands of deep excavation, tunnelling and heritage protection projects in Dubai.</p>
+    </div>
+    <div class="feat-grid fi">
+      <div class="feat-card">
+        <div class="feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#C8941F" stroke-width="2" width="22" height="22"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <h3>Live Settlement Graphs</h3>
+        <p>Real-time data from settlement markers, tilt sensors and crack gauges streamed directly to your browser — refreshed every 15 minutes or instantly for critical sensors.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#C8941F" stroke-width="2" width="22" height="22"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+        <h3>Automated SMS &amp; Email Alerts</h3>
+        <p>Set your own trigger thresholds. The moment any sensor crosses it, the responsible engineer gets an instant SMS and email — no waiting for the next site visit.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#C8941F" stroke-width="2" width="22" height="22"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+        <h3>Multi-Sensor Dashboard</h3>
+        <p>Monitor dozens of sensors across a single site from one screen — colour-coded by status, with historical trend lines going back to day one of monitoring.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#C8941F" stroke-width="2" width="22" height="22"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <h3>Automated PDF Reports</h3>
+        <p>Daily, weekly or monthly reports generated automatically and emailed to your project team — no manual data entry, no spreadsheet chasing.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#C8941F" stroke-width="2" width="22" height="22"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <h3>24/7 Cloud Uptime</h3>
+        <p>Hosted on resilient cloud infrastructure with continuous data logging — access your dashboard anytime, from any device, anywhere in the world.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#C8941F" stroke-width="2" width="22" height="22"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <h3>Contractor Data Sharing</h3>
+        <p>Give read-only dashboard access to contractors, consultants and authorities — everyone sees the same live data, no more conflicting spreadsheets.</p>
+      </div>
+    </div>
   </div>
-</div></section>
+</section>
+
+<section style="background:var(--forest3);padding:64px 0">
+  <div class="wrap">
+    <div class="sec-head c fi">
+      <div class="eyebrow" style="justify-content:center">Where Gauge Is Used</div>
+      <h2 class="sec-h" style="color:#fff">Projects That Need to Know — Now</h2>
+    </div>
+    <div class="usecase-row fi">
+      <div class="usecase-card"><div class="ic">🏗️</div><h4>Deep Excavation</h4><p>Basement &amp; shoring works near existing structures</p></div>
+      <div class="usecase-card"><div class="ic">🚇</div><h4>Tunnelling</h4><p>Metro &amp; utility tunnel settlement tracking</p></div>
+      <div class="usecase-card"><div class="ic">🕌</div><h4>Heritage Buildings</h4><p>Protecting sensitive structures during nearby works</p></div>
+      <div class="usecase-card"><div class="ic">🏢</div><h4>High-Rise Towers</h4><p>Pile load testing &amp; foundation settlement</p></div>
+    </div>
+  </div>
+</section>
+
+<section style="background:#fff;padding:64px 0">
+  <div class="wrap">
+    <div class="sec-head fi">
+      <div class="eyebrow">How It Works</div>
+      <h2 class="sec-h">From Sensor to Dashboard in 4 Steps</h2>
+    </div>
+    <div class="gauge-steps fi">
+      <div class="gstep"><div class="gstep-num">STEP 01</div><h4>Sensor Installation</h4><p>Our engineers install settlement markers, tilt meters or crack gauges at agreed monitoring points across your site.</p></div>
+      <div class="gstep"><div class="gstep-num">STEP 02</div><h4>Baseline Reading</h4><p>An initial zero-reading is taken and logged as the baseline for all future movement comparisons.</p></div>
+      <div class="gstep"><div class="gstep-num">STEP 03</div><h4>Live Monitoring Begins</h4><p>Sensors transmit data into the Gauge platform automatically — your dashboard goes live immediately.</p></div>
+      <div class="gstep"><div class="gstep-num">STEP 04</div><h4>Alerts &amp; Reporting</h4><p>Set your thresholds once. Gauge handles the rest — alerts, graphs and reports run themselves.</p></div>
+    </div>
+  </div>
+</section>
+
+<section style="background:var(--off);padding:64px 0">
+  <div class="wrap">
+    <div class="sec-head c fi">
+      <div class="eyebrow">Get Started</div>
+      <h2 class="sec-h">Gauge Monitoring Packages</h2>
+      <p class="sec-p">Pricing depends on sensor count and monitoring duration. Contact us for a project-specific quote.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:22px" class="fi">
+      <div class="pricing-card">
+        <h3>Short-Term Monitoring</h3>
+        <div class="pr">POA</div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Up to 10 sensors</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Weekly reports</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>1–3 month projects</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Email alerts</li>
+        </ul>
+        <a class="btn-ol" href="contact.html#quote" style="width:100%;justify-content:center">Get Quote</a>
+      </div>
+      <div class="pricing-card featured">
+        <h3>Project Monitoring</h3>
+        <div class="pr">POA</div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Up to 50 sensors</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Real-time + daily reports</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>3–12 month projects</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>SMS + email alerts</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Contractor access portal</li>
+        </ul>
+        <a class="btn-gold" href="contact.html#quote" style="width:100%;justify-content:center">Get Quote</a>
+      </div>
+      <div class="pricing-card">
+        <h3>Enterprise Monitoring</h3>
+        <div class="pr">POA</div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Unlimited sensors</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Multi-site dashboards</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>12+ month projects</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Priority SMS alerts</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Dedicated engineer</li>
+        </ul>
+        <a class="btn-ol" href="contact.html#quote" style="width:100%;justify-content:center">Get Quote</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="background:var(--forest);padding:64px 0;text-align:center">
+  <div class="wrap">
+    <div class="eyebrow" style="justify-content:center">Ready to Monitor?</div>
+    <h2 style="font-size:clamp(24px,3.5vw,38px);font-weight:700;color:#fff;margin-bottom:14px">Protect Your Project With Gauge</h2>
+    <p style="font-size:16px;color:rgba(255,255,255,.55);margin-bottom:28px;max-width:480px;margin-left:auto;margin-right:auto">Talk to our monitoring team about sensor count, duration and a tailored quote for your Dubai project.</p>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+      <a class="btn-gold" href="contact.html#quote">Request a Quote</a>
+      <a class="btn-wa" href="https://wa.me/971503091162" target="_blank">WhatsApp Us</a>
+    </div>
+  </div>
+</section>
+
 <div class="trust-bar">
   <div class="trust-bar-in">
     <div class="tb-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span><strong>DM Approved</strong> Surveyor</span></div>
@@ -113,4 +295,55 @@
   <a class="mc-call" href="tel:+971503091162"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><path d="M22 16.92v3a2 2 0 0 1-2.18 2"/></svg>Call Now</a>
   <a class="mc-wa" href="https://wa.me/971503091162" target="_blank"><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967c-.273-.099-.471-.148-.67.15c-.197.297-.767.966-.94 1.164c-.173.199-.347.223-.644.075c-.297-.15-1.255-.463-2.39-1.475c-.883-.788-1.48-1.761-1.653-2.059c-.173-.297-.018-.458.13-.606c.134-.133.298-.347.446-.52c.149-.174.198-.298.298-.497c.099-.198.05-.371-.025-.52c-.075-.149-.669-1.612-.916-2.207c-.242-.579-.487-.5-.669-.51c-.173-.008-.371-.01-.57-.01c-.198 0-.52.074-.792.372c-.272.297-1.04 1.016-1.04 2.479c0 1.462 1.065 2.875 1.213 3.074c.149.198 2.096 3.2 5.077 4.487c.709.306 1.262.489 1.694.625c.712.227 1.36.195 1.871.118c.571-.085 1.758-.719 2.006-1.413c.248-.694.248-1.289.173-1.413c-.074-.124-.272-.198-.57-.347"/></svg>WhatsApp</a>
 </div>
+
+<script>
+(function(){
+  const cv=document.getElementById('cv-gauge-hero');
+  if(!cv) return;
+  const cx=cv.getContext('2d'); const W=cv.width,H=cv.height;
+  const sensors=[
+    {name:'S-01 North Wall',color:'#C8941F',data:[],th:8},
+    {name:'S-02 South Column',color:'#34D399',data:[],th:10},
+    {name:'S-03 East Footing',color:'#A78BFA',data:[],th:7}
+  ];
+  sensors.forEach((s,i)=>{for(let j=0;j<70;j++)s.data.push(Math.sin(j*.08+i*1.1)*3+Math.random()*.8+i*1.2);});
+  let t=0;
+  function frame(){
+    t++;
+    cx.fillStyle='#04100A';cx.fillRect(0,0,W,H);
+    cx.strokeStyle='rgba(200,148,31,.06)';cx.lineWidth=.5;
+    for(let x=0;x<W;x+=36){cx.beginPath();cx.moveTo(x,0);cx.lineTo(x,H);cx.stroke();}
+    for(let y=0;y<H;y+=30){cx.beginPath();cx.moveTo(0,y);cx.lineTo(W,y);cx.stroke();}
+    cx.fillStyle='rgba(11,45,30,.7)';cx.strokeStyle='rgba(200,148,31,.18)';cx.lineWidth=1;
+    cx.beginPath();cx.roundRect(10,10,W-20,42,6);cx.fill();cx.stroke();
+    cx.fillStyle='#C8941F';cx.font='bold 11px monospace';cx.fillText('● GAUGE MONITORING — LIVE',18,30);
+    const now=new Date();cx.fillStyle='rgba(200,220,200,.5)';cx.font='9px monospace';
+    cx.fillText('SENSORS: 3 ACTIVE | '+now.toTimeString().slice(0,8)+' GST',18,46);
+    sensors.forEach((s,si)=>{
+      const val=Math.sin(t*.018+si*1.4)*3.5+Math.random()*.4+si*1.5;
+      s.data.push(val);if(s.data.length>70)s.data.shift();
+      const alert=val>s.th*.9;
+      const yBase=64+si*112;const chartH=72;const chartW=W-100;
+      cx.fillStyle='rgba(11,45,30,.5)';cx.strokeStyle='rgba(255,255,255,.06)';cx.lineWidth=.5;
+      cx.beginPath();cx.roundRect(14,yBase,W-28,96,4);cx.fill();cx.stroke();
+      if(alert){cx.fillStyle='rgba(239,68,68,.12)';cx.fillRect(14,yBase,W-28,96);}
+      cx.fillStyle=s.color;cx.font='bold 9.5px monospace';cx.fillText(s.name,22,yBase+16);
+      cx.fillStyle='rgba(200,220,200,.45)';cx.font='8.5px monospace';
+      cx.fillText('SETTLEMENT: '+(val>0?'+':'')+val.toFixed(2)+'mm',22,yBase+30);
+      if(alert){cx.fillStyle='rgba(239,68,68,.9)';cx.font='bold 8px monospace';cx.fillText('⚠ THRESHOLD',W-105,yBase+16);}
+      cx.strokeStyle=s.color;cx.lineWidth=1.6;cx.beginPath();
+      const pts=s.data;const pw=chartW/pts.length;
+      pts.forEach((v,pi)=>{const px=90+pi*pw;const py=yBase+72-(v/15)*chartH;pi===0?cx.moveTo(px,py):cx.lineTo(px,py);});
+      cx.stroke();
+      cx.strokeStyle='rgba(239,68,68,.35)';cx.lineWidth=.8;cx.setLineDash([4,4]);
+      const ty=yBase+72-(s.th/15)*chartH;
+      cx.beginPath();cx.moveTo(90,ty);cx.lineTo(W-14,ty);cx.stroke();cx.setLineDash([]);
+    });
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
+const _obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('in')}),{threshold:.07});
+document.querySelectorAll('.fi').forEach(el=>_obs.observe(el));
+</script>
 </body></html>
