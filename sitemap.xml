@@ -2,6 +2,18 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://fortresssurvey.ae/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>https://fortresssurvey.ae/services.html</loc><changefreq>monthly</changefreq><priority>0.95</priority></url>
+  <url><loc>https://fortresssurvey.ae/service-land-boundary-survey.html</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://fortresssurvey.ae/service-topographic-survey.html</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://fortresssurvey.ae/service-setting-out-survey.html</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://fortresssurvey.ae/service-as-built-survey.html</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://fortresssurvey.ae/service-aerial-drone-survey.html</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://fortresssurvey.ae/service-3d-laser-scanning.html</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://fortresssurvey.ae/service-utility-mapping-gpr.html</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://fortresssurvey.ae/service-structural-monitoring.html</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://fortresssurvey.ae/service-gnss-gps-survey.html</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://fortresssurvey.ae/service-traffic-survey.html</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://fortresssurvey.ae/service-hydrographic-survey.html</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://fortresssurvey.ae/service-dilapidation-survey.html</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
   <url><loc>https://fortresssurvey.ae/about.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://fortresssurvey.ae/contact.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://fortresssurvey.ae/gauge.html</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
