@@ -24,9 +24,7 @@
       "url":"https://fortresssurvey.ae/",
       "telephone":"+971503091162",
       "email":"info@fortresssurvey.ae",
-      "priceRange":"AED 1,500 - AED 50,000",
-      "currenciesAccepted":"AED",
-      "openingHoursSpecification":[
+                  "openingHoursSpecification":[
         {"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday"],"opens":"07:00","closes":"18:00"},
         {"@type":"OpeningHoursSpecification","dayOfWeek":"Saturday","opens":"07:00","closes":"14:00"}
       ],
@@ -355,6 +353,14 @@ footer{background:var(--forest2);border-top:1px solid rgba(255,255,255,.06);padd
 @media(prefers-reduced-motion:reduce){.fi{opacity:1;transform:none}}
 
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+.eq-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-top:36px}
+.ind-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:36px}
+.del-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:32px}
+.blogprev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:900px){.eq-grid{grid-template-columns:repeat(3,1fr)}.del-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:760px){.ind-grid,.blogprev-grid{grid-template-columns:1fr}.eq-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.eq-grid,.del-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -373,18 +379,18 @@ footer{background:var(--forest2);border-top:1px solid rgba(255,255,255,.06);padd
       <a href="index.html">Home</a>
       <div class="drop"><a>About Us</a><div class="drop-menu"><a href="about.html">Company Profile</a><a href="contact.html">Contact Us</a></div></div>
       <div class="drop"><a href="services.html">Services</a><div class="drop-menu" style="max-height:420px;overflow-y:auto">
-        <a href="services.html#land">Land &amp; Boundary Survey</a>
-        <a href="services.html#topo">Topographic Survey</a>
-        <a href="services.html#setting-out">Setting Out Survey</a>
-        <a href="services.html#as-built">As-Built Survey</a>
-        <a href="services.html#aerial">Aerial / Drone Survey</a>
-        <a href="services.html#scanning">3D Laser Scanning</a>
-        <a href="services.html#utility">Utility Mapping / GPR</a>
-        <a href="services.html#monitoring">Structural Monitoring</a>
-        <a href="services.html#gnss">GNSS / GPS Survey</a>
-        <a href="services.html#traffic">Traffic Survey</a>
-        <a href="services.html#hydrographic">Hydrographic Survey</a>
-        <a href="services.html#dilapidation">Dilapidation Survey</a>
+        <a href="service-land-boundary-survey.html">Land &amp; Boundary Survey</a>
+        <a href="service-topographic-survey.html">Topographic Survey</a>
+        <a href="service-setting-out-survey.html">Setting Out Survey</a>
+        <a href="service-as-built-survey.html">As-Built Survey</a>
+        <a href="service-aerial-drone-survey.html">Aerial / Drone Survey</a>
+        <a href="service-3d-laser-scanning.html">3D Laser Scanning</a>
+        <a href="service-utility-mapping-gpr.html">Utility Mapping / GPR</a>
+        <a href="service-structural-monitoring.html">Structural Monitoring</a>
+        <a href="service-gnss-gps-survey.html">GNSS / GPS Survey</a>
+        <a href="service-traffic-survey.html">Traffic Survey</a>
+        <a href="service-hydrographic-survey.html">Hydrographic Survey</a>
+        <a href="service-dilapidation-survey.html">Dilapidation Survey</a>
       </div></div>
       <a href="process.html">Process</a>
       <a href="projects.html">Projects</a>
@@ -454,13 +460,13 @@ footer{background:var(--forest2);border-top:1px solid rgba(255,255,255,.06);padd
 <div class="svc-strip">
   <div class="wrap">
     <div class="svc-strip-row">
-      <a class="si" href="services.html#land"><div class="si-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M1 12h4M19 12h4"/></svg></div><div class="si-lbl">Land Survey</div></a>
-      <a class="si" href="services.html#aerial"><div class="si-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div><div class="si-lbl">Aerial Survey</div></a>
-      <a class="si" href="services.html#scanning"><div class="si-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/><path d="M3 9h2M3 15h2M19 9h2M19 15h2M9 3v2M15 3v2M9 19v2M15 19v2"/></svg></div><div class="si-lbl">3D Scanning</div></a>
-      <a class="si" href="services.html#utility"><div class="si-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div class="si-lbl">Utility Mapping</div></a>
-      <a class="si" href="services.html#monitoring"><div class="si-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="si-lbl">Monitoring</div></a>
-      <a class="si" href="services.html#gnss"><div class="si-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div><div class="si-lbl">GNSS / RTK</div></a>
-      <a class="si" href="services.html#traffic"><div class="si-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg></div><div class="si-lbl">Traffic Survey</div></a>
+      <a class="si" href="service-land-boundary-survey.html"><div class="si-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M1 12h4M19 12h4"/></svg></div><div class="si-lbl">Land Survey</div></a>
+      <a class="si" href="service-aerial-drone-survey.html"><div class="si-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div><div class="si-lbl">Aerial Survey</div></a>
+      <a class="si" href="service-3d-laser-scanning.html"><div class="si-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/><path d="M3 9h2M3 15h2M19 9h2M19 15h2M9 3v2M15 3v2M9 19v2M15 19v2"/></svg></div><div class="si-lbl">3D Scanning</div></a>
+      <a class="si" href="service-utility-mapping-gpr.html"><div class="si-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div class="si-lbl">Utility Mapping</div></a>
+      <a class="si" href="service-structural-monitoring.html"><div class="si-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="si-lbl">Monitoring</div></a>
+      <a class="si" href="service-gnss-gps-survey.html"><div class="si-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div><div class="si-lbl">GNSS / RTK</div></a>
+      <a class="si" href="service-traffic-survey.html"><div class="si-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg></div><div class="si-lbl">Traffic Survey</div></a>
     </div>
   </div>
 </div>
@@ -509,7 +515,7 @@ footer{background:var(--forest2);border-top:1px solid rgba(255,255,255,.06);padd
     </div>
     <div class="nsvc-grid">
 
-      <a class="nsvc-card" href="services.html#land">
+      <a class="nsvc-card" href="service-land-boundary-survey.html">
         <div class="nsvc-icon" style="background:rgba(200,148,31,.12);border-color:rgba(200,148,31,.28)">
           <svg viewBox="0 0 24 24" fill="none" stroke="#C8941F" stroke-width="2" width="26" height="26"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M1 12h4M19 12h4"/></svg>
         </div>
@@ -520,7 +526,7 @@ footer{background:var(--forest2);border-top:1px solid rgba(255,255,255,.06);padd
         <div class="nsvc-footer"><div class="nsvc-arr">&#8594;</div></div>
       </a>
 
-      <a class="nsvc-card" href="services.html#aerial">
+      <a class="nsvc-card" href="service-aerial-drone-survey.html">
         <div class="nsvc-icon" style="background:rgba(52,211,153,.11);border-color:rgba(52,211,153,.24)">
           <svg viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="2" width="26" height="26"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
         </div>
@@ -531,7 +537,7 @@ footer{background:var(--forest2);border-top:1px solid rgba(255,255,255,.06);padd
         <div class="nsvc-footer"><div class="nsvc-arr">&#8594;</div></div>
       </a>
 
-      <a class="nsvc-card" href="services.html#scanning">
+      <a class="nsvc-card" href="service-3d-laser-scanning.html">
         <div class="nsvc-icon" style="background:rgba(167,139,250,.11);border-color:rgba(167,139,250,.24)">
           <svg viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2" width="26" height="26"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/><path d="M3 9h2M3 15h2M19 9h2M19 15h2M9 3v2M15 3v2M9 19v2M15 19v2"/></svg>
         </div>
@@ -542,7 +548,7 @@ footer{background:var(--forest2);border-top:1px solid rgba(255,255,255,.06);padd
         <div class="nsvc-footer"><div class="nsvc-arr">&#8594;</div></div>
       </a>
 
-      <a class="nsvc-card" href="services.html#utility">
+      <a class="nsvc-card" href="service-utility-mapping-gpr.html">
         <div class="nsvc-icon" style="background:rgba(251,191,36,.11);border-color:rgba(251,191,36,.24)">
           <svg viewBox="0 0 24 24" fill="none" stroke="#FBBF24" stroke-width="2" width="26" height="26"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
         </div>
@@ -553,7 +559,7 @@ footer{background:var(--forest2);border-top:1px solid rgba(255,255,255,.06);padd
         <div class="nsvc-footer"><div class="nsvc-arr">&#8594;</div></div>
       </a>
 
-      <a class="nsvc-card" href="services.html#monitoring">
+      <a class="nsvc-card" href="service-structural-monitoring.html">
         <div class="nsvc-icon" style="background:rgba(239,68,68,.11);border-color:rgba(239,68,68,.24)">
           <svg viewBox="0 0 24 24" fill="none" stroke="#F87171" stroke-width="2" width="26" height="26"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         </div>
@@ -564,7 +570,7 @@ footer{background:var(--forest2);border-top:1px solid rgba(255,255,255,.06);padd
         <div class="nsvc-footer"><div class="nsvc-arr">&#8594;</div></div>
       </a>
 
-      <a class="nsvc-card" href="services.html#gnss">
+      <a class="nsvc-card" href="service-gnss-gps-survey.html">
         <div class="nsvc-icon" style="background:rgba(56,189,248,.11);border-color:rgba(56,189,248,.24)">
           <svg viewBox="0 0 24 24" fill="none" stroke="#38BDF8" stroke-width="2" width="26" height="26"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
         </div>
@@ -636,6 +642,79 @@ footer{background:var(--forest2);border-top:1px solid rgba(255,255,255,.06);padd
 </section>
 
 <!-- ── TESTIMONIALS ── -->
+<section style="background:var(--forest3);padding:80px 0">
+  <div class="wrap">
+    <div class="sec-head c fi">
+      <div class="eyebrow" style="justify-content:center">Technology</div>
+      <h2 class="sec-h" style="color:#fff">Survey-Grade Equipment on Every Project</h2>
+      <p class="sec-p" style="color:rgba(255,255,255,.5)">We invest in the same instruments used on Dubai's landmark projects — calibrated, certified and operated by licensed engineers.</p>
+    </div>
+    <div class="fi eq-grid">
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:22px 18px;text-align:center">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--gold);margin-bottom:10px">TOTAL STATION</div>
+        <h4 style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px">Leica TS16</h4>
+        <p style="font-size:11.5px;color:rgba(255,255,255,.45);line-height:1.5">&plusmn;0.5&Prime; angular<br>&plusmn;1mm+1.5ppm EDM</p>
+      </div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:22px 18px;text-align:center">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--gold);margin-bottom:10px">GNSS ROVER</div>
+        <h4 style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px">Leica GS18</h4>
+        <p style="font-size:11.5px;color:rgba(255,255,255,.45);line-height:1.5">&plusmn;3mm RTK<br>Tilt compensation</p>
+      </div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:22px 18px;text-align:center">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--gold);margin-bottom:10px">LASER SCANNER</div>
+        <h4 style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px">Leica RTC360</h4>
+        <p style="font-size:11.5px;color:rgba(255,255,255,.45);line-height:1.5">2M points/sec<br>&plusmn;1.9mm accuracy</p>
+      </div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:22px 18px;text-align:center">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--gold);margin-bottom:10px">SURVEY UAV</div>
+        <h4 style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px">DCAA-Permitted Drones</h4>
+        <p style="font-size:11.5px;color:rgba(255,255,255,.45);line-height:1.5">2&ndash;3cm GSD<br>500 Ha/day coverage</p>
+      </div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:22px 18px;text-align:center">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--gold);margin-bottom:10px">GPR SYSTEM</div>
+        <h4 style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px">Utility Detection</h4>
+        <p style="font-size:11.5px;color:rgba(255,255,255,.45);line-height:1.5">0&ndash;5m depth<br>PAS 128 workflow</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="background:#fff;padding:80px 0">
+  <div class="wrap">
+    <div class="sec-head c fi">
+      <div class="eyebrow" style="justify-content:center">Who We Serve</div>
+      <h2 class="sec-h">Built for Every Kind of Client</h2>
+      <p class="sec-p">From a single villa plot to master development corridors — the same precision, scaled to your project.</p>
+    </div>
+    <div class="fi ind-grid">
+      <div style="background:var(--off);border-radius:12px;padding:28px;border-top:3px solid var(--gold)">
+        <h4 style="font-size:16px;font-weight:700;color:var(--forest);margin-bottom:8px">🏗️ Contractors</h4>
+        <p style="font-size:13.5px;color:var(--g600);line-height:1.65">Setting out, level control, as-builts and volume verification — with the fast mobilisation your programme demands.</p>
+      </div>
+      <div style="background:var(--off);border-radius:12px;padding:28px;border-top:3px solid var(--gold)">
+        <h4 style="font-size:16px;font-weight:700;color:var(--forest);margin-bottom:8px">🏢 Developers</h4>
+        <p style="font-size:13.5px;color:var(--g600);line-height:1.65">Boundary verification, topographic base data, RERA-supporting surveys and handover area certification.</p>
+      </div>
+      <div style="background:var(--off);border-radius:12px;padding:28px;border-top:3px solid var(--gold)">
+        <h4 style="font-size:16px;font-weight:700;color:var(--forest);margin-bottom:8px">📐 Consultants &amp; Architects</h4>
+        <p style="font-size:13.5px;color:var(--g600);line-height:1.65">Accurate as-existing data for design — measured surveys, point clouds and Scan-to-BIM Revit models.</p>
+      </div>
+      <div style="background:var(--off);border-radius:12px;padding:28px;border-top:3px solid var(--gold)">
+        <h4 style="font-size:16px;font-weight:700;color:var(--forest);margin-bottom:8px">🏠 Villa Owners</h4>
+        <p style="font-size:13.5px;color:var(--g600);line-height:1.65">Plot boundary checks, extension surveys and DM completion documentation — explained in plain language.</p>
+      </div>
+      <div style="background:var(--off);border-radius:12px;padding:28px;border-top:3px solid var(--gold)">
+        <h4 style="font-size:16px;font-weight:700;color:var(--forest);margin-bottom:8px">🏭 Industrial &amp; Logistics</h4>
+        <p style="font-size:13.5px;color:var(--g600);line-height:1.65">Floor flatness, racking setout, mezzanine as-builts and expansion surveys across Dubai's industrial zones.</p>
+      </div>
+      <div style="background:var(--off);border-radius:12px;padding:28px;border-top:3px solid var(--gold)">
+        <h4 style="font-size:16px;font-weight:700;color:var(--forest);margin-bottom:8px">🏛️ Government &amp; Infrastructure</h4>
+        <p style="font-size:13.5px;color:var(--g600);line-height:1.65">Corridor topographic surveys, control networks and RTA-format deliverables for public projects.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="test-sec">
   <div class="wrap">
     <div class="sec-head c fi">
@@ -710,6 +789,55 @@ footer{background:var(--forest2);border-top:1px solid rgba(255,255,255,.06);padd
 </section>
 
 <!-- ── CTA BANNER ── -->
+<section style="background:var(--off);padding:80px 0">
+  <div class="wrap">
+    <div class="sec-head c fi">
+      <div class="eyebrow" style="justify-content:center">What You Receive</div>
+      <h2 class="sec-h">Deliverables Ready to Use, Day One</h2>
+    </div>
+    <div class="fi del-grid">
+      <div style="background:#fff;border:1px solid var(--g200);border-radius:10px;padding:24px 20px;text-align:center">
+        <div style="font-size:26px;margin-bottom:10px">📁</div>
+        <h4 style="font-size:14px;font-weight:700;color:var(--forest);margin-bottom:5px">CAD Drawings</h4>
+        <p style="font-size:12.5px;color:var(--g600);line-height:1.55">DWG files layered to DM standards, ready for your design team.</p>
+      </div>
+      <div style="background:#fff;border:1px solid var(--g200);border-radius:10px;padding:24px 20px;text-align:center">
+        <div style="font-size:26px;margin-bottom:10px">📄</div>
+        <h4 style="font-size:14px;font-weight:700;color:var(--forest);margin-bottom:5px">Signed PDF Reports</h4>
+        <p style="font-size:12.5px;color:var(--g600);line-height:1.55">Stamped survey reports from a DM-registered licensed surveyor.</p>
+      </div>
+      <div style="background:#fff;border:1px solid var(--g200);border-radius:10px;padding:24px 20px;text-align:center">
+        <div style="font-size:26px;margin-bottom:10px">📊</div>
+        <h4 style="font-size:14px;font-weight:700;color:var(--forest);margin-bottom:5px">Point Data &amp; Models</h4>
+        <p style="font-size:12.5px;color:var(--g600);line-height:1.55">Coordinate files, DTMs, point clouds (RCP/LAS/E57) and Revit models.</p>
+      </div>
+      <div style="background:#fff;border:1px solid var(--g200);border-radius:10px;padding:24px 20px;text-align:center">
+        <div style="font-size:26px;margin-bottom:10px">🏛️</div>
+        <h4 style="font-size:14px;font-weight:700;color:var(--forest);margin-bottom:5px">DM e-Submission</h4>
+        <p style="font-size:12.5px;color:var(--g600);line-height:1.55">Portal submission and reviewer correspondence handled for you.</p>
+      </div>
+    </div>
+
+    <div style="margin-top:56px;max-width:860px;margin-left:auto;margin-right:auto" class="fi">
+      <div class="sec-head c"><h2 class="sec-h" style="font-size:clamp(20px,2.6vw,28px)">The Fortress Difference</h2></div>
+      <div style="overflow-x:auto;margin-top:20px">
+        <table style="width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;box-shadow:var(--sh)">
+          <tr style="background:var(--forest)">
+            <th style="padding:14px 18px;text-align:left;font-size:13px;color:rgba(255,255,255,.6);font-weight:600"></th>
+            <th style="padding:14px 18px;text-align:center;font-size:13px;color:var(--gold);font-weight:700">Fortress Surveying</th>
+            <th style="padding:14px 18px;text-align:center;font-size:13px;color:rgba(255,255,255,.55);font-weight:600">Typical Provider</th>
+          </tr>
+          <tr style="border-bottom:1px solid var(--g200)"><td style="padding:12px 18px;font-size:13.5px;color:var(--g800);font-weight:600">Quote response</td><td style="padding:12px 18px;text-align:center;font-size:13.5px;color:var(--forest);font-weight:700">Within 2 hours</td><td style="padding:12px 18px;text-align:center;font-size:13.5px;color:var(--g400)">1&ndash;3 days</td></tr>
+          <tr style="border-bottom:1px solid var(--g200)"><td style="padding:12px 18px;font-size:13.5px;color:var(--g800);font-weight:600">Pricing</td><td style="padding:12px 18px;text-align:center;font-size:13.5px;color:var(--forest);font-weight:700">Fixed, no hidden fees</td><td style="padding:12px 18px;text-align:center;font-size:13.5px;color:var(--g400)">Often hourly / variable</td></tr>
+          <tr style="border-bottom:1px solid var(--g200)"><td style="padding:12px 18px;font-size:13.5px;color:var(--g800);font-weight:600">Mobilisation</td><td style="padding:12px 18px;text-align:center;font-size:13.5px;color:var(--forest);font-weight:700">Within 24 hours</td><td style="padding:12px 18px;text-align:center;font-size:13.5px;color:var(--g400)">3&ndash;7 days</td></tr>
+          <tr style="border-bottom:1px solid var(--g200)"><td style="padding:12px 18px;font-size:13.5px;color:var(--g800);font-weight:600">DM submission handling</td><td style="padding:12px 18px;text-align:center;font-size:13.5px;color:var(--forest);font-weight:700">Included</td><td style="padding:12px 18px;text-align:center;font-size:13.5px;color:var(--g400)">Client's responsibility</td></tr>
+          <tr><td style="padding:12px 18px;font-size:13.5px;color:var(--g800);font-weight:600">Live monitoring platform</td><td style="padding:12px 18px;text-align:center;font-size:13.5px;color:var(--forest);font-weight:700">Gauge included</td><td style="padding:12px 18px;text-align:center;font-size:13.5px;color:var(--g400)">Manual spreadsheets</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="cta-sec">
   <div class="wrap">
     <div class="cta-in fi">
@@ -824,7 +952,7 @@ footer{background:var(--forest2);border-top:1px solid rgba(255,255,255,.06);padd
       </div>
       <div class="faq-item">
         <div class="faq-q">How much does a survey cost in Dubai?</div>
-        <p class="faq-a">Survey costs start from AED 1,500 for a residential plot. Pricing depends on site area and scope. Contact us for a free fixed-price quote within 2 hours — no hidden fees, no hourly billing.</p>
+        <p class="faq-a">Pricing depends on site area, survey type and scope. Contact us for a free fixed-price quote within 2 hours — no hidden fees, no hourly billing.</p>
       </div>
     </div>
   </div>
@@ -871,6 +999,35 @@ footer{background:var(--forest2);border-top:1px solid rgba(255,255,255,.06);padd
 </section>
 
 <!-- ── SEO CONTENT BLOCK ── -->
+<section style="background:var(--off);padding:72px 0">
+  <div class="wrap">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;margin-bottom:32px" class="fi">
+      <div>
+        <div class="eyebrow">Knowledge Hub</div>
+        <h2 class="sec-h" style="margin-bottom:0">Latest Survey Guides</h2>
+      </div>
+      <a class="btn-ol" href="blog.html">View All 33 Articles &rarr;</a>
+    </div>
+    <div class="fi blogprev-grid">
+      <a href="blog-survey-cost-dubai.html" style="background:#fff;border:1px solid var(--g200);border-radius:12px;padding:26px;display:block;transition:.25s" onmouseover="this.style.boxShadow='var(--shm)'" onmouseout="this.style.boxShadow='none'">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:10px">Pricing Guide</div>
+        <h4 style="font-size:15.5px;font-weight:700;color:var(--forest);line-height:1.4;margin-bottom:8px">How Much Does a Land Survey Cost in Dubai?</h4>
+        <p style="font-size:13px;color:var(--g600);line-height:1.6">What drives survey pricing by type and plot size — and how to get an exact number fast.</p>
+      </a>
+      <a href="blog-dld-noc-survey-dubai.html" style="background:#fff;border:1px solid var(--g200);border-radius:12px;padding:26px;display:block;transition:.25s" onmouseover="this.style.boxShadow='var(--shm)'" onmouseout="this.style.boxShadow='none'">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:10px">Regulations</div>
+        <h4 style="font-size:15.5px;font-weight:700;color:var(--forest);line-height:1.4;margin-bottom:8px">DLD &amp; DM NOC Survey Requirements Explained</h4>
+        <p style="font-size:13px;color:var(--g600);line-height:1.6">The two authorities behind every Dubai property survey — and what each one needs from you.</p>
+      </a>
+      <a href="blog-buying-land-checklist-dubai.html" style="background:#fff;border:1px solid var(--g200);border-radius:12px;padding:26px;display:block;transition:.25s" onmouseover="this.style.boxShadow='var(--shm)'" onmouseout="this.style.boxShadow='none'">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:10px">Buyer Guide</div>
+        <h4 style="font-size:15.5px;font-weight:700;color:var(--forest);line-height:1.4;margin-bottom:8px">Survey Checklist Before Buying Land in Dubai</h4>
+        <p style="font-size:13px;color:var(--g600);line-height:1.6">Six checks that protect buyers from boundary, level and utility surprises after purchase.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
 <section style="background:#fff;padding:72px 0;border-top:1px solid var(--g200)">
   <div class="wrap">
     <div style="max-width:900px">
@@ -883,7 +1040,7 @@ footer{background:var(--forest2);border-top:1px solid rgba(255,255,255,.06);padd
 
       <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:700;color:var(--forest);margin:24px 0 10px">1. Topographic Survey Dubai</h3>
       <p style="font-size:16px;color:var(--g600);line-height:1.8;margin-bottom:14px">A topographic survey (also known as a topo survey, land survey or contour survey) is the foundation of any development or construction project in Dubai. Our topographic surveys capture the precise three-dimensional shape and features of your site — including ground levels, contours, spot heights, existing structures, boundaries, trees, utilities and road information. All topographic surveys are delivered in WGS84 coordinates, UTM Zone 40N projection and EGM2008 height datum as required by Dubai Municipality. Deliverables include full AutoCAD DWG drawings and PDF plans formatted to DM title block standards, accepted at first submission.</p>
-      <p style="font-size:16px;color:var(--g600);line-height:1.8;margin-bottom:14px">Fortress Surveying provides topographic surveys across all Dubai zones including Downtown Dubai, Business Bay, Dubai Marina, Palm Jumeirah, DIFC, Jumeirah, JBR, Al Quoz, Dubai Investment Park, Dubai South, Jebel Ali, Deira, Bur Dubai, Mirdif, Dubai Creek, Dubai Hills Estate, Mohammed Bin Rashid City and Al Rashidiya. Starting from AED 1,500 for residential plots, with 24–72 hour turnaround.</p>
+      <p style="font-size:16px;color:var(--g600);line-height:1.8;margin-bottom:14px">Fortress Surveying provides topographic surveys across all Dubai zones including Downtown Dubai, Business Bay, Dubai Marina, Palm Jumeirah, DIFC, Jumeirah, JBR, Al Quoz, Dubai Investment Park, Dubai South, Jebel Ali, Deira, Bur Dubai, Mirdif, Dubai Creek, Dubai Hills Estate, Mohammed Bin Rashid City and Al Rashidiya, with 24–72 hour turnaround.</p>
 
       <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:700;color:var(--forest);margin:24px 0 10px">2. Setting Out Survey Dubai (Construction Layout)</h3>
       <p style="font-size:16px;color:var(--g600);line-height:1.8;margin-bottom:14px">Setting out (also called construction layout, stakeout or setting-out survey) is the process of establishing precise reference marks on site that define exactly where each structural element — columns, pile caps, foundations, walls, floor slabs and road alignments — must be constructed in accordance with approved drawings. In Dubai, all setting-out work must reference WGS84 control points and comply with ISO 4463 standards for construction measurement. Fortress Surveying engineers use Leica TS16 and Trimble S7 total stations achieving ±2mm positional accuracy, exceeding DM requirements.</p>
@@ -891,7 +1048,7 @@ footer{background:var(--forest2);border-top:1px solid rgba(255,255,255,.06);padd
 
       <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:700;color:var(--forest);margin:24px 0 10px">3. As-Built Survey Dubai</h3>
       <p style="font-size:16px;color:var(--g600);line-height:1.8;margin-bottom:14px">An as-built survey is a mandatory requirement for obtaining a Dubai Municipality Completion Certificate and the No Objection Certificate (NOC) required before building handover and registration with Dubai Land Department. An as-built survey documents the actual constructed positions, floor areas, levels and dimensions of a completed structure compared to the original approved permit drawings. Fortress Surveying is a DM-registered licensed surveyor authorised to certify and submit as-built surveys through the DM e-submission portal.</p>
-      <p style="font-size:16px;color:var(--g600);line-height:1.8;margin-bottom:14px">Our as-built survey service includes full field measurement of all completed elements, AutoCAD DWG production to DM title block format, preparation of the variation comparison table, digital submission via the DM portal, and all correspondence with DM reviewers. We maintain a 99% first-submission acceptance rate. As-built surveys start from AED 2,500 for residential villas. We cover villas, apartments, towers, commercial buildings, warehouses, mosques, schools, hotels and infrastructure across Dubai.</p>
+      <p style="font-size:16px;color:var(--g600);line-height:1.8;margin-bottom:14px">Our as-built survey service includes full field measurement of all completed elements, AutoCAD DWG production to DM title block format, preparation of the variation comparison table, digital submission via the DM portal, and all correspondence with DM reviewers. We maintain a 99% first-submission acceptance rate. We cover villas, apartments, towers, commercial buildings, warehouses, mosques, schools, hotels and infrastructure across Dubai.</p>
 
       <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:700;color:var(--forest);margin:24px 0 10px">4. Aerial Survey and Drone Mapping Dubai</h3>
       <p style="font-size:16px;color:var(--g600);line-height:1.8;margin-bottom:14px">Fortress Surveying holds a Dubai Civil Aviation Authority (DCAA) approved UAV operations permit, allowing us to conduct professional drone survey flights across Dubai for land surveying, mapping and volumetric purposes. Our aerial survey service delivers high-resolution orthomosaic images, digital terrain models (DTM), digital surface models (DSM), point clouds and volumetric calculations using survey-grade UAV platforms and Pix4D/Metashape photogrammetry processing software.</p>
@@ -956,7 +1113,7 @@ footer{background:var(--forest2);border-top:1px solid rgba(255,255,255,.06);padd
       </div>
       <div style="border:1px solid var(--g200);border-radius:10px;overflow:hidden;margin-bottom:12px">
         <div style="padding:18px 20px;background:var(--off)"><strong style="color:var(--forest)">How much does a land survey cost in Dubai?</strong></div>
-        <div style="padding:16px 20px;font-size:15px;color:var(--g600);line-height:1.75">Land survey costs in Dubai start from AED 1,500 for a residential plot topographic survey up to 1,000 sqm. Setting-out surveys start from AED 800 per visit. As-built surveys start from AED 2,500. Drone aerial surveys start from AED 2,000 per day. All Fortress Surveying quotes are fixed-price with no hidden fees. Contact us for a free quote within 2 hours.</div>
+        <div style="padding:16px 20px;font-size:15px;color:var(--g600);line-height:1.75">Pricing depends on plot size, survey type and project scope. All Fortress Surveying quotes are fixed-price with no hidden fees. Contact us for a free quote within 2 hours.</div>
       </div>
       <div style="border:1px solid var(--g200);border-radius:10px;overflow:hidden;margin-bottom:12px">
         <div style="padding:18px 20px;background:var(--off)"><strong style="color:var(--forest)">How long does a survey take in Dubai?</strong></div>
@@ -1024,18 +1181,18 @@ footer{background:var(--forest2);border-top:1px solid rgba(255,255,255,.06);padd
     </div>
     <div class="f-col">
       <h4>Services</h4>
-      <a href="services.html#land">Land &amp; Boundary</a>
-      <a href="services.html#topo">Topographic</a>
-      <a href="services.html#setting-out">Setting Out</a>
-      <a href="services.html#as-built">As-Built</a>
-      <a href="services.html#aerial">Aerial / Drone</a>
-      <a href="services.html#scanning">3D Scanning</a>
-      <a href="services.html#utility">Utility / GPR</a>
-      <a href="services.html#monitoring">Monitoring</a>
-      <a href="services.html#gnss">GNSS / RTK</a>
-      <a href="services.html#traffic">Traffic Survey</a>
-      <a href="services.html#hydrographic">Hydrographic</a>
-      <a href="services.html#dilapidation">Dilapidation</a>
+      <a href="service-land-boundary-survey.html">Land &amp; Boundary</a>
+      <a href="service-topographic-survey.html">Topographic</a>
+      <a href="service-setting-out-survey.html">Setting Out</a>
+      <a href="service-as-built-survey.html">As-Built</a>
+      <a href="service-aerial-drone-survey.html">Aerial / Drone</a>
+      <a href="service-3d-laser-scanning.html">3D Scanning</a>
+      <a href="service-utility-mapping-gpr.html">Utility / GPR</a>
+      <a href="service-structural-monitoring.html">Monitoring</a>
+      <a href="service-gnss-gps-survey.html">GNSS / RTK</a>
+      <a href="service-traffic-survey.html">Traffic Survey</a>
+      <a href="service-hydrographic-survey.html">Hydrographic</a>
+      <a href="service-dilapidation-survey.html">Dilapidation</a>
     </div>
     <div class="f-col">
       <h4>Company</h4>
@@ -1052,7 +1209,7 @@ footer{background:var(--forest2);border-top:1px solid rgba(255,255,255,.06);padd
     </div>
   </div>
   <div class="f-bottom">
-    <div class="f-copy">&copy; 2025 <span>Fortress Surveying Engineering Services L.L.C.</span> &mdash; Dubai, UAE</div>
+    <div class="f-copy">&copy; 2026 <span>Fortress Surveying Engineering Services L.L.C.</span> &mdash; Dubai, UAE</div>
     <div class="f-dm">fortresssurvey.ae &nbsp;|&nbsp; DM Approved &nbsp;|&nbsp; WGS84 &middot; UTM 40N</div>
   </div>
 </footer>
