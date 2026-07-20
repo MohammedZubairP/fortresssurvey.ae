@@ -43,16 +43,16 @@ p{color:var(--g600);line-height:1.72}
 .logo-mark{width:34px;height:34px;border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0}
 .logo-mark::before{content:'';position:absolute;width:11px;height:11px;border:1px solid var(--gold);transform:rotate(45deg)}
 .logo-mark::after{content:'';position:absolute;width:4px;height:4px;background:var(--gold);border-radius:50%}
-.logo-t{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;color:var(--forest);line-height:1.2}
+.logo-t{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:16.5px;color:var(--forest);line-height:1.15;letter-spacing:.2px;white-space:nowrap}
 .logo-t b{color:var(--gold)}
-.logo-t small{display:block;font-size:9px;font-weight:500;color:var(--g400);letter-spacing:2px;text-transform:uppercase;font-family:'Inter',sans-serif}
+.logo-t small{display:block;font-size:9.5px;font-weight:600;color:var(--g600);letter-spacing:1.6px;text-transform:uppercase;font-family:'Inter',sans-serif;margin-top:2px}
 .nav-links{display:flex;align-items:center}
 .nav-links a,.drop>a{font-size:13.5px;font-weight:500;color:var(--g800);padding:8px 13px;border-radius:6px;transition:var(--e);display:block}
 .nav-links a:hover,.drop>a:hover{color:var(--gold);background:var(--goldl)}
 .nav-links a.active{color:var(--gold)}
 .drop{position:relative}
 .drop>a::after{content:" ▾";font-size:9px;opacity:.5}
-.drop-menu{display:none;position:absolute;top:calc(100% + 6px);left:0;background:#fff;border:1px solid var(--g200);border-radius:6px;padding:6px;min-width:220px;box-shadow:var(--shm);z-index:200}
+.drop-menu{display:none;position:absolute;top:100%;left:0;background:#fff;border:1px solid var(--g200);border-radius:0 0 6px 6px;padding:8px 6px;min-width:240px;box-shadow:var(--shm);z-index:200}
 .drop:hover .drop-menu{display:block}
 .drop-menu a{display:block;font-size:13px;color:var(--g800)!important;padding:8px 14px;border-radius:4px;background:transparent!important}
 .drop-menu a:hover{background:var(--goldl)!important;color:var(--gold)!important}
@@ -215,3 +215,7 @@ footer{background:var(--forest2);border-top:1px solid rgba(255,255,255,.06);padd
 .svc-jump-nav a:hover{background:var(--gold);color:#fff;border-color:var(--gold)}
 .svc-related-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:20px}
 @media(max-width:760px){.svc-related-grid{grid-template-columns:1fr 1fr}}
+
+.logo-img{height:46px;width:auto;flex-shrink:0;display:block}
+@media(max-width:640px){.logo-img{height:38px}.logo-t{font-size:13.5px}.logo-t small{font-size:8px}}
+.f-logo-img{height:52px;width:auto;display:block;margin-bottom:10px;background:#EFE6D2;border-radius:8px;padding:5px}
