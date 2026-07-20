@@ -1,696 +1,349 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gauge - Land Surveyor Platform | Sky TerraEye Dubai</title>
-<link rel="icon" href="assets/img/logo.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gauge — Real-Time Structural Monitoring Platform | Fortress Surveying Dubai</title>
+<meta name="description" content="Gauge is Fortress Surveying's proprietary structural monitoring platform. Live settlement dashboards, automated SMS/email alerts, and PDF reporting for Dubai construction projects.">
+<link rel="canonical" href="https://fortresssurvey.ae/gauge.html">
+<link rel="stylesheet" href="style.css">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--B:#1FA8D9;--B2:#1482AA;--Bdim:rgba(31,168,217,.12);--Bl:rgba(31,168,217,.2);--G:#F5BE18;--Gr:#22C55E;--Cy:#22D3EE;--Pu:#A78BFA;--D:#071220;--D2:#0A1929;--D3:#0F2236;--D4:#162A40;--T:#D0E8F5;--M:#5A839E;--Dm:#243D52;--W:#fff;--r:8px;--r2:14px;--e:.22s ease;--mono:'IBM Plex Mono',monospace}
-html,body{height:100%;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif;background:var(--D);color:var(--T);font-size:13px}
-a{color:inherit;text-decoration:none}
-input,select,textarea,button{font-family:inherit;font-size:12px}
-.uae{height:4px;background:linear-gradient(90deg,#00732F 33%,#fff 33% 66%,#CE1126 66% 90.5%,#000 90.5%)}
-.nav{background:rgba(4,13,22,.97);backdrop-filter:blur(20px);border-bottom:1px solid rgba(31,168,217,.1);height:54px;display:flex;align-items:center;padding:0 18px;justify-content:space-between;flex-shrink:0;z-index:500;position:relative}
-.logo{display:flex;align-items:center;gap:9px}.logo img{height:24px}
-.logt{font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:var(--W)}.logt b{color:var(--B)}
-.nav-ct{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:var(--Cy)}.nav-ct svg{width:14px;height:14px}
-.nl{display:flex;align-items:center;gap:2px}
-.nl a{font-size:12px;font-weight:600;color:var(--M);padding:5px 10px;border-radius:var(--r);transition:var(--e)}
-.nl a:hover{color:var(--W);background:rgba(255,255,255,.06)}
-.nl .cta{background:var(--B);color:#fff;font-weight:700}.nl .cta:hover{background:var(--B2)}
-.pbt{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:5px 12px;border-radius:999px;margin-left:3px;transition:var(--e)}.pbt svg{width:12px;height:12px}
-.eye-btn{background:rgba(245,190,24,.1);border:1.5px solid rgba(245,190,24,.3);color:var(--G)}.eye-btn:hover{background:rgba(245,190,24,.2);transform:translateY(-1px)}
-.terra-btn{background:rgba(34,197,94,.1);border:1.5px solid rgba(34,197,94,.25);color:#4ADE80}.terra-btn:hover{background:rgba(34,197,94,.2);transform:translateY(-1px)}
-.strata-btn{background:rgba(167,139,250,.1);border:1.5px solid rgba(167,139,250,.28);color:var(--Pu)}.strata-btn:hover{background:rgba(167,139,250,.18);transform:translateY(-1px)}
-.gauge-a{background:rgba(6,182,212,.14);border:1.5px solid rgba(6,182,212,.5);color:var(--Cy);box-shadow:0 0 12px rgba(6,182,212,.12)}
-.kb-btn{background:rgba(31,168,217,.1);border:1px solid rgba(31,168,217,.2);color:var(--B);font-size:11px;padding:4px 10px;border-radius:var(--r);cursor:pointer;margin-left:6px}
-#app{display:flex;height:calc(100vh - 58px);overflow:hidden}
-#sb{width:285px;min-width:285px;background:var(--D2);border-right:1px solid var(--Bl);display:flex;flex-direction:column;overflow:hidden;transition:width .25s,min-width .25s;z-index:300}
-#sb.hide{width:0;min-width:0}
-.sbn{padding:7px;border-bottom:1px solid var(--Bl);display:grid;grid-template-columns:repeat(5,1fr);gap:3px;background:rgba(4,13,22,.5);flex-shrink:0}
-.sbn2{padding:5px 7px 7px;border-bottom:1px solid var(--Bl);display:grid;grid-template-columns:repeat(4,1fr);gap:3px;background:rgba(4,13,22,.5);flex-shrink:0}
-.t{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 3px;border-radius:7px;cursor:pointer;color:var(--M);border:none;background:none;transition:var(--e);font-size:8.5px;font-weight:700;letter-spacing:.4px;white-space:nowrap}
-.t svg{width:15px;height:15px}.t:hover{background:rgba(6,182,212,.07);color:var(--T)}.t.on{background:rgba(6,182,212,.12);color:var(--Cy);border:1px solid rgba(6,182,212,.2)}
-.sbb{flex:1;overflow-y:auto;overflow-x:hidden}.sbb::-webkit-scrollbar{width:3px}.sbb::-webkit-scrollbar-thumb{background:var(--D4)}
-.pnl{display:none;padding:12px}.pnl.on{display:block}
-.sh{font-size:9px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--Cy);margin-bottom:9px;display:flex;align-items:center;gap:5px}
-.sh::before{content:'';width:8px;height:2px;background:var(--Cy);border-radius:1px;flex-shrink:0}
-.fg{margin-bottom:8px}
-.fg label,.lbl{display:block;font-size:8.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--M);margin-bottom:4px}
-.fi,.fs,.fta{width:100%;background:#040D16;border:1px solid rgba(31,168,217,.16);color:var(--T);padding:7px 10px;border-radius:7px;outline:none;transition:border-color .2s;box-sizing:border-box}
-.fi:focus,.fs:focus,.fta:focus{border-color:var(--Cy)}.fi::placeholder,.fta::placeholder{color:var(--Dm)}
-.fs{appearance:none;cursor:pointer}.fta{resize:vertical;line-height:1.5}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:6px}.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px}
-.bp{background:var(--B);color:#fff;border:none;padding:8px 14px;border-radius:7px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:var(--e)}.bp:hover{background:var(--B2);transform:translateY(-1px)}
-.bc{background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.22);color:var(--Cy);padding:7px 13px;border-radius:7px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:var(--e)}.bc:hover{background:rgba(6,182,212,.18)}
-.bg{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.22);color:#4ADE80;padding:7px 13px;border-radius:7px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:var(--e)}.bg:hover{background:rgba(34,197,94,.18)}
-.bo{background:transparent;border:1px solid rgba(31,168,217,.2);color:var(--B);padding:6px 11px;border-radius:7px;font-weight:700;cursor:pointer;transition:var(--e)}.bo:hover{background:var(--Bdim)}
-.br{background:transparent;border:1px solid rgba(239,68,68,.2);color:#EF4444;padding:6px 10px;border-radius:7px;cursor:pointer;transition:var(--e)}.br:hover{background:rgba(239,68,68,.1)}
-.bw{width:100%}
-.rb{background:rgba(4,13,22,.7);border:1px solid rgba(31,168,217,.1);border-radius:7px;padding:8px 11px;margin-bottom:5px}
-.rb.hi{border-color:rgba(6,182,212,.3);background:rgba(6,182,212,.06)}.rb.ok{border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.06)}
-.rb.wn{border-color:rgba(245,190,24,.3);background:rgba(245,190,24,.06)}.rb.er{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.06)}
-.rl{font-size:8px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--M);margin-bottom:3px}
-.rv{font-family:var(--mono);font-size:11px;color:var(--T);word-break:break-all}
-.rb.hi .rv{color:var(--Cy);font-weight:700}.rb.ok .rv{color:#4ADE80;font-weight:700}
-.fii{display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:7px;background:rgba(4,13,22,.6);border:1px solid rgba(31,168,217,.08);cursor:pointer;margin-bottom:4px;transition:var(--e)}
-.fii:hover,.fii.sel{border-color:rgba(6,182,212,.28);background:rgba(6,182,212,.05)}
-.fid{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.fin{flex:1;font-size:12px;font-weight:600;color:var(--T);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.fis{font-size:9.5px;color:var(--M);margin-top:1px}
-.fdl{background:none;border:none;color:rgba(239,68,68,.35);cursor:pointer;font-size:13px;padding:0 3px;flex-shrink:0}.fdl:hover{color:#EF4444}
-.ups{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px}
-.up{background:transparent;border:1px solid rgba(31,168,217,.14);color:var(--M);padding:3px 8px;border-radius:999px;font-size:10.5px;font-weight:600;cursor:pointer;transition:var(--e)}
-.up:hover{border-color:var(--Cy);color:var(--T)}.up.on{background:rgba(6,182,212,.1);border-color:var(--Cy);color:var(--Cy)}
-.dz{border:1.5px dashed rgba(31,168,217,.22);border-radius:9px;padding:14px;text-align:center;cursor:pointer;transition:var(--e);background:rgba(4,13,22,.4)}
-.dz:hover,.dz.ov{border-color:var(--Cy);background:rgba(6,182,212,.05)}
-.dz svg{width:22px;height:22px;color:var(--Dm);margin:0 auto 5px}.dz p{font-size:11px;color:var(--M)}.dz small{font-size:9.5px;color:var(--Dm);display:block;margin-top:3px}
-.notif{padding:6px 10px;border-radius:7px;font-size:11px;font-weight:600;margin-top:6px;display:none}.notif.show{display:block}
-.notif.ok{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.22);color:#4ADE80}
-.notif.er{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.22);color:#EF4444}
-.gt{width:100%;border-collapse:collapse;font-size:10.5px}
-.gt th{padding:5px 7px;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--Cy);border-bottom:1px solid rgba(31,168,217,.14);text-align:left;font-weight:700;white-space:nowrap}
-.gt td{padding:4px 7px;border-bottom:1px solid rgba(31,168,217,.05);color:var(--T)}
-.gt tr:hover td{background:rgba(6,182,212,.03)}.gt td.mn{font-family:var(--mono);font-size:10px}
-.gt td.ok{color:#4ADE80;font-weight:700}.gt td.wn{color:var(--G);font-weight:700}.gt td.er{color:#EF4444;font-weight:700}
-.gt td input{background:transparent;border:none;color:var(--T);font-family:var(--mono);font-size:10px;width:72px;outline:none}
-.gt td input.nm{color:var(--Cy);font-weight:700;width:50px}
-.dc{border-left:3px solid;padding:10px 12px;border-radius:0 10px 10px 0;background:rgba(4,13,22,.5);margin-bottom:7px}
-.dct{font-size:8.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px}
-.dca{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--W);margin-bottom:3px}.dci{font-size:10.5px;color:var(--M);line-height:1.55}
-#map-area{flex:1;position:relative;overflow:hidden}
-#map{width:100%;height:100%}
-#toolbar{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:1000;display:flex;gap:3px;background:rgba(4,13,22,.94);backdrop-filter:blur(16px);border:1px solid rgba(31,168,217,.18);border-radius:11px;padding:5px;box-shadow:0 6px 24px rgba(0,0,0,.6)}
-.tb{display:flex;align-items:center;gap:5px;padding:6px 11px;border-radius:7px;border:none;background:transparent;color:var(--M);font-size:11px;font-weight:700;cursor:pointer;transition:var(--e);white-space:nowrap}
-.tb svg{width:13px;height:13px;flex-shrink:0}.tb:hover{background:rgba(31,168,217,.09);color:var(--T)}
-.tb.on{background:rgba(6,182,212,.14);color:var(--Cy);border:1px solid rgba(6,182,212,.25)}
-.tb.hot{background:rgba(245,190,24,.12);color:var(--G);border:1px solid rgba(245,190,24,.22)}
-.ts{width:1px;background:rgba(31,168,217,.14);margin:3px 1px}
-#hint{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);z-index:1000;background:rgba(4,13,22,.9);border:1px solid rgba(31,168,217,.15);border-radius:7px;padding:4px 13px;font-size:9.5px;color:var(--M);pointer-events:none;white-space:nowrap;font-family:var(--mono);display:none}
-#hint.show{display:block}
-#cbar{position:absolute;bottom:0;left:0;right:0;z-index:1000;background:rgba(4,13,22,.9);border-top:1px solid rgba(31,168,217,.1);padding:5px 14px;display:flex;gap:14px;align-items:center;font-family:var(--mono);font-size:10.5px;color:var(--M);pointer-events:none}
-#cbar span{color:var(--Cy)}.cs{color:rgba(31,168,217,.2)!important}
-#lc{position:absolute;top:10px;right:10px;z-index:1000;background:rgba(4,13,22,.94);backdrop-filter:blur(16px);border:1px solid rgba(31,168,217,.18);border-radius:10px;padding:5px}
-.lcb{display:block;width:100%;padding:5px 11px;border-radius:6px;border:none;background:transparent;color:var(--M);font-size:10.5px;font-weight:700;cursor:pointer;transition:var(--e);text-align:left}
-.lcb:hover{background:rgba(31,168,217,.07);color:var(--T)}.lcb.on{background:rgba(31,168,217,.13);color:var(--B)}
-#ctx{position:fixed;z-index:9999;background:rgba(4,13,22,.97);border:1px solid rgba(31,168,217,.22);border-radius:9px;padding:5px;min-width:155px;box-shadow:0 10px 32px rgba(0,0,0,.7);display:none}
-.ci{padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;color:var(--M);display:flex;align-items:center;gap:7px;transition:var(--e)}
-.ci:hover{background:rgba(6,182,212,.08);color:var(--T)}.ci svg{width:12px;height:12px;flex-shrink:0;color:var(--Cy)}
-.ci.red:hover{background:rgba(239,68,68,.08);color:#EF4444}.csep{height:1px;background:rgba(31,168,217,.1);margin:3px 0}
-#rp{width:300px;min-width:300px;background:var(--D2);border-left:1px solid var(--Bl);display:none;flex-direction:column;overflow:hidden;z-index:200}
-#rp.show{display:flex}
-.rph{padding:11px 14px;border-bottom:1px solid var(--Bl);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.rpt{font-size:9.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--Cy)}
-.rpx{background:none;border:none;color:var(--M);cursor:pointer;font-size:17px;line-height:1;padding:1px 5px;border-radius:4px}.rpx:hover{color:var(--T)}
-.rpb{flex:1;overflow-y:auto;padding:12px}.rpb::-webkit-scrollbar{width:3px}
-#kbm{position:fixed;inset:0;z-index:9000;background:rgba(4,13,22,.92);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center}
-#kbm.show{display:flex}
-.kbbox{background:var(--D2);border:1px solid rgba(31,168,217,.2);border-radius:14px;padding:22px;width:440px;max-height:80vh;overflow-y:auto}
-.kbrow{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(31,168,217,.07)}
-.kbact{font-size:11.5px;color:var(--M)}.kbkeys{display:flex;gap:3px}
-kbd{background:rgba(31,168,217,.1);border:1px solid rgba(31,168,217,.25);color:var(--Cy);padding:1px 5px;border-radius:4px;font-size:9px;font-family:var(--mono)}
-.leaflet-container{background:#040D16;font-family:'Plus Jakarta Sans',sans-serif}
-.leaflet-control-zoom{border:1px solid rgba(31,168,217,.18)!important;border-radius:7px!important;overflow:hidden}
-.leaflet-control-zoom a{background:rgba(4,13,22,.92)!important;color:var(--T)!important;border-bottom:1px solid rgba(31,168,217,.1)!important;width:30px!important;height:30px!important;line-height:30px!important}
-.leaflet-control-zoom a:hover{background:rgba(31,168,217,.1)!important;color:var(--Cy)!important}
-.leaflet-control-attribution{background:rgba(4,13,22,.7)!important;color:var(--Dm)!important;font-size:8.5px!important}
-.leaflet-popup-content-wrapper{background:rgba(4,13,22,.96)!important;border:1px solid rgba(31,168,217,.22)!important;border-radius:10px!important;color:var(--T)!important;box-shadow:0 10px 30px rgba(0,0,0,.7)!important}
-.leaflet-popup-tip{background:rgba(4,13,22,.96)!important}.leaflet-popup-close-button{color:var(--M)!important}
-.leaflet-tooltip{background:rgba(4,13,22,.93)!important;border:1px solid rgba(31,168,217,.18)!important;color:var(--Cy)!important;font-family:var(--mono)!important;font-size:10px!important;font-weight:700!important;border-radius:5px!important;padding:3px 7px!important}
-.dcursor,.dcursor *{cursor:crosshair!important}
-*{scrollbar-width:thin;scrollbar-color:var(--D4) transparent}
-::-webkit-scrollbar{width:3px;height:3px}::-webkit-scrollbar-thumb{background:var(--D4);border-radius:2px}
+.gauge-hero{background:linear-gradient(135deg,#0F3A27 0%,#0B2D1E 60%,#082415 100%);padding:72px 0;position:relative;overflow:hidden}
+.gauge-hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(200,148,31,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(200,148,31,.04) 1px,transparent 1px);background-size:46px 46px}
+.gauge-hero-in{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+@media(max-width:860px){.gauge-hero-in{grid-template-columns:1fr}}
+.gauge-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(200,148,31,.15);border:1px solid rgba(200,148,31,.3);color:var(--gold);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:6px 15px;border-radius:3px;margin-bottom:18px;font-family:'IBM Plex Mono',monospace}
+.gauge-badge span{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:blink 1.6s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.gauge-hero h1{font-size:clamp(28px,4vw,48px);font-weight:700;color:#fff;margin-bottom:16px;letter-spacing:-.5px;line-height:1.15}
+.gauge-hero h1 em{color:var(--gold);font-style:normal}
+.gauge-hero p{font-size:17px;color:rgba(255,255,255,.6);line-height:1.75;margin-bottom:28px;max-width:480px}
+.gauge-canvas-wrap{border-radius:14px;overflow:hidden;background:#04100A;aspect-ratio:4/3;position:relative;border:1px solid rgba(200,148,31,.2);box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.gauge-canvas-wrap canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+@media(max-width:860px){.feat-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.feat-grid{grid-template-columns:1fr}}
+.feat-card{background:#fff;border:1px solid var(--g200);border-radius:12px;padding:28px 24px;transition:.25s}
+.feat-card:hover{box-shadow:var(--shm);transform:translateY(-4px);border-color:rgba(200,148,31,.3)}
+.feat-ico{width:50px;height:50px;background:var(--goldl);border:1.5px solid rgba(200,148,31,.2);border-radius:11px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.feat-card h3{font-size:16px;font-weight:700;color:var(--forest);margin-bottom:8px}
+.feat-card p{font-size:13.5px;color:var(--g600);line-height:1.65}
+
+.usecase-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:860px){.usecase-row{grid-template-columns:1fr 1fr}}
+.usecase-card{background:var(--forest3);border-radius:10px;padding:22px 18px;text-align:center}
+.usecase-card .ic{font-size:26px;margin-bottom:10px}
+.usecase-card h4{font-size:13.5px;font-weight:700;color:#fff;margin-bottom:6px}
+.usecase-card p{font-size:12px;color:rgba(255,255,255,.5);line-height:1.55}
+
+.gauge-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:36px}
+@media(max-width:860px){.gauge-steps{grid-template-columns:1fr 1fr}}
+.gstep{position:relative;padding:24px 20px;background:var(--off);border-radius:10px}
+.gstep-num{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);font-weight:700;margin-bottom:10px}
+.gstep h4{font-size:14.5px;font-weight:700;color:var(--forest);margin-bottom:6px}
+.gstep p{font-size:12.5px;color:var(--g600);line-height:1.6}
+
+.pricing-card{background:#fff;border:1.5px solid var(--g200);border-radius:14px;padding:32px;text-align:center;position:relative}
+.pricing-card.featured{border-color:var(--gold);box-shadow:0 8px 32px rgba(200,148,31,.15)}
+.pricing-card.featured::before{content:'Most Popular';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gold);color:#fff;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 14px;border-radius:999px}
+.pricing-card h3{font-size:16px;font-weight:700;color:var(--forest);margin-bottom:4px}
+.pricing-card .pr{font-family:'Plus Jakarta Sans',sans-serif;font-size:34px;font-weight:700;color:var(--forest);margin:14px 0 4px}
+.pricing-card .pr span{font-size:13px;color:var(--g400);font-weight:500}
+.pricing-card ul{list-style:none;text-align:left;margin:20px 0;padding:0}
+.pricing-card li{font-size:13.5px;color:var(--g600);padding:7px 0;border-bottom:1px solid var(--g200);display:flex;gap:8px;align-items:flex-start}
+.pricing-card li:last-child{border-bottom:none}
+.pricing-card li svg{width:14px;height:14px;color:var(--gold);flex-shrink:0;margin-top:2px}
 </style>
 </head>
 <body>
 <div class="uae"></div>
-<nav class="nav">
-  <a class="logo" href="index.html"><img src="assets/img/logo.png" alt=""><div class="logt"><b>SKY</b> TERRAEYE</div></a>
-  <div class="nav-ct">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-    GAUGE &mdash; Smart Surveying Tools for Field &amp; Office
+<div class="top-bar">
+  <div class="top-bar-in">
+    <div class="top-bar-left">
+      <a href="tel:+971503091162"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>+971 50 309 1162</a>
+      <a href="mailto:info@fortresssurvey.ae"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>info@fortresssurvey.ae</a>
+    </div>
+    <div class="top-bar-right">
+      <span>Sun–Thu 7am–6pm | Sat 7am–2pm GST</span>
+      <a class="tb-wa" href="https://wa.me/971503091162?text=Hello%20Fortress%20Surveying,%20I%20need%20a%20survey%20quote" target="_blank">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        WhatsApp Us
+      </a>
+    </div>
   </div>
-  <div class="nl">
-    <a href="services.html">Services</a>
-    <a href="contact.html">Contact</a>
-    <a class="pbt eye-btn" href="eye.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Eye</a>
-    <a class="pbt terra-btn" href="terra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>Terra</a>
-    <a class="pbt strata-btn" href="strata.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="4" rx="1"/><rect x="2" y="10" width="20" height="4" rx="1"/><rect x="2" y="17" width="20" height="4" rx="1"/></svg>Strata</a>
-    <a class="pbt gauge-a" href="gauge.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Gauge</a>
-    <button class="kb-btn" onclick="document.getElementById('kbm').classList.add('show')">&#8984; Keys</button>
-    <a class="cta" style="padding:6px 12px;border-radius:7px;margin-left:8px" href="contact.html">Get a Quote</a>
+</div>
+<nav id="nav">
+  <div class="nav-in">
+    <a class="logo" href="index.html">
+      <div class="logo-mark"></div>
+      <div class="logo-t"><b>FORTRESS</b> SURVEYING<small>Engineering Services L.L.C.</small></div>
+    </a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <div class="drop"><a>About Us</a><div class="drop-menu"><a href="about.html">Company Profile</a><a href="contact.html">Contact Us</a></div></div>
+      <div class="drop"><a href="services.html">Services</a><div class="drop-menu" style="max-height:420px;overflow-y:auto">
+        <a href="service-land-boundary-survey.html">Land &amp; Boundary Survey</a>
+        <a href="service-topographic-survey.html">Topographic Survey</a>
+        <a href="service-setting-out-survey.html">Setting Out Survey</a>
+        <a href="service-as-built-survey.html">As-Built Survey</a>
+        <a href="service-aerial-drone-survey.html">Aerial / Drone Survey</a>
+        <a href="service-3d-laser-scanning.html">3D Laser Scanning</a>
+        <a href="service-utility-mapping-gpr.html">Utility Mapping / GPR</a>
+        <a href="service-structural-monitoring.html">Structural Monitoring</a>
+        <a href="service-gnss-gps-survey.html">GNSS / GPS Survey</a>
+        <a href="service-traffic-survey.html">Traffic Survey</a>
+        <a href="service-hydrographic-survey.html">Hydrographic Survey</a>
+        <a href="service-dilapidation-survey.html">Dilapidation Survey</a>
+      </div></div>
+      <a href="process.html">Process</a>
+      <a href="projects.html">Projects</a>
+      <a href="blog.html">Blog</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="nav-r">
+      <div class="nav-prods"><span>Product:</span><a href="gauge.html">&#9642; Gauge</a></div>
+      <a class="nav-cta" href="contact.html#quote">Get a Quote</a>
+    </div>
   </div>
 </nav>
-<div id="app">
-<div id="sb">
-  <div class="sbn">
-    <button class="t on" onclick="sT('feat',this)" title="Map Features [F]"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="2.5"/></svg>FEATURES</button>
-    <button class="t" onclick="sT('imp',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>IMPORT</button>
-    <button class="t" onclick="sT('meas',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20L20 4M8 4h12v12"/></svg>MEASURE</button>
-    <button class="t" onclick="sT('crd',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a14.5 14.5 0 0 0 0 20M12 2a14.5 14.5 0 0 1 0 20"/></svg>CONVERT</button>
-    <button class="t" onclick="sT('lev',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="6" x2="22" y2="6"/><line x1="2" y1="18" x2="22" y2="18"/></svg>LEVELING</button>
-  </div>
-  <div class="sbn2">
-    <button class="t" onclick="sT('sk',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="12" cy="19" r="2"/><path d="M7 5h10M6.5 7 12 17.5M17.5 7 12 17.5"/></svg>STAKEOUT</button>
-    <button class="t" onclick="sT('gf',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>GNSS FCST</button>
-    <button class="t" onclick="sT('lx',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>LANDXML</button>
-    <button class="t" onclick="sT('dub',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>DUBAI STD</button>
-  </div>
-  <div class="sbb">
 
-    <!-- FEATURES -->
-    <div class="pnl on" id="pnl-feat">
-      <div style="display:flex;gap:5px;margin-bottom:9px">
-        <button class="bo" style="flex:1;font-size:10px" onclick="zA()">Zoom All</button>
-        <button class="bo" style="flex:1;font-size:10px" onclick="expGJ()">GeoJSON</button>
-        <button class="br" style="flex:1;font-size:10px" onclick="clrAll()">Clear All</button>
-      </div>
-      <div id="feat-list"><div style="text-align:center;color:var(--Dm);padding:22px 6px;font-size:11px">Draw on map or import data.</div></div>
-      <div style="margin-top:7px;padding-top:7px;border-top:1px solid rgba(31,168,217,.08);font-size:9.5px;color:var(--M)" id="feat-sum">0 features</div>
-    </div>
-    <!-- IMPORT -->
-    <div class="pnl" id="pnl-imp">
-      <div class="ups" id="imp-pills">
-        <button class="up on" onclick="impT('ts',this)">Total Station</button>
-        <button class="up" onclick="impT('gnss',this)">GNSS/GPS</button>
-        <button class="up" onclick="impT('nmea',this)">NMEA</button>
-      </div>
-      <div id="it-ts">
-        <div class="sh">Station Setup</div>
-        <div class="g2">
-          <div class="fg"><label>Stn Northing (m)</label><input class="fi" id="ts-sn" placeholder="2793450"></div>
-          <div class="fg"><label>Stn Easting (m)</label><input class="fi" id="ts-se" placeholder="419250"></div>
-          <div class="fg"><label>Stn Elevation (m)</label><input class="fi" id="ts-sz" placeholder="8.500"></div>
-          <div class="fg"><label>Inst. Height HI (m)</label><input class="fi" id="ts-hi" value="1.500"></div>
-          <div class="fg"><label>BS Northing (m)</label><input class="fi" id="ts-bn" placeholder="optional"></div>
-          <div class="fg"><label>BS Easting (m)</label><input class="fi" id="ts-be" placeholder="optional"></div>
-        </div>
-        <div class="fg"><label>Hz Circle to BS (deg)</label><input class="fi" id="ts-bhz" value="0.0000"></div>
-        <button class="bc bw" onclick="tsSetup()" style="margin-bottom:9px">Set Station &amp; Orientation</button>
-        <div id="ts-ori" style="display:none"><div class="rb hi"><div class="rl">ORIENTATION CORRECTION</div><div class="rv" id="ts-ov">---</div></div></div>
-        <div class="sh" style="margin-top:10px">Import Shots File</div>
-        <div class="dz" id="ts-dz" onclick="document.getElementById('ts-f').click()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><polyline points="12 18 12 12"/><polyline points="9 15 12 12 15 15"/></svg>
-          <p>Drop CSV/TXT or click</p>
-          <small>POINT,HZ,ZA,SD,HT | POINT,N,E,Z | POINT,LAT,LON,ELEV</small>
-        </div>
-        <input type="file" id="ts-f" accept=".csv,.txt" style="display:none" onchange="tsLoad(this)">
-        <div class="notif" id="ts-n"></div>
-        <div id="ts-wrap" style="display:none;margin-top:8px">
-          <div style="display:flex;gap:5px;margin-bottom:7px">
-            <button class="bg" style="flex:1;font-size:10px" onclick="tsPlot()">&#128205; Plot Map</button>
-            <button class="bo" style="flex:1;font-size:10px" onclick="tsCSV()">&#8595; CSV</button>
-          </div>
-          <div style="overflow-x:auto;max-height:200px;overflow-y:auto"><table class="gt"><thead><tr><th>Point</th><th>N/Lat</th><th>E/Lon</th><th>Z</th></tr></thead><tbody id="ts-tb"></tbody></table></div>
-        </div>
-      </div>
-      <div id="it-gnss" style="display:none">
-        <div class="sh">GNSS / GPS Import</div>
-        <div class="dz" id="gn-dz" onclick="document.getElementById('gn-f').click()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-          <p>Drop GNSS CSV/TXT or click</p>
-          <small>POINT,LAT,LON,H,FIX,PDOP,HDOP,VDOP,SATS</small>
-        </div>
-        <input type="file" id="gn-f" accept=".csv,.txt" style="display:none" onchange="gnLoad(this)">
-        <div class="notif" id="gn-n"></div>
-        <div id="gn-wrap" style="display:none;margin-top:8px">
-          <div style="display:flex;gap:5px;margin-bottom:7px">
-            <button class="bg" style="flex:1;font-size:10px" onclick="gnPlot()">&#128205; Plot Map</button>
-            <button class="bo" style="flex:1;font-size:10px" onclick="gnCSV()">&#8595; CSV</button>
-          </div>
-          <div style="overflow-x:auto;max-height:200px;overflow-y:auto"><table class="gt"><thead><tr><th>Point</th><th>Lat</th><th>Lon</th><th>H</th><th>Fix</th><th>PDOP</th></tr></thead><tbody id="gn-tb"></tbody></table></div>
-        </div>
-      </div>
-      <div id="it-nmea" style="display:none">
-        <div class="sh">NMEA GGA Parser</div>
-        <div class="fg"><label>Paste NMEA sentences</label><textarea class="fta" id="nmea-txt" rows="4" placeholder="$GNGGA,091550.00,2512.25800,N,05516.24800,E,4,20,0.9,65.4,M,-30.2,M,,0000*79"></textarea></div>
-        <div class="dz" style="padding:9px;margin-bottom:7px" onclick="document.getElementById('nmea-f').click()"><p>or upload .nmea/.txt/.log</p></div>
-        <input type="file" id="nmea-f" accept=".txt,.nmea,.log" style="display:none" onchange="nmeaFile(this)">
-        <button class="bc bw" onclick="nmeaParse()">Parse &amp; Plot NMEA</button>
-        <div class="notif" id="nmea-n"></div>
-        <div id="nmea-wrap" style="display:none;margin-top:7px;max-height:160px;overflow-y:auto"><table class="gt"><thead><tr><th>#</th><th>Lat</th><th>Lon</th><th>H</th><th>Fix</th><th>Sats</th></tr></thead><tbody id="nmea-tb"></tbody></table></div>
+<section class="gauge-hero">
+  <div class="wrap gauge-hero-in">
+    <div>
+      <div class="gauge-badge"><span></span>Fortress Surveying Product</div>
+      <h1>Gauge — See Your<br>Structure <em>Move in<br>Real Time.</em></h1>
+      <p>Gauge connects field sensors to a live web dashboard, tracking settlement, tilt and crack movement on Dubai construction sites — with automated alerts the moment something exceeds your safe threshold.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <a class="btn-gold" href="contact.html#quote">Request Gauge Demo</a>
+        <a class="btn-wa" href="https://wa.me/971503091162?text=Hi%2C%20I%27d%20like%20to%20know%20more%20about%20Gauge" target="_blank">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp Us
+        </a>
       </div>
     </div>
-    <!-- MEASURE -->
-    <div class="pnl" id="pnl-meas">
-      <div class="sh">Active Measurement</div>
-      <div class="rb hi"><div class="rl">RESULT</div><div class="rv" id="m-res">Draw on map to measure</div></div>
-      <div class="fg"><label>Area Unit</label><div class="ups" id="a-pills"></div></div>
-      <div class="fg"><label>Distance Unit</label><div class="ups" id="d-pills"></div></div>
-      <div id="m-all" style="display:none">
-        <div class="sh" style="margin-top:4px">All Area Units</div><table class="gt" id="m-atbl"></table>
-        <div class="sh" style="margin-top:8px">All Distance Units</div><table class="gt" id="m-dtbl"></table>
-      </div>
-    </div>
-    <!-- COORDINATES -->
-    <div class="pnl" id="pnl-crd">
-      <div class="sh">Coordinate Converter</div>
-      <div style="font-size:10.5px;color:var(--M);margin-bottom:8px">&#128161; Click map (pan mode) to auto-fill.</div>
-      <div class="ups" id="crd-pills">
-        <button class="up on" onclick="cM2('dd',this)">Decimal</button>
-        <button class="up" onclick="cM2('dms',this)">DMS</button>
-        <button class="up" onclick="cM2('utm',this)">UTM</button>
-      </div>
-      <div id="c-dd">
-        <div class="fg"><label>Latitude (deg)</label><input class="fi" id="c-la" placeholder="25.2048"></div>
-        <div class="fg"><label>Longitude (deg)</label><input class="fi" id="c-lo" placeholder="55.2708"></div>
-      </div>
-      <div id="c-dms" style="display:none">
-        <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--B);margin-bottom:5px">LATITUDE</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 38px;gap:4px;margin-bottom:8px">
-          <div><div class="lbl">D</div><input class="fi" id="c-d1" placeholder="deg"></div>
-          <div><div class="lbl">M</div><input class="fi" id="c-m1" placeholder="min"></div>
-          <div><div class="lbl">S</div><input class="fi" id="c-s1" placeholder="sec"></div>
-          <div><div class="lbl">Dir</div><select class="fs" id="c-r1"><option>N</option><option>S</option></select></div>
-        </div>
-        <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--B);margin-bottom:5px">LONGITUDE</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 38px;gap:4px">
-          <div><div class="lbl">D</div><input class="fi" id="c-d2" placeholder="deg"></div>
-          <div><div class="lbl">M</div><input class="fi" id="c-m2" placeholder="min"></div>
-          <div><div class="lbl">S</div><input class="fi" id="c-s2" placeholder="sec"></div>
-          <div><div class="lbl">Dir</div><select class="fs" id="c-r2"><option>E</option><option>W</option></select></div>
-        </div>
-      </div>
-      <div id="c-utm" style="display:none">
-        <div style="display:grid;grid-template-columns:1fr 42px;gap:6px">
-          <div class="fg"><label>Zone</label><input class="fi" id="c-uz" placeholder="40"></div>
-          <div class="fg"><label>Hemi</label><select class="fs" id="c-uh"><option value="N">N</option><option value="S">S</option></select></div>
-        </div>
-        <div class="fg"><label>Easting (m)</label><input class="fi" id="c-ue" placeholder="418240.000"></div>
-        <div class="fg"><label>Northing (m)</label><input class="fi" id="c-un" placeholder="2792500.000"></div>
-      </div>
-      <div class="fg" style="margin-top:6px"><label>Height (m)</label><input class="fi" id="c-h" value="0"></div>
-      <div style="display:flex;gap:5px;margin-top:6px">
-        <button class="bc" style="flex:1;font-size:11px" onclick="cConv()">Convert</button>
-        <button class="bg" style="flex:1;font-size:11px" onclick="cGo()">&#128205; Map</button>
-      </div>
-      <div id="c-res" style="display:none;margin-top:9px">
-        <div class="rb hi"><div class="rl">DECIMAL DEGREES</div><div class="rv" id="cr-dd">---</div></div>
-        <div class="rb"><div class="rl">DMS</div><div class="rv" id="cr-dms">---</div></div>
-        <div class="rb"><div class="rl">DDM</div><div class="rv" id="cr-ddm">---</div></div>
-        <div class="rb hi"><div class="rl">UTM ZONE 40N</div><div class="rv" id="cr-utm">---</div></div>
-        <div class="rb"><div class="rl">ECEF XYZ</div><div class="rv" id="cr-ecef">---</div></div>
-        <div class="rb"><div class="rl">HEMISPHERE</div><div class="rv" id="cr-hemi">---</div></div>
-      </div>
-    </div>
-    <!-- LEVELING -->
-    <div class="pnl" id="pnl-lev">
-      <div class="sh">Differential Leveling &mdash; H.I. Method</div>
-      <div class="g2" style="margin-bottom:8px">
-        <div class="fg"><label>Start BM Elev (m)</label><input class="fi" id="lv-bm" value="100.000"></div>
-        <div class="fg"><label>Closing BM Elev (m)</label><input class="fi" id="lv-cl" placeholder="Closure check"></div>
-      </div>
-      <div style="display:flex;gap:4px;margin-bottom:9px">
-        <button class="bg" onclick="lvAdd()" style="flex:1;font-size:10px">+ Row</button>
-        <button class="bc" onclick="lvCompute()" style="flex:1;font-size:10px">Compute</button>
-        <button class="bo" onclick="lvCSV()" style="flex:1;font-size:10px">CSV</button>
-        <button class="br" onclick="lvRows=[];lvRend()" style="font-size:10px">Clear</button>
-      </div>
-      <div id="lv-closure" style="display:none;margin-bottom:8px"></div>
-      <div style="overflow-x:auto;max-height:260px;overflow-y:auto">
-        <table class="gt" id="lv-tbl">
-          <thead><tr><th>Station</th><th>BS</th><th>IS</th><th>FS</th><th>HI</th><th>Elevation</th><th>Note</th><th></th></tr></thead>
-          <tbody id="lv-tb"></tbody>
-        </table>
-      </div>
-      <div style="font-size:9px;color:var(--Dm);margin-top:6px;line-height:1.7">HI = Prev + BS &nbsp;&#183;&nbsp; Elev = HI &minus; FS</div>
-      <div id="lv-sum" style="margin-top:8px;display:none">
-        <div class="g2">
-          <div class="rb"><div class="rl">Sum BS</div><div class="rv" id="lv-sbs">---</div></div>
-          <div class="rb"><div class="rl">Sum FS</div><div class="rv" id="lv-sfs">---</div></div>
-        </div>
-      </div>
-    </div>
-    <!-- STAKEOUT -->
-    <div class="pnl" id="pnl-sk">
-      <div class="ups" id="sk-pills">
-        <button class="up on" onclick="skT('so',this)">Stakeout</button>
-        <button class="up" onclick="skT('inv',this)">Inverse</button>
-        <button class="up" onclick="skT('hc',this)">H-Curve</button>
-        <button class="up" onclick="skT('vc',this)">V-Curve</button>
-      </div>
-      <div id="sk-so">
-        <div class="sh">Point Stakeout</div>
-        <div class="g2">
-          <div class="fg"><label>Known Lat (deg)</label><input class="fi" id="so-la" placeholder="25.2048"></div>
-          <div class="fg"><label>Known Lon (deg)</label><input class="fi" id="so-lo" placeholder="55.2708"></div>
-          <div class="fg"><label>Azimuth (deg)</label><input class="fi" id="so-az" placeholder="45.0000"></div>
-          <div class="fg"><label>Dist (m)</label><input class="fi" id="so-d" placeholder="100.000"></div>
-        </div>
-        <button class="bc bw" onclick="soComp()">Compute Stakeout Point</button>
-        <div id="so-res" style="display:none;margin-top:8px">
-          <div class="rb hi"><div class="rl">LATITUDE</div><div class="rv" id="so-la2">---</div></div>
-          <div class="rb hi"><div class="rl">LONGITUDE</div><div class="rv" id="so-lo2">---</div></div>
-          <div class="rb"><div class="rl">DMS</div><div class="rv" id="so-dms">---</div></div>
-          <div class="rb"><div class="rl">UTM ZONE 40N</div><div class="rv" id="so-utm">---</div></div>
-          <button class="bg bw" onclick="soPlot()" style="margin-top:6px;font-size:11px">&#128205; Plot on Map</button>
-        </div>
-      </div>
-      <div id="sk-inv" style="display:none">
-        <div class="sh">Two-Point Inverse</div>
-        <div class="g2">
-          <div class="fg"><label>P1 Lat</label><input class="fi" id="iv-la1" placeholder="25.2040"></div>
-          <div class="fg"><label>P1 Lon</label><input class="fi" id="iv-lo1" placeholder="55.2700"></div>
-          <div class="fg"><label>P2 Lat</label><input class="fi" id="iv-la2" placeholder="25.2060"></div>
-          <div class="fg"><label>P2 Lon</label><input class="fi" id="iv-lo2" placeholder="55.2720"></div>
-        </div>
-        <button class="bc bw" onclick="ivComp()">Compute Inverse</button>
-        <div id="iv-res" style="display:none;margin-top:8px">
-          <div class="rb hi"><div class="rl">GEODESIC DISTANCE</div><div class="rv" id="iv-d">---</div></div>
-          <div class="g2">
-            <div class="rb"><div class="rl">FWD AZIMUTH</div><div class="rv" id="iv-faz">---</div></div>
-            <div class="rb"><div class="rl">BACK AZIMUTH</div><div class="rv" id="iv-baz">---</div></div>
-          </div>
-          <div class="rb"><div class="rl">QUADRANT BEARING</div><div class="rv" id="iv-qb">---</div></div>
-          <table class="gt" id="iv-tbl" style="margin-top:7px"></table>
-        </div>
-      </div>
-      <div id="sk-hc" style="display:none">
-        <div class="sh">Horizontal Simple Curve</div>
-        <div style="font-size:10.5px;color:var(--M);margin-bottom:8px">Enter R + one of Delta, T, or L</div>
-        <div class="fg"><label>Radius R (m)</label><input class="fi" id="hc-r" placeholder="200"></div>
-        <div class="fg"><label>Central Angle Delta (deg)</label><input class="fi" id="hc-d" placeholder="45"></div>
-        <div class="fg"><label>Tangent T (m)</label><input class="fi" id="hc-t" placeholder="83.91"></div>
-        <div class="fg"><label>Arc Length L (m)</label><input class="fi" id="hc-l" placeholder="157.08"></div>
-        <button class="bc bw" onclick="hcComp()">Compute Curve Elements</button>
-        <div id="hc-res" style="display:none;margin-top:8px">
-          <div class="g2">
-            <div class="rb hi"><div class="rl">RADIUS (R)</div><div class="rv" id="hc-R">---</div></div>
-            <div class="rb hi"><div class="rl">CENTRAL ANGLE</div><div class="rv" id="hc-D">---</div></div>
-            <div class="rb"><div class="rl">TANGENT (T)</div><div class="rv" id="hc-T">---</div></div>
-            <div class="rb"><div class="rl">ARC LENGTH (L)</div><div class="rv" id="hc-L">---</div></div>
-            <div class="rb"><div class="rl">EXTERNAL (E)</div><div class="rv" id="hc-E">---</div></div>
-            <div class="rb"><div class="rl">MID ORDINATE (M)</div><div class="rv" id="hc-M">---</div></div>
-            <div class="rb"><div class="rl">LONG CHORD (LC)</div><div class="rv" id="hc-LC">---</div></div>
-            <div class="rb"><div class="rl">DEGREE OF CURVE</div><div class="rv" id="hc-DC">---</div></div>
-          </div>
-        </div>
-      </div>
-      <div id="sk-vc" style="display:none">
-        <div class="sh">Parabolic Vertical Curve</div>
-        <div class="g2">
-          <div class="fg"><label>Grade G1 (%)</label><input class="fi" id="vc-g1" placeholder="+3.5"></div>
-          <div class="fg"><label>Grade G2 (%)</label><input class="fi" id="vc-g2" placeholder="-2.0"></div>
-        </div>
-        <div class="fg"><label>Curve Length L (m)</label><input class="fi" id="vc-l" placeholder="200"></div>
-        <div class="g2">
-          <div class="fg"><label>PVI Station (m)</label><input class="fi" id="vc-s" placeholder="1000.000"></div>
-          <div class="fg"><label>PVI Elevation (m)</label><input class="fi" id="vc-e" placeholder="125.000"></div>
-        </div>
-        <button class="bc bw" onclick="vcComp()">Compute Vertical Curve</button>
-        <div id="vc-res" style="display:none;margin-top:8px">
-          <div class="g2">
-            <div class="rb hi"><div class="rl">BVC Station</div><div class="rv" id="vc-bs">---</div></div>
-            <div class="rb hi"><div class="rl">BVC Elevation</div><div class="rv" id="vc-be">---</div></div>
-            <div class="rb"><div class="rl">EVC Station</div><div class="rv" id="vc-es">---</div></div>
-            <div class="rb"><div class="rl">EVC Elevation</div><div class="rv" id="vc-ee">---</div></div>
-            <div class="rb"><div class="rl">K-Value</div><div class="rv" id="vc-k">---</div></div>
-            <div class="rb"><div class="rl">Rate r (%/m)</div><div class="rv" id="vc-r">---</div></div>
-          </div>
-          <div class="rb ok" id="vc-hlb" style="display:none"><div class="rl" id="vc-hll">HIGH POINT</div><div class="rv" id="vc-hl">---</div></div>
-          <div style="overflow-y:auto;max-height:150px;margin-top:6px"><table class="gt"><thead><tr><th>Station</th><th>Elev (m)</th><th>Grade (%)</th></tr></thead><tbody id="vc-tb"></tbody></table></div>
-        </div>
-      </div>
-    </div>
-    <!-- GNSS FORECAST -->
-    <div class="pnl" id="pnl-gf">
-      <div class="sh">GNSS Session Forecast</div>
-      <div class="g2">
-        <div class="fg"><label>Latitude (deg)</label><input class="fi" id="gf-la" placeholder="25.2048"></div>
-        <div class="fg"><label>Longitude (deg)</label><input class="fi" id="gf-lo" placeholder="55.2708"></div>
-      </div>
-      <div class="fg"><label>Date</label><input class="fi" id="gf-dt" type="date" style="color-scheme:dark"></div>
-      <div class="fg"><label>Elev. Cutoff (deg)</label><input class="fi" id="gf-ca" value="10"></div>
-      <div style="font-size:9.5px;color:var(--M);margin-bottom:8px"><span style="color:#22D3EE">GPS</span> + <span style="color:#A78BFA">GLONASS</span> + <span style="color:#4ADE80">Galileo</span> + <span style="color:#F5BE18">BeiDou</span></div>
-      <button class="bc bw" onclick="gfRun()">Generate 24-Hour Forecast</button>
-      <div id="gf-res" style="display:none;margin-top:10px">
-        <div class="g2" style="margin-bottom:9px">
-          <div class="rb ok"><div class="rl">BEST WINDOW</div><div class="rv" id="gf-best">---</div></div>
-          <div class="rb wn"><div class="rl">AVOID WINDOW</div><div class="rv" id="gf-worst">---</div></div>
-        </div>
-        <div style="font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--Cy);margin-bottom:6px">24-HOUR PDOP &mdash; <span id="gf-dtlbl"></span></div>
-        <canvas id="gf-cv" height="90" style="width:100%;border-radius:6px;background:#040D16;display:block;margin-bottom:7px"></canvas>
-        <div style="display:flex;gap:10px;font-size:9px;color:var(--M);margin-bottom:8px">
-          <span><span style="color:#4ADE80">&#9646;</span> &lt;2 Excellent</span>
-          <span><span style="color:#22D3EE">&#9646;</span> 2&ndash;3 Good</span>
-          <span><span style="color:#F5BE18">&#9646;</span> 3&ndash;5 Fair</span>
-          <span><span style="color:#EF4444">&#9646;</span> &gt;5 Poor</span>
-        </div>
-        <div style="overflow-y:auto;max-height:200px"><table class="gt"><thead><tr><th>Hour</th><th>PDOP</th><th>Quality</th><th>GPS</th><th>GLO</th><th>GAL</th><th>BDS</th><th>SVs</th></tr></thead><tbody id="gf-tb"></tbody></table></div>
-      </div>
-    </div>
-    <!-- LANDXML -->
-    <div class="pnl" id="pnl-lx">
-      <div class="sh">LandXML Point Query</div>
-      <div style="display:flex;gap:5px;margin-bottom:8px">
-        <button class="bo" style="flex:1;font-size:10px" onclick="document.getElementById('lx-txt').value=LX_SAMPLE;lxParse()">Load Sample</button>
-        <button class="bo" style="flex:1;font-size:10px" onclick="document.getElementById('lx-f').click()">Upload XML</button>
-      </div>
-      <input type="file" id="lx-f" accept=".xml,.landxml" style="display:none" onchange="lxFile(this)">
-      <div class="fg"><label>Paste LandXML</label><textarea class="fta" id="lx-txt" rows="5" placeholder="Paste XML or upload above"></textarea></div>
-      <button class="bc bw" onclick="lxParse()">Parse &amp; Query</button>
-      <div class="notif" id="lx-n"></div>
-      <div id="lx-res" style="display:none;margin-top:9px">
-        <div class="ups" id="lx-pills">
-          <button class="up on" onclick="lxTab('pts',this)">CgPoints (<span id="lx-ptc">0</span>)</button>
-          <button class="up" onclick="lxTab('al',this)">Alignments (<span id="lx-alc">0</span>)</button>
-        </div>
-        <div id="lx-pts">
-          <div style="display:flex;gap:5px;margin-bottom:7px">
-            <input class="fi" id="lx-q" placeholder="Search name/code/desc..." oninput="lxFilter()">
-            <button class="bg" style="font-size:10px;flex-shrink:0" onclick="lxPlot()">Plot</button>
-            <button class="bo" style="font-size:10px;flex-shrink:0" onclick="lxCSV()">CSV</button>
-          </div>
-          <div style="overflow:auto;max-height:220px"><table class="gt"><thead><tr><th>Name</th><th>Code</th><th>N</th><th>E</th><th>Elev</th></tr></thead><tbody id="lx-tb"></tbody></table></div>
-        </div>
-        <div id="lx-al" style="display:none"><div style="overflow:auto;max-height:260px"><table class="gt"><thead><tr><th>Alignment</th><th>Length</th><th>Type</th><th>Detail</th></tr></thead><tbody id="lx-altb"></tbody></table></div></div>
-      </div>
-    </div>
-    <!-- DUBAI -->
-    <div class="pnl" id="pnl-dub">
-      <div style="font-size:24px;margin-bottom:6px">&#127462;&#127466;</div>
-      <div style="font-size:13px;font-weight:800;color:var(--W);margin-bottom:2px">Dubai Municipality &mdash; SLD</div>
-      <div style="font-family:var(--mono);font-size:9.5px;color:var(--Dm);margin-bottom:12px">WGS84 &middot; UTM Zone 40N &middot; EGM2008</div>
-      <div class="dc" style="border-color:#1FA8D9"><div class="dct" style="color:#1FA8D9">CLASS A &mdash; CADASTRAL</div><div class="dca">&plusmn;25mm H / &plusmn;50mm V</div><div class="dci">RTK GNSS, TS &middot; 1:250&ndash;1:500 &middot; Boundary, DLD registration</div></div>
-      <div class="dc" style="border-color:#22C55E"><div class="dct" style="color:#22C55E">CLASS B &mdash; ENGINEERING</div><div class="dca">&plusmn;100mm H / &plusmn;150mm V</div><div class="dci">RTK, TS, Drone &le;3cm GSD &middot; 1:500 &middot; Roads, utilities</div></div>
-      <div class="dc" style="border-color:#F5BE18"><div class="dct" style="color:#F5BE18">CLASS C &mdash; TOPOGRAPHIC</div><div class="dca">&plusmn;250mm H / &plusmn;350mm V</div><div class="dci">GNSS, Drone &le;5cm GSD &middot; 1:1000 &middot; Site planning</div></div>
-      <div class="dc" style="border-color:#A78BFA"><div class="dct" style="color:#A78BFA">CLASS D &mdash; GIS / URBAN</div><div class="dca">&plusmn;1.0m H / &plusmn;2.0m V</div><div class="dci">DGPS, Drone &le;10cm GSD &middot; 1:2000 &middot; Asset mapping</div></div>
-      <div class="sh" style="margin-top:12px">Compliance Check</div>
-      <div class="g2">
-        <div class="fg"><label>H Accuracy (m)</label><input class="fi" id="dub-h" placeholder="0.025"></div>
-        <div class="fg"><label>V Accuracy (m)</label><input class="fi" id="dub-v" placeholder="0.050"></div>
-      </div>
-      <div class="fg"><label>Method</label><select class="fs" id="dub-m"><option>RTK GNSS</option><option>Static GNSS</option><option>Total Station</option><option>DGPS</option><option>Drone</option><option>Mobile Mapping</option></select></div>
-      <button class="bc bw" onclick="dubChk()">Check Compliance</button>
-      <div id="dub-r" style="margin-top:8px"></div>
-    </div>
+    <div class="gauge-canvas-wrap"><canvas id="cv-gauge-hero" width="560" height="420"></canvas></div>
   </div>
-</div>
+</section>
 
-<!-- MAP -->
-<div id="map-area">
-  <div id="toolbar">
-    <button class="tb on" id="tb-pan" onclick="sM('pan',this)" title="Pan [V]"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3"/></svg>Pan</button>
-    <div class="ts"></div>
-    <button class="tb" id="tb-pt" onclick="sM('pt',this)" title="Point [P]"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="2"/></svg>Point</button>
-    <button class="tb" id="tb-ln" onclick="sM('ln',this)" title="Distance [L]"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>Distance</button>
-    <button class="tb" id="tb-pg" onclick="sM('pg',this)" title="Polygon [G]"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/></svg>Polygon</button>
-    <button class="tb" id="tb-rx" onclick="sM('rx',this)" title="Rectangle [R]"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>Rectangle</button>
-    <button class="tb" id="tb-ci" onclick="sM('ci',this)" title="Circle [C]"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="12" y1="3" x2="12" y2="12"/></svg>Circle</button>
-    <button class="tb" id="tb-sc" onclick="sM('sc',this)" title="Ruler [M]"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20L20 4"/><line x1="8" y1="4" x2="20" y2="4"/><line x1="20" y1="4" x2="20" y2="16"/></svg>Ruler</button>
-    <div class="ts"></div>
-    <button class="tb" onclick="undo()" title="Undo [Ctrl+Z]"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>Undo</button>
-    <button class="tb hot" id="tb-fin" onclick="finD()" style="display:none" title="Finish [Enter]"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Finish</button>
-    <button class="tb" onclick="document.getElementById('sb').classList.toggle('hide')" title="Toggle Sidebar [S]"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </div>
-  <div id="lc">
-    <div style="font-size:7.5px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--M);padding:1px 7px 5px;text-align:center">LAYER</div>
-    <button class="lcb on" id="lc-sat" onclick="setLyr('sat',this)">&#128752; Satellite</button>
-    <button class="lcb" id="lc-hyb" onclick="setLyr('hyb',this)">&#128506; Hybrid</button>
-    <button class="lcb" id="lc-osm" onclick="setLyr('osm',this)">&#127758; Street</button>
-    <button class="lcb" id="lc-topo" onclick="setLyr('topo',this)">&#9968; Terrain</button>
-  </div>
-  <div id="map"></div>
-  <div id="hint"></div>
-  <div id="cbar">
-    <span>&#128205;</span>
-    <span>Lat: <span id="cb-la">---</span></span><span class="cs">|</span>
-    <span>Lon: <span id="cb-lo">---</span></span><span class="cs">|</span>
-    <span>UTM Z40N: <span id="cb-utm">---</span></span><span class="cs">|</span>
-    <span id="cb-di" style="color:var(--G)"></span>
-  </div>
-</div>
-<!-- RIGHT PANEL -->
-<div id="rp">
-  <div class="rph"><div class="rpt" id="rpt">Feature Details</div><button class="rpx" onclick="closeRP()">&#215;</button></div>
-  <div class="rpb" id="rpb"></div>
-</div>
-</div>
-<!-- CONTEXT MENU -->
-<div id="ctx">
-  <div class="ci" onclick="ctxA('fin')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Finish Shape [Enter]</div>
-  <div class="ci" onclick="ctxA('undo')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>Undo Last Point</div>
-  <div class="csep"></div>
-  <div class="ci" onclick="ctxA('copy')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy Coordinates</div>
-  <div class="ci" onclick="ctxA('stakeout')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="12" cy="19" r="2"/></svg>Use in Stakeout</div>
-  <div class="ci" onclick="ctxA('convert')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg>Convert Coordinates</div>
-  <div class="csep"></div>
-  <div class="ci red" onclick="ctxA('cancel')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Cancel Draw [Esc]</div>
-</div>
-<!-- KEYBOARD MODAL -->
-<div id="kbm" onclick="if(event.target===this)this.classList.remove('show')">
-  <div class="kbbox">
-    <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--W);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between">
-      &#9000; Keyboard Shortcuts
-      <button onclick="document.getElementById('kbm').classList.remove('show')" style="background:none;border:none;color:var(--M);font-size:20px;cursor:pointer">&#215;</button>
+<section style="background:#fff;padding:64px 0">
+  <div class="wrap">
+    <div class="sec-head c fi">
+      <div class="eyebrow">Why Gauge</div>
+      <h2 class="sec-h">Built for Dubai's Construction Sites</h2>
+      <p class="sec-p">Every feature designed around the real demands of deep excavation, tunnelling and heritage protection projects in Dubai.</p>
     </div>
-    <div style="font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--Cy);margin-bottom:6px">DRAW MODES</div>
-    <div class="kbrow"><span class="kbact">Pan / Select mode</span><div class="kbkeys"><kbd>V</kbd></div></div>
-    <div class="kbrow"><span class="kbact">Place Point</span><div class="kbkeys"><kbd>P</kbd></div></div>
-    <div class="kbrow"><span class="kbact">Distance / Line</span><div class="kbkeys"><kbd>L</kbd></div></div>
-    <div class="kbrow"><span class="kbact">Draw Polygon</span><div class="kbkeys"><kbd>G</kbd></div></div>
-    <div class="kbrow"><span class="kbact">Draw Rectangle</span><div class="kbkeys"><kbd>R</kbd></div></div>
-    <div class="kbrow"><span class="kbact">Draw Circle</span><div class="kbkeys"><kbd>C</kbd></div></div>
-    <div class="kbrow"><span class="kbact">Ruler / Scale</span><div class="kbkeys"><kbd>M</kbd></div></div>
-    <div style="font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--Cy);margin:12px 0 6px">ACTIONS</div>
-    <div class="kbrow"><span class="kbact">Finish polygon or line</span><div class="kbkeys"><kbd>Enter</kbd></div></div>
-    <div class="kbrow"><span class="kbact">Cancel &mdash; return to Pan</span><div class="kbkeys"><kbd>Esc</kbd></div></div>
-    <div class="kbrow"><span class="kbact">Undo last vertex</span><div class="kbkeys"><kbd>Backspace</kbd></div></div>
-    <div class="kbrow"><span class="kbact">Undo last feature</span><div class="kbkeys"><kbd>Ctrl</kbd> + <kbd>Z</kbd></div></div>
-    <div class="kbrow"><span class="kbact">Zoom to all features</span><div class="kbkeys"><kbd>Ctrl</kbd> + <kbd>A</kbd></div></div>
-    <div class="kbrow"><span class="kbact">Export GeoJSON</span><div class="kbkeys"><kbd>Ctrl</kbd> + <kbd>E</kbd></div></div>
-    <div class="kbrow"><span class="kbact">Toggle sidebar</span><div class="kbkeys"><kbd>S</kbd></div></div>
-    <div class="kbrow"><span class="kbact">Temporary pan (hold)</span><div class="kbkeys"><kbd>Space</kbd></div></div>
-    <div style="font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--Cy);margin:12px 0 6px">MOUSE</div>
-    <div class="kbrow"><span class="kbact">Add vertex</span><div class="kbkeys"><kbd>Left Click</kbd></div></div>
-    <div class="kbrow"><span class="kbact">Finish shape</span><div class="kbkeys"><kbd>Double Click</kbd></div></div>
-    <div class="kbrow"><span class="kbact">Context menu</span><div class="kbkeys"><kbd>Right Click</kbd></div></div>
-    <div class="kbrow"><span class="kbact">Pan map (any mode)</span><div class="kbkeys"><kbd>Middle Drag</kbd></div></div>
-    <div class="kbrow"><span class="kbact">Zoom</span><div class="kbkeys"><kbd>Scroll</kbd></div></div>
+    <div class="feat-grid fi">
+      <div class="feat-card">
+        <div class="feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#C8941F" stroke-width="2" width="22" height="22"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <h3>Live Settlement Graphs</h3>
+        <p>Real-time data from settlement markers, tilt sensors and crack gauges streamed directly to your browser — refreshed every 15 minutes or instantly for critical sensors.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#C8941F" stroke-width="2" width="22" height="22"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+        <h3>Automated SMS &amp; Email Alerts</h3>
+        <p>Set your own trigger thresholds. The moment any sensor crosses it, the responsible engineer gets an instant SMS and email — no waiting for the next site visit.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#C8941F" stroke-width="2" width="22" height="22"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+        <h3>Multi-Sensor Dashboard</h3>
+        <p>Monitor dozens of sensors across a single site from one screen — colour-coded by status, with historical trend lines going back to day one of monitoring.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#C8941F" stroke-width="2" width="22" height="22"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <h3>Automated PDF Reports</h3>
+        <p>Daily, weekly or monthly reports generated automatically and emailed to your project team — no manual data entry, no spreadsheet chasing.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#C8941F" stroke-width="2" width="22" height="22"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <h3>24/7 Cloud Uptime</h3>
+        <p>Hosted on resilient cloud infrastructure with continuous data logging — access your dashboard anytime, from any device, anywhere in the world.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#C8941F" stroke-width="2" width="22" height="22"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <h3>Contractor Data Sharing</h3>
+        <p>Give read-only dashboard access to contractors, consultants and authorities — everyone sees the same live data, no more conflicting spreadsheets.</p>
+      </div>
+    </div>
   </div>
+</section>
+
+<section style="background:var(--forest3);padding:64px 0">
+  <div class="wrap">
+    <div class="sec-head c fi">
+      <div class="eyebrow" style="justify-content:center">Where Gauge Is Used</div>
+      <h2 class="sec-h" style="color:#fff">Projects That Need to Know — Now</h2>
+    </div>
+    <div class="usecase-row fi">
+      <div class="usecase-card"><div class="ic">🏗️</div><h4>Deep Excavation</h4><p>Basement &amp; shoring works near existing structures</p></div>
+      <div class="usecase-card"><div class="ic">🚇</div><h4>Tunnelling</h4><p>Metro &amp; utility tunnel settlement tracking</p></div>
+      <div class="usecase-card"><div class="ic">🕌</div><h4>Heritage Buildings</h4><p>Protecting sensitive structures during nearby works</p></div>
+      <div class="usecase-card"><div class="ic">🏢</div><h4>High-Rise Towers</h4><p>Pile load testing &amp; foundation settlement</p></div>
+    </div>
+  </div>
+</section>
+
+<section style="background:#fff;padding:64px 0">
+  <div class="wrap">
+    <div class="sec-head fi">
+      <div class="eyebrow">How It Works</div>
+      <h2 class="sec-h">From Sensor to Dashboard in 4 Steps</h2>
+    </div>
+    <div class="gauge-steps fi">
+      <div class="gstep"><div class="gstep-num">STEP 01</div><h4>Sensor Installation</h4><p>Our engineers install settlement markers, tilt meters or crack gauges at agreed monitoring points across your site.</p></div>
+      <div class="gstep"><div class="gstep-num">STEP 02</div><h4>Baseline Reading</h4><p>An initial zero-reading is taken and logged as the baseline for all future movement comparisons.</p></div>
+      <div class="gstep"><div class="gstep-num">STEP 03</div><h4>Live Monitoring Begins</h4><p>Sensors transmit data into the Gauge platform automatically — your dashboard goes live immediately.</p></div>
+      <div class="gstep"><div class="gstep-num">STEP 04</div><h4>Alerts &amp; Reporting</h4><p>Set your thresholds once. Gauge handles the rest — alerts, graphs and reports run themselves.</p></div>
+    </div>
+  </div>
+</section>
+
+<section style="background:var(--off);padding:64px 0">
+  <div class="wrap">
+    <div class="sec-head c fi">
+      <div class="eyebrow">Get Started</div>
+      <h2 class="sec-h">Gauge Monitoring Packages</h2>
+      <p class="sec-p">Pricing depends on sensor count and monitoring duration. Contact us for a project-specific quote.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:22px" class="fi">
+      <div class="pricing-card">
+        <h3>Short-Term Monitoring</h3>
+        <div class="pr">POA</div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Up to 10 sensors</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Weekly reports</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>1–3 month projects</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Email alerts</li>
+        </ul>
+        <a class="btn-ol" href="contact.html#quote" style="width:100%;justify-content:center">Get Quote</a>
+      </div>
+      <div class="pricing-card featured">
+        <h3>Project Monitoring</h3>
+        <div class="pr">POA</div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Up to 50 sensors</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Real-time + daily reports</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>3–12 month projects</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>SMS + email alerts</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Contractor access portal</li>
+        </ul>
+        <a class="btn-gold" href="contact.html#quote" style="width:100%;justify-content:center">Get Quote</a>
+      </div>
+      <div class="pricing-card">
+        <h3>Enterprise Monitoring</h3>
+        <div class="pr">POA</div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Unlimited sensors</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Multi-site dashboards</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>12+ month projects</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Priority SMS alerts</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Dedicated engineer</li>
+        </ul>
+        <a class="btn-ol" href="contact.html#quote" style="width:100%;justify-content:center">Get Quote</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="background:var(--forest);padding:64px 0;text-align:center">
+  <div class="wrap">
+    <div class="eyebrow" style="justify-content:center">Ready to Monitor?</div>
+    <h2 style="font-size:clamp(24px,3.5vw,38px);font-weight:700;color:#fff;margin-bottom:14px">Protect Your Project With Gauge</h2>
+    <p style="font-size:16px;color:rgba(255,255,255,.55);margin-bottom:28px;max-width:480px;margin-left:auto;margin-right:auto">Talk to our monitoring team about sensor count, duration and a tailored quote for your Dubai project.</p>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+      <a class="btn-gold" href="contact.html#quote">Request a Quote</a>
+      <a class="btn-wa" href="https://wa.me/971503091162" target="_blank">WhatsApp Us</a>
+    </div>
+  </div>
+</section>
+
+<div class="trust-bar">
+  <div class="trust-bar-in">
+    <div class="tb-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span><strong>DM Approved</strong> Surveyor</span></div>
+    <div class="tb-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg><span><strong>DLD</strong> Registered</span></div>
+    <div class="tb-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/></svg><span><strong>RERA</strong> Compliant</span></div>
+    <div class="tb-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/></svg><span><strong>DCAA</strong> Drone Permit</span></div>
+    <div class="tb-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span><strong>Dubai-Only</strong> Operations</span></div>
+  </div>
+</div>
+<footer>
+  <div class="footer-g">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <div style="width:28px;height:28px;border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0"><div style="width:9px;height:9px;border:1px solid var(--gold);transform:rotate(45deg);position:absolute"></div><div style="width:3px;height:3px;background:var(--gold);border-radius:50%;position:absolute"></div></div>
+        <div class="f-logo-t"><b>FORTRESS</b> SURVEYING</div>
+      </div>
+      <div class="f-logo-small">Engineering Services L.L.C.</div>
+      <p class="f-desc">Dubai's precision land surveying company. DM-approved, DLD-registered, RERA-compliant. Exclusively serving the Emirate of Dubai.</p>
+      <div class="f-contacts">
+        <a href="tel:+971503091162"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07"/></svg>+971 50 309 1162</a>
+        <a href="mailto:info@fortresssurvey.ae"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12"/></svg>info@fortresssurvey.ae</a>
+        <a href="https://wa.me/971503091162" target="_blank"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>WhatsApp</a>
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Dubai, UAE</a>
+      </div>
+    </div>
+    <div class="f-col"><h4>Services</h4><a href="service-land-boundary-survey.html">Land &amp; Boundary</a><a href="service-topographic-survey.html">Topographic</a><a href="service-setting-out-survey.html">Setting Out</a><a href="service-as-built-survey.html">As-Built</a><a href="service-aerial-drone-survey.html">Aerial / Drone</a><a href="service-3d-laser-scanning.html">3D Scanning</a><a href="service-utility-mapping-gpr.html">Utility / GPR</a><a href="service-structural-monitoring.html">Monitoring</a><a href="service-gnss-gps-survey.html">GNSS / RTK</a><a href="service-traffic-survey.html">Traffic Survey</a><a href="service-hydrographic-survey.html">Hydrographic</a><a href="service-dilapidation-survey.html">Dilapidation</a></div>
+    <div class="f-col"><h4>Company</h4><a href="about.html">About Us</a><a href="process.html">Our Process</a><a href="projects.html">Projects</a><a href="blog.html">Blog</a><a href="contact.html">Contact</a><a href="areas-business-bay.html">Areas We Cover</a></div>
+    <div class="f-col"><h4>Product</h4><a href="gauge.html" style="display:flex;align-items:center;gap:6px;background:rgba(200,148,31,.1);border:1px solid rgba(200,148,31,.25);padding:5px 10px;border-radius:4px;color:var(--gold)!important;font-weight:600">&#9642; Gauge</a><p style="font-size:12px;color:rgba(255,255,255,.3);margin-top:8px;line-height:1.6">Real-time structural monitoring platform</p></div>
+  </div>
+  <div class="f-bottom">
+    <div class="f-copy">&copy; 2026 <b>Fortress Surveying Engineering Services L.L.C.</b> &mdash; Dubai, UAE</div>
+    <div class="f-dm">fortresssurvey.ae &nbsp;|&nbsp; DM Approved &nbsp;|&nbsp; WGS84 &middot; UTM 40N</div>
+  </div>
+</footer>
+<a class="wa-float" href="https://wa.me/971503091162?text=Hello%20Fortress%20Surveying,%20I%20need%20a%20survey%20quote" target="_blank" title="Chat on WhatsApp">
+  <svg viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+<div class="mob-cta">
+  <a class="mc-call" href="tel:+971503091162"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><path d="M22 16.92v3a2 2 0 0 1-2.18 2"/></svg>Call Now</a>
+  <a class="mc-wa" href="https://wa.me/971503091162" target="_blank"><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967c-.273-.099-.471-.148-.67.15c-.197.297-.767.966-.94 1.164c-.173.199-.347.223-.644.075c-.297-.15-1.255-.463-2.39-1.475c-.883-.788-1.48-1.761-1.653-2.059c-.173-.297-.018-.458.13-.606c.134-.133.298-.347.446-.52c.149-.174.198-.298.298-.497c.099-.198.05-.371-.025-.52c-.075-.149-.669-1.612-.916-2.207c-.242-.579-.487-.5-.669-.51c-.173-.008-.371-.01-.57-.01c-.198 0-.52.074-.792.372c-.272.297-1.04 1.016-1.04 2.479c0 1.462 1.065 2.875 1.213 3.074c.149.198 2.096 3.2 5.077 4.487c.709.306 1.262.489 1.694.625c.712.227 1.36.195 1.871.118c.571-.085 1.758-.719 2.006-1.413c.248-.694.248-1.289.173-1.413c-.074-.124-.272-.198-.57-.347"/></svg>WhatsApp</a>
 </div>
 
 <script>
-'use strict';
-const PI=Math.PI,r2d=r=>r*180/PI,d2r=d=>d*PI/180;
-const WA=6378137,WF=1/298.257223563,We2=2*WF-WF**2,Wep2=We2/(1-We2);
-const hav=([a,b],[c,d])=>{const R=6371000,dp=d2r(c-a),dl=d2r(d-b),x=Math.sin(dp/2)**2+Math.cos(d2r(a))*Math.cos(d2r(c))*Math.sin(dl/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));};
-const pA=pts=>{if(pts.length<3)return 0;const o=pts[0],xy=pts.map(p=>[hav([o[0],o[1]],[o[0],p[1]])*(p[1]>=o[1]?1:-1),hav([o[0],o[1]],[p[0],o[1]])*(p[0]>=o[0]?1:-1)]);let a=0;xy.forEach((p,i)=>{const q=xy[(i+1)%xy.length];a+=p[0]*q[1]-q[0]*p[1];});return Math.abs(a)/2;};
-const pD=pts=>{let d=0;pts.forEach((p,i)=>d+=hav(p,pts[(i+1)%pts.length]));return d;};
-const azFn=([a,b],[c,d])=>{const dl=d2r(d-b),y=Math.sin(dl)*Math.cos(d2r(c)),x=Math.cos(d2r(a))*Math.sin(d2r(c))-Math.sin(d2r(a))*Math.cos(d2r(c))*Math.cos(dl);return(r2d(Math.atan2(y,x))+360)%360;};
-const destFn=([la,lo],azD,dist)=>{const R=6371000,d=dist/R,b=d2r(azD),p=d2r(la),l=d2r(lo),p2=Math.asin(Math.sin(p)*Math.cos(d)+Math.cos(p)*Math.sin(d)*Math.cos(b)),l2=l+Math.atan2(Math.sin(b)*Math.sin(d)*Math.cos(p),Math.cos(d)-Math.sin(p)*Math.sin(p2));return[r2d(p2),r2d(l2)];};
-const toUTM=(la,lo)=>{const p=d2r(la),l=d2r(lo),z=Math.floor((lo+180)/6)+1,l0=d2r((z-1)*6-180+3),sp=Math.sin(p),cp=Math.cos(p),T=Math.tan(p)**2,C=Wep2*cp**2,A=cp*(l-l0),N=WA/Math.sqrt(1-We2*sp**2),M=WA*((1-We2/4-3*We2**2/64-5*We2**3/256)*p-(3*We2/8+3*We2**2/32+45*We2**3/1024)*Math.sin(2*p)+(15*We2**2/256+45*We2**3/1024)*Math.sin(4*p)-(35*We2**3/3072)*Math.sin(6*p));const E=0.9996*N*(A+(1-T+C)*A**3/6+(5-18*T+T**2+72*C-58*Wep2)*A**5/120)+500000;let Nv=0.9996*(M+N*Math.tan(p)*(A**2/2+(5-T+9*C+4*C**2)*A**4/24+(61-58*T+T**2+600*C-330*Wep2)*A**6/720));if(la<0)Nv+=10000000;return{z,b:'CDEFGHJKLMNPQRSTUVWXX'[Math.min(Math.max(Math.floor((la+80)/8),0),20)],E:E.toFixed(3),N:Nv.toFixed(3)};};
-const utmLL=(z,h,E,N)=>{const e1=(1-Math.sqrt(1-We2))/(1+Math.sqrt(1-We2)),x=E-500000;let y=h==='S'?N-10000000:N;const l0=d2r((z-1)*6-180+3),M=y/0.9996,mu=M/(WA*(1-We2/4-3*We2**2/64-5*We2**3/256)),p1=mu+(3*e1/2-27*e1**3/32)*Math.sin(2*mu)+(21*e1**2/16-55*e1**4/32)*Math.sin(4*mu)+(151*e1**3/96)*Math.sin(6*mu)+(1097*e1**4/512)*Math.sin(8*mu),N1=WA/Math.sqrt(1-We2*Math.sin(p1)**2),T1=Math.tan(p1)**2,C1=Wep2*Math.cos(p1)**2,R1=WA*(1-We2)/(1-We2*Math.sin(p1)**2)**1.5,D=x/(N1*0.9996);return{la:r2d(p1-(N1*Math.tan(p1)/R1)*(D**2/2-(5+3*T1+10*C1-4*C1**2-9*Wep2)*D**4/24+(61+90*T1+298*C1+45*T1**2-252*Wep2-3*C1**2)*D**6/720)),lo:r2d(l0+(D-(1+2*T1+C1)*D**3/6+(5-2*C1+28*T1-3*C1**2+8*Wep2+24*T1**2)*D**5/120)/Math.cos(p1))};};
-const toECEF=(la,lo,h)=>{const p=d2r(la),l=d2r(lo),N=WA/Math.sqrt(1-We2*Math.sin(p)**2),H=h||0;return'X:'+((N+H)*Math.cos(p)*Math.cos(l)).toFixed(2)+' Y:'+((N+H)*Math.cos(p)*Math.sin(l)).toFixed(2)+' Z:'+((N*(1-We2)+H)*Math.sin(p)).toFixed(2);};
-const toDMS=(dd,isLat)=>{const dir=isLat?(dd>=0?'N':'S'):(dd>=0?'E':'W'),a=Math.abs(dd),d=Math.floor(a),mf=(a-d)*60,m=Math.floor(mf),s=((mf-m)*60).toFixed(4);return d+'\u00b0 '+m+"' "+s+'" '+dir;};
-const toDDM=(dd,isLat)=>{const dir=isLat?(dd>=0?'N':'S'):(dd>=0?'E':'W'),a=Math.abs(dd),d=Math.floor(a);return d+'\u00b0 '+((a-d)*60).toFixed(7)+"' "+dir;};
-const dmsDD=(d,m,s,dir)=>{const a=+d+ +m/60+ +s/3600;return(dir==='S'||dir==='W')?-a:a;};
-const nDD=(raw,dir)=>{const d=Math.floor(+raw/100),m=(+raw)%100;return(d+m/60)*(dir==='S'||dir==='W'?-1:1);};
-const qBrng=azV=>{const b=azV<=90?azV:azV<=180?180-azV:azV<=270?azV-180:360-azV,q=azV<=90?'NE':azV<=180?'SE':azV<=270?'SW':'NW';return q[0]+' '+b.toFixed(4)+'\u00b0 '+q[1];};
-const dopQ=v=>v<1.5?{l:'IDEAL',c:'#4ADE80'}:v<2?{l:'EXCELLENT',c:'#22D3EE'}:v<3?{l:'GOOD',c:'#22D3EE'}:v<5?{l:'MODERATE',c:'#F5BE18'}:{l:'POOR',c:'#EF4444'};
-const AU={'m\u00b2':1,'ha':1/10000,'ac':1/4046.856,'ft\u00b2':10.7639,'yd\u00b2':1.19599,'a':1/100,'km\u00b2':1/1e6,'Marla':1/25.293,'Kanal':1/505.857};
-const DU={'m':1,'km':1/1000,'ft':3.28084,'yd':1.09361,'mi':1/1609.34,'nmi':1/1852,'chain':1/20.1168};
-const cvA=(m2,u)=>m2*(AU[u]||1),cvD=(m,u)=>m*(DU[u]||1);
-let aU='m\u00b2',dU='m';
-const DUBAI=[25.2048,55.2708];
-const COLS=['#22D3EE','#F5BE18','#EF4444','#4ADE80','#A78BFA','#EC4899','#FB923C','#1FA8D9'];
-const map=L.map('map',{center:DUBAI,zoom:13});
-const lyrs={sat:L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'\u00a9 Esri',maxZoom:21,maxNativeZoom:19}),sat_l:L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png',{maxZoom:21,pane:'labels'}),osm:L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'\u00a9 OSM',maxZoom:19}),topo:L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',{attribution:'\u00a9 OpenTopoMap',maxZoom:17})};
-map.createPane('labels');map.getPane('labels').style.zIndex=450;map.getPane('labels').style.pointerEvents='none';
-lyrs.sat.addTo(map);L.control.scale({imperial:true,metric:true,position:'bottomright'}).addTo(map);
-function setLyr(id,el){document.querySelectorAll('.lcb').forEach(b=>b.classList.remove('on'));el.classList.add('on');Object.values(lyrs).forEach(l=>map.removeLayer(l));if(id==='sat')lyrs.sat.addTo(map);else if(id==='hyb'){lyrs.sat.addTo(map);lyrs.sat_l.addTo(map);}else if(id==='osm')lyrs.osm.addTo(map);else lyrs.topo.addTo(map);}
-map.on('mousemove',e=>{const{lat,lng}=e.latlng;document.getElementById('cb-la').textContent=lat.toFixed(7);document.getElementById('cb-lo').textContent=lng.toFixed(7);const u=toUTM(lat,lng);document.getElementById('cb-utm').textContent='Z'+u.z+u.b+' E:'+u.E+' N:'+u.N;});
-let feats=[],fCnt=0,selFeat=null;
-function addF(type,layer,name,meta){const id=++fCnt,c=COLS[(id-1)%COLS.length];if(layer.setStyle)layer.setStyle({color:c,fillColor:c,fillOpacity:.12,weight:2.5});feats.push({id,type,layer,name:name||type+' '+id,c,meta:meta||{}});rendFL();return id;}
-function delF(id){const f=feats.find(x=>x.id===id);if(f)map.removeLayer(f.layer);feats=feats.filter(x=>x.id!==id);if(selFeat===id){selFeat=null;document.getElementById('rp').classList.remove('show');}rendFL();}
-function clrAll(){feats.forEach(f=>map.removeLayer(f.layer));feats=[];selFeat=null;document.getElementById('rp').classList.remove('show');rendFL();clrD();}
-function zA(){if(!feats.length)return;try{map.fitBounds(L.featureGroup(feats.map(f=>f.layer)).getBounds(),{padding:[50,50]});}catch(e){}}
-function rendFL(){const el=document.getElementById('feat-list');if(!feats.length){el.innerHTML='<div style="text-align:center;color:var(--Dm);padding:20px 6px;font-size:11px">No features. Draw on map or import data.</div>';document.getElementById('feat-sum').textContent='0 features';return;}el.innerHTML=feats.map(f=>'<div class="fii'+(f.id===selFeat?' sel':'')+'" onclick="selF('+f.id+')"><div class="fid" style="background:'+f.c+'"></div><div><div class="fin">'+f.name+'</div><div class="fis">'+f.type+(f.meta.area?' \u00b7 '+cvA(f.meta.area,aU).toFixed(3)+' '+aU:'')+(f.meta.dist?' \u00b7 '+cvD(f.meta.dist,dU).toFixed(2)+' '+dU:'')+'</div></div><button class="fdl" onclick="event.stopPropagation();delF('+f.id+')">\u00d7</button></div>').join('');const tA=feats.reduce((s,f)=>s+(f.meta.area||0),0);document.getElementById('feat-sum').textContent=feats.length+' feature'+(feats.length!==1?'s':'')+' \u00b7 Area: '+cvA(tA,aU).toFixed(3)+' '+aU;}
-function selF(id){selFeat=id;const f=feats.find(x=>x.id===id);if(!f)return;rendFL();document.getElementById('rp').classList.add('show');document.getElementById('rpt').textContent=f.name;const u=f.meta.lat!=null?toUTM(f.meta.lat,f.meta.lng):null;let h='<div class="rb hi"><div class="rl">NAME</div><div class="rv">'+f.name+'</div></div><div class="rb"><div class="rl">TYPE</div><div class="rv">'+f.type+'</div></div>';if(f.meta.lat!=null){h+='<div class="rb hi"><div class="rl">LATITUDE</div><div class="rv">'+toDMS(f.meta.lat,true)+'</div></div><div class="rb hi"><div class="rl">LONGITUDE</div><div class="rv">'+toDMS(f.meta.lng,false)+'</div></div><div class="rb"><div class="rl">DECIMAL DEGREES</div><div class="rv">'+f.meta.lat.toFixed(8)+', '+f.meta.lng.toFixed(8)+'</div></div>'+(u?'<div class="rb"><div class="rl">UTM Z'+u.z+u.b+'</div><div class="rv">E: '+u.E+' N: '+u.N+'</div></div>':'')+(f.meta.elev!=null?'<div class="rb"><div class="rl">ELEVATION</div><div class="rv">'+f.meta.elev+' m</div></div>':'')+(f.meta.fix?'<div class="rb"><div class="rl">FIX TYPE</div><div class="rv">'+f.meta.fix+'</div></div>':'')+(f.meta.pdop?'<div class="rb"><div class="rl">PDOP/HDOP/VDOP</div><div class="rv">'+f.meta.pdop+'/'+(f.meta.hdop||'--')+'/'+(f.meta.vdop||'--')+'</div></div>':'')+(f.meta.src?'<div class="rb"><div class="rl">SOURCE</div><div class="rv">'+f.meta.src+'</div></div>':'');}if(f.meta.area!=null){h+='<div class="rb hi"><div class="rl">AREA</div><div class="rv">'+cvA(f.meta.area,aU).toFixed(5)+' '+aU+'</div></div>';h+='<div class="rb"><div class="rl">ALL AREA UNITS</div><div class="rv" style="line-height:1.9">'+Object.keys(AU).map(u=>'<b style="color:var(--Cy)">'+u+'</b>: '+cvA(f.meta.area,u).toFixed(4)).join('  ')+'</div></div>';if(f.meta.perim)h+='<div class="rb"><div class="rl">PERIMETER</div><div class="rv">'+cvD(f.meta.perim,dU).toFixed(3)+' '+dU+'</div></div>';}if(f.meta.dist!=null){h+='<div class="rb hi"><div class="rl">DISTANCE</div><div class="rv">'+cvD(f.meta.dist,dU).toFixed(4)+' '+dU+'</div></div>';h+='<div class="rb"><div class="rl">ALL DISTANCE UNITS</div><div class="rv" style="line-height:1.9">'+Object.keys(DU).map(u=>'<b style="color:var(--Cy)">'+u+'</b>: '+cvD(f.meta.dist,u).toFixed(3)).join('  ')+'</div></div>';if(f.meta.azimuth!=null)h+='<div class="rb"><div class="rl">AZIMUTH / BACK</div><div class="rv">'+f.meta.azimuth.toFixed(4)+'\u00b0 / '+((f.meta.azimuth+180)%360).toFixed(4)+'\u00b0</div></div><div class="rb"><div class="rl">QUADRANT BEARING</div><div class="rv">'+qBrng(f.meta.azimuth)+'</div></div>';}if(f.meta.radius!=null)h+='<div class="rb hi"><div class="rl">RADIUS</div><div class="rv">'+cvD(f.meta.radius,dU).toFixed(4)+' '+dU+'</div></div><div class="rb"><div class="rl">CIRCLE AREA</div><div class="rv">'+cvA(Math.PI*f.meta.radius**2,aU).toFixed(4)+' '+aU+'</div></div>';h+='<div style="display:flex;gap:5px;margin-top:10px"><button class="bc" style="flex:1;font-size:10px" onclick="zF('+id+')">&#127919; Zoom</button><button class="br" style="flex:1;font-size:10px" onclick="delF('+id+')">&#215; Delete</button></div>';document.getElementById('rpb').innerHTML=h;try{map.fitBounds(f.layer.getBounds?f.layer.getBounds():L.latLng(f.meta.lat,f.meta.lng).toBounds(200),{padding:[60,60],maxZoom:18});}catch(e){}}
-function zF(id){const f=feats.find(x=>x.id===id);if(f)try{map.fitBounds(f.layer.getBounds?f.layer.getBounds():L.latLng(f.meta.lat,f.meta.lng).toBounds(200),{padding:[60,60],maxZoom:18});}catch(e){}}
-function closeRP(){document.getElementById('rp').classList.remove('show');selFeat=null;rendFL();}
-function expGJ(){if(!feats.length)return;const gj={type:'FeatureCollection',features:feats.map(f=>{let g=null;try{if(f.layer.toGeoJSON)g=f.layer.toGeoJSON().geometry;}catch(e){}return{type:'Feature',properties:{name:f.name,type:f.type,...f.meta},geometry:g};})};const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(gj,null,2)],{type:'application/json'}));a.download='gauge_export.geojson';a.click();}
-let mode='pan',dPts=[],dTmp=[],dR1=null,dCC=null,lastLL=null,pSave=false;
-const HINTS={pan:'Click feature to inspect  |  Right-click for context menu',pt:'Click map to place point  [Esc] to cancel',ln:'Click to add points  |  [Enter] or double-click to finish  |  [Backspace] undo',pg:'Click to add vertices  |  [Enter] or double-click to close  |  [Backspace] undo',rx:'Click first corner, then opposite corner',ci:'Click centre point, then edge',sc:'Click two points to measure ruler distance'};
-function setHint(m){const el=document.getElementById('hint');el.textContent=HINTS[m]||'';el.classList.toggle('show',!!(HINTS[m]));}
-function sM(m,el){document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));if(el)el.classList.add('on');mode=m;clrD();document.getElementById('map-area').classList.toggle('dcursor',m!=='pan');map.dragging[m==='pan'?'enable':'disable']();document.getElementById('tb-fin').style.display=['ln','pg','sc'].includes(m)?'inline-flex':'none';setHint(m);}
-function clrD(){dPts=[];dR1=null;dCC=null;dTmp.forEach(l=>map.removeLayer(l));dTmp=[];}
-function aT(l){l.addTo(map);dTmp.push(l);return l;}
-map.on('click',e=>{if(mode==='pan')return;const{lat,lng}=e.latlng;
-  if(mode==='pt'){const mk=L.circleMarker([lat,lng],{radius:7,color:'#22D3EE',fillColor:'#22D3EE',fillOpacity:.85,weight:2});mk.addTo(map);mk.bindTooltip(lat.toFixed(6)+', '+lng.toFixed(6));const id=addF('Point',mk,null,{lat,lng});mk.on('click',()=>selF(id));sM('pt',document.getElementById('tb-pt'));}
-  else if(mode==='ln'||mode==='sc'){dPts.push([lat,lng]);aT(L.circleMarker([lat,lng],{radius:5,color:mode==='sc'?'#F5BE18':'#22D3EE',fillColor:mode==='sc'?'#F5BE18':'#22D3EE',fillOpacity:1,weight:1.5}));if(dPts.length>=2)aT(L.polyline(dPts,{color:mode==='sc'?'rgba(245,190,24,.5)':'rgba(34,211,238,.5)',weight:2,dashArray:'4,3'}));}
-  else if(mode==='pg'){dPts.push([lat,lng]);aT(L.circleMarker([lat,lng],{radius:5,color:'#4ADE80',fillColor:'#4ADE80',fillOpacity:1,weight:1.5}));if(dPts.length>=3)aT(L.polygon(dPts,{color:'rgba(74,222,128,.5)',fillColor:'#4ADE80',fillOpacity:.08,weight:2}));}
-  else if(mode==='rx'){if(!dR1){dR1=[lat,lng];aT(L.circleMarker([lat,lng],{radius:5,color:'#F5BE18',fillColor:'#F5BE18',fillOpacity:1,weight:1.5}));}else{const r=L.rectangle([[dR1[0],dR1[1]],[lat,lng]],{color:'#F5BE18',fillColor:'#F5BE18',fillOpacity:.12,weight:2.5});r.addTo(map);const b=r.getBounds(),pts=[[b.getNorth(),b.getWest()],[b.getNorth(),b.getEast()],[b.getSouth(),b.getEast()],[b.getSouth(),b.getWest()]];const id=addF('Rectangle',r,null,{area:pA(pts),perim:pD(pts),pts:4});r.on('click',()=>selF(id));clrD();sM('pan',document.getElementById('tb-pan'));selF(id);}}
-  else if(mode==='ci'){if(!dCC){dCC=[lat,lng];aT(L.circleMarker([lat,lng],{radius:7,color:'#A78BFA',fillColor:'#A78BFA',fillOpacity:1,weight:1.5}));}else{const rad=hav([dCC[0],dCC[1]],[lat,lng]);const c=L.circle([dCC[0],dCC[1]],{radius:rad,color:'#A78BFA',fillColor:'#A78BFA',fillOpacity:.1,weight:2.5});c.addTo(map);c.bindTooltip('r = '+cvD(rad,dU).toFixed(2)+' '+dU);const id=addF('Circle',c,null,{lat:dCC[0],lng:dCC[1],radius:rad});c.on('click',()=>selF(id));clrD();sM('pan',document.getElementById('tb-pan'));selF(id);}}
-});
-map.on('dblclick',e=>{e.originalEvent.preventDefault();if(['ln','pg','sc'].includes(mode))finD();});
-map.on('mousemove',e=>{if(!dPts.length||!['ln','pg','sc'].includes(mode))return;dTmp.filter(l=>l._p).forEach(l=>map.removeLayer(l));dTmp=dTmp.filter(l=>!l._p);const{lat,lng}=e.latlng,last=dPts[dPts.length-1];const prev=L.polyline([[last[0],last[1]],[lat,lng]],{color:'rgba(34,211,238,.4)',dashArray:'4,3',weight:2});prev._p=true;prev.addTo(map);dTmp.push(prev);let tot=0;for(let i=0;i<dPts.length-1;i++)tot+=hav(dPts[i],dPts[i+1]);tot+=hav(last,[lat,lng]);document.getElementById('cb-di').textContent=(mode==='pg'?'Polygon':'Line')+': '+dPts.length+' pts \u00b7 '+cvD(tot,dU).toFixed(2)+' '+dU;});
-map.on('contextmenu',e=>{e.originalEvent.preventDefault();lastLL=[e.latlng.lat,e.latlng.lng];const ctx=document.getElementById('ctx');ctx.style.display='block';ctx.style.left=e.originalEvent.clientX+'px';ctx.style.top=e.originalEvent.clientY+'px';});
-document.addEventListener('click',e=>{if(!e.target.closest('#ctx'))document.getElementById('ctx').style.display='none';});
-function ctxA(a){document.getElementById('ctx').style.display='none';if(a==='fin')finD();else if(a==='undo')undo();else if(a==='cancel')sM('pan',document.getElementById('tb-pan'));else if(a==='copy'&&lastLL)navigator.clipboard&&navigator.clipboard.writeText(lastLL[0].toFixed(8)+', '+lastLL[1].toFixed(8));else if(a==='stakeout'&&lastLL){document.getElementById('so-la').value=lastLL[0].toFixed(8);document.getElementById('so-lo').value=lastLL[1].toFixed(8);sT('sk');skT('so');}else if(a==='convert'&&lastLL){document.getElementById('c-la').value=lastLL[0].toFixed(8);document.getElementById('c-lo').value=lastLL[1].toFixed(8);sT('crd');cConv();}}
-function finD(){if(mode==='ln'&&dPts.length>=2){const ly=L.polyline(dPts,{color:'#22D3EE',weight:2.5});ly.addTo(map);let d=0;for(let i=0;i<dPts.length-1;i++)d+=hav(dPts[i],dPts[i+1]);ly.bindTooltip(cvD(d,dU).toFixed(2)+' '+dU);const azV=azFn(dPts[0],dPts[dPts.length-1]);const id=addF('Polyline',ly,null,{dist:d,azimuth:azV,lat:dPts[0][0],lng:dPts[0][1]});ly.on('click',()=>selF(id));updM(null,d);}else if(mode==='sc'&&dPts.length===2){const ly=L.polyline(dPts,{color:'rgba(245,190,24,.7)',weight:3,dashArray:'8,4'});ly.addTo(map);const d=hav(dPts[0],dPts[1]);ly.bindTooltip(cvD(d,dU).toFixed(3)+' '+dU);addF('Scale',ly,'Ruler '+(fCnt+1),{dist:d,lat:dPts[0][0],lng:dPts[0][1]});updM(null,d);}else if(mode==='pg'&&dPts.length>=3){const ly=L.polygon(dPts,{color:'#4ADE80',fillColor:'#4ADE80',fillOpacity:.12,weight:2.5});ly.addTo(map);const area=pA(dPts),per=pD(dPts);ly.bindTooltip(cvA(area,aU).toFixed(3)+' '+aU);const id=addF('Polygon',ly,null,{area,perim:per,pts:dPts.length});ly.on('click',()=>selF(id));updM(area,per);}clrD();sM('pan',document.getElementById('tb-pan'));sT('feat');}
-function undo(){if(['ln','pg','sc'].includes(mode)&&dPts.length){dPts.pop();clrD();dPts.forEach(p=>aT(L.circleMarker([p[0],p[1]],{radius:5,color:mode==='pg'?'#4ADE80':'#22D3EE',fillColor:mode==='pg'?'#4ADE80':'#22D3EE',fillOpacity:1,weight:1.5})));if(dPts.length>=2)aT(L.polyline(dPts,{color:'rgba(34,211,238,.4)',weight:2,dashArray:'4,2'}));if(mode==='pg'&&dPts.length>=3)aT(L.polygon(dPts,{color:'rgba(74,222,128,.4)',fillOpacity:.06,weight:2}));}else if(feats.length)delF(feats[feats.length-1].id);}
-function updM(area,dist){sT('meas');document.getElementById('m-res').textContent=area?'Area: '+cvA(area,aU).toFixed(4)+' '+aU+' \u00b7 Perim: '+cvD(dist,dU).toFixed(2)+' '+dU:'Distance: '+cvD(dist,dU).toFixed(4)+' '+dU;document.getElementById('m-all').style.display='block';if(area)document.getElementById('m-atbl').innerHTML=Object.keys(AU).map(u=>'<tr><td style="color:var(--Dm)">'+u+'</td><td class="mn" style="text-align:right;'+(u===aU?'color:var(--Cy)':'')+'">'+cvA(area,u).toFixed(5)+'</td></tr>').join('');if(dist)document.getElementById('m-dtbl').innerHTML=Object.keys(DU).map(u=>'<tr><td style="color:var(--Dm)">'+u+'</td><td class="mn" style="text-align:right;'+(u===dU?'color:var(--Cy)':'')+'">'+cvD(dist,u).toFixed(4)+'</td></tr>').join('');}
-document.addEventListener('keydown',e=>{const tag=e.target.tagName;if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT')return;const tb=id=>document.getElementById('tb-'+id);if(e.key==='Escape')sM('pan',tb('pan'));else if(e.key==='Enter'){e.preventDefault();finD();}else if(e.key==='Backspace'||e.key==='Delete'){e.preventDefault();undo();}else if(!e.ctrlKey&&!e.metaKey){const k=e.key.toLowerCase();if(k==='p')sM('pt',tb('pt'));else if(k==='l')sM('ln',tb('ln'));else if(k==='g')sM('pg',tb('pg'));else if(k==='r')sM('rx',tb('rx'));else if(k==='c')sM('ci',tb('ci'));else if(k==='m')sM('sc',tb('sc'));else if(k==='v')sM('pan',tb('pan'));else if(k==='s')document.getElementById('sb').classList.toggle('hide');else if(e.key===' '){e.preventDefault();if(mode!=='pan'){pSave=mode;map.dragging.enable();document.getElementById('map-area').classList.remove('dcursor');}}}if(e.ctrlKey&&e.key==='z'){e.preventDefault();undo();}if(e.ctrlKey&&e.key==='a'){e.preventDefault();zA();}if(e.ctrlKey&&e.key==='e'){e.preventDefault();expGJ();}});
-document.addEventListener('keyup',e=>{if(e.key===' '&&pSave){const m=pSave;pSave=false;map.dragging.disable();document.getElementById('map-area').classList.add('dcursor');mode=m;}});
-function sT(id,el){document.querySelectorAll('.t').forEach(t=>t.classList.remove('on'));document.querySelectorAll('.pnl').forEach(p=>p.classList.remove('on'));if(el)el.classList.add('on');else{const b=document.querySelector('.t[onclick*=\"\'+id+\"\']');if(b)b.classList.add('on');}const p=document.getElementById('pnl-'+id);if(p)p.classList.add('on');}
-let crdMode2='dd';
-function cM2(m,el){crdMode2=m;document.querySelectorAll('#crd-pills .up').forEach(p=>p.classList.remove('on'));el.classList.add('on');['c-dd','c-dms','c-utm'].forEach(id=>document.getElementById(id).style.display='none');document.getElementById('c-'+m).style.display='block';}
-function cConv(){let la,lo;if(crdMode2==='dd'){la=+document.getElementById('c-la').value;lo=+document.getElementById('c-lo').value;}else if(crdMode2==='dms'){la=dmsDD(document.getElementById('c-d1').value,document.getElementById('c-m1').value,document.getElementById('c-s1').value,document.getElementById('c-r1').value);lo=dmsDD(document.getElementById('c-d2').value,document.getElementById('c-m2').value,document.getElementById('c-s2').value,document.getElementById('c-r2').value);}else{const r=utmLL(+document.getElementById('c-uz').value,document.getElementById('c-uh').value,+document.getElementById('c-ue').value,+document.getElementById('c-un').value);la=r.la;lo=r.lo;}if(isNaN(la)||isNaN(lo))return;const h=+document.getElementById('c-h').value||0,utm=toUTM(la,lo);document.getElementById('c-res').style.display='block';document.getElementById('cr-dd').textContent=la.toFixed(10)+'\u00b0,  '+lo.toFixed(10)+'\u00b0';document.getElementById('cr-dms').textContent=toDMS(la,true)+'   '+toDMS(lo,false);document.getElementById('cr-ddm').textContent=toDDM(la,true)+'   '+toDDM(lo,false);document.getElementById('cr-utm').textContent='Zone '+utm.z+utm.b+'  E: '+utm.E+'  N: '+utm.N;document.getElementById('cr-ecef').textContent=toECEF(la,lo,h);document.getElementById('cr-hemi').textContent=(la>=0?'NORTHERN':'SOUTHERN')+' / '+(lo>=0?'EASTERN':'WESTERN');}
-function cGo(){let la,lo;try{if(crdMode2==='dd'){la=+document.getElementById('c-la').value;lo=+document.getElementById('c-lo').value;}else{const t=document.getElementById('cr-dd').textContent.match(/([-\d.]+)/g);if(t){la=+t[0];lo=+t[1];}}}catch(e){}if(!isNaN(la)&&!isNaN(lo)){map.setView([la,lo],17);L.circleMarker([la,lo],{radius:8,color:'#22D3EE',fillColor:'#22D3EE',fillOpacity:.9,weight:2}).addTo(map).bindTooltip(la.toFixed(6)+', '+lo.toFixed(6)).openTooltip();}}
-map.on('click',e=>{if(mode!=='pan')return;const{lat,lng}=e.latlng;if(document.getElementById('pnl-crd').classList.contains('on')){document.getElementById('c-la').value=lat.toFixed(8);document.getElementById('c-lo').value=lng.toFixed(8);if(crdMode2==='dd')cConv();}});
-let tsOri=0,tsData=[];
-function tsSetup(){const sn=+document.getElementById('ts-sn').value,se=+document.getElementById('ts-se').value,bn=+document.getElementById('ts-bn').value,be=+document.getElementById('ts-be').value,hz=+document.getElementById('ts-bhz').value||0;if(!isNaN(sn)&&!isNaN(se)&&!isNaN(bn)&&!isNaN(be)){const gb=(r2d(Math.atan2(be-se,bn-sn))+360)%360;tsOri=(gb-hz+360)%360;document.getElementById('ts-ori').style.display='block';document.getElementById('ts-ov').textContent=tsOri.toFixed(6)+'\u00b0';}tsN2('Station set \u00b7 Ori: '+tsOri.toFixed(4)+'\u00b0','ok');}
-function tsLoad(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>Papa.parse(e.target.result,{header:true,skipEmptyLines:true,complete:res=>tsProc(res.data)});r.readAsText(f);}
-function tsProc(rows){const sn=+document.getElementById('ts-sn').value||0,se=+document.getElementById('ts-se').value||0,sz=+document.getElementById('ts-sz').value||0,hi=+document.getElementById('ts-hi').value||1.5;tsData=rows.map((row,i)=>{const k=Object.keys(row).map(x=>x.trim().toUpperCase()),g=kk=>{const ki=k.find(x=>x.includes(kk));return ki?row[Object.keys(row)[k.indexOf(ki)]]:''};const nm=g('POINT')||g('NAME')||g('ID')||g('PT')||'P'+(i+1);const la=parseFloat(g('LAT')||g('LATITUDE')||''),lo=parseFloat(g('LON')||g('LONG')||g('LONGITUDE')||'');const N=parseFloat(g('NORTHING')||g('N')||g('Y')||''),E=parseFloat(g('EASTING')||g('E')||g('X')||''),Z=parseFloat(g('ELEVATION')||g('ELEV')||g('Z')||g('H')||'');if(!isNaN(la)&&!isNaN(lo))return{nm,N:la.toFixed(8),E:lo.toFixed(8),Z:isNaN(Z)?'---':Z.toFixed(4),ll:[la,lo]};if(!isNaN(N)&&!isNaN(E))return{nm,N:N.toFixed(4),E:E.toFixed(4),Z:isNaN(Z)?'---':Z.toFixed(4),local:true};const hz=parseFloat(g('HZ')||g('HA')||''),va=parseFloat(g('VA')||g('ZA')||g('ZENITH')||''),sd=parseFloat(g('SD')||g('SLOPE')||g('DIST')||''),ht=parseFloat(g('HT')||g('TARGET')||'1.5')||1.5;if(!isNaN(hz)&&!isNaN(va)&&!isNaN(sd)){const azV=(hz+tsOri+360)%360,azR=d2r(azV),vaR=d2r(va),hd=sd*Math.sin(vaR),dz=sd*Math.cos(vaR)+hi-ht;return{nm,N:(sn+hd*Math.cos(azR)).toFixed(4),E:(se+hd*Math.sin(azR)).toFixed(4),Z:(sz+dz).toFixed(4),local:true};}return{nm,N:'?',E:'?',Z:'?'};});document.getElementById('ts-tb').innerHTML=tsData.map(r=>'<tr><td class="mn">'+r.nm+'</td><td class="mn" style="font-size:9.5px">'+r.N+'</td><td class="mn" style="font-size:9.5px">'+r.E+'</td><td class="mn" style="font-size:9.5px">'+r.Z+'</td></tr>').join('');tsN2(tsData.length+' points loaded','ok');document.getElementById('ts-wrap').style.display='block';}
-function tsPlot(){const sn=+document.getElementById('ts-sn').value,se=+document.getElementById('ts-se').value;tsData.forEach(pt=>{let la,lo;if(pt.ll){[la,lo]=pt.ll;}else if(pt.local&&!isNaN(sn)){la=DUBAI[0]+(+pt.N-sn)/111320;lo=DUBAI[1]+(+pt.E-se)/(111320*Math.cos(d2r(DUBAI[0])));}if(!la)return;const mk=L.circleMarker([la,lo],{radius:7,color:'#F5BE18',fillColor:'#F5BE18',fillOpacity:.85,weight:2});mk.addTo(map);mk.bindTooltip('<b>'+pt.nm+'</b><br>Z: '+pt.Z);const id=addF('TS Point',mk,pt.nm,{lat:la,lng:lo,elev:parseFloat(pt.Z)||undefined,src:'Total Station'});mk.on('click',()=>selF(id));});tsN2('Plotted on map','ok');}
-function tsCSV(){if(!tsData.length)return;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([['POINT,NORTHING,EASTING,ELEVATION',...tsData.map(r=>r.nm+','+r.N+','+r.E+','+r.Z)].join('\n')],{type:'text/csv'}));a.download='ts_points.csv';a.click();}
-function tsN2(msg,t){const n=document.getElementById('ts-n');n.textContent=msg;n.className='notif show '+t;setTimeout(()=>n.classList.remove('show'),3000);}
-const tsDz=document.getElementById('ts-dz');tsDz.addEventListener('dragover',e=>{e.preventDefault();tsDz.classList.add('ov');});tsDz.addEventListener('dragleave',()=>tsDz.classList.remove('ov'));tsDz.addEventListener('drop',e=>{e.preventDefault();tsDz.classList.remove('ov');const f=e.dataTransfer.files[0];if(f){const r=new FileReader();r.onload=ev=>Papa.parse(ev.target.result,{header:true,skipEmptyLines:true,complete:res=>tsProc(res.data)});r.readAsText(f);}});
-let gnData=[];
-function gnLoad(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>Papa.parse(e.target.result,{header:true,skipEmptyLines:true,complete:res=>gnProc(res.data)});r.readAsText(f);}
-function gnProc(rows){gnData=rows.map((row,i)=>{const k=Object.keys(row).map(x=>x.trim().toUpperCase()),g=kk=>{const ki=k.find(x=>x.includes(kk));return ki?row[Object.keys(row)[k.indexOf(ki)]]:''};const nm=g('POINT')||g('NAME')||g('ID')||'G'+(i+1),la=parseFloat(g('LAT')||g('LATITUDE')||''),lo=parseFloat(g('LON')||g('LONG')||'');if(isNaN(la)||isNaN(lo))return null;const h=parseFloat(g('H')||g('HEIGHT')||g('ELEV')||''),fix=g('FIX')||g('QUALITY')||'',pd=parseFloat(g('PDOP')||''),hd=parseFloat(g('HDOP')||''),vd=parseFloat(g('VDOP')||''),sv=g('SATS')||'';return{nm,la,lo,h:isNaN(h)?'---':h.toFixed(4),fix,pd:isNaN(pd)?'---':pd.toFixed(2),hd:isNaN(hd)?'---':hd.toFixed(2),vd:isNaN(vd)?'---':vd.toFixed(2),sv};}).filter(Boolean);document.getElementById('gn-tb').innerHTML=gnData.map(r=>'<tr><td class="mn">'+r.nm+'</td><td class="mn" style="font-size:9.5px">'+r.la.toFixed(6)+'</td><td class="mn" style="font-size:9.5px">'+r.lo.toFixed(6)+'</td><td class="mn" style="font-size:9.5px">'+r.h+'</td><td class="'+(r.fix.includes('Fixed')?'ok':r.fix.includes('Float')?'wn':'')+'" style="font-size:9.5px">'+(r.fix||'---')+'</td><td class="mn" style="font-size:9.5px">'+r.pd+'</td></tr>').join('');gnN2(gnData.length+' points loaded','ok');document.getElementById('gn-wrap').style.display='block';}
-function gnPlot(){const fc={'RTK Fixed':'#4ADE80','RTK Float':'#22D3EE','DGNSS':'#F5BE18','SBAS':'#F5BE18','Autonomous':'#EF4444'};gnData.forEach(pt=>{const c=fc[pt.fix]||'#22D3EE';const mk=L.circleMarker([pt.la,pt.lo],{radius:7,color:c,fillColor:c,fillOpacity:.85,weight:2});mk.addTo(map);mk.bindTooltip('<b>'+pt.nm+'</b><br>H: '+pt.h+' m<br>Fix: '+(pt.fix||'---')+'<br>PDOP: '+pt.pd);const id=addF('GNSS',mk,pt.nm,{lat:pt.la,lng:pt.lo,elev:parseFloat(pt.h)||undefined,fix:pt.fix,pdop:pt.pd,hdop:pt.hd,vdop:pt.vd,src:'GNSS Import'});mk.on('click',()=>selF(id));});if(gnData.length)map.fitBounds(L.featureGroup(gnData.map(p=>L.circleMarker([p.la,p.lo]))).getBounds(),{padding:[60,60]});gnN2('Plotted','ok');}
-function gnCSV(){if(!gnData.length)return;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([['POINT,LAT,LON,H,FIX,PDOP,HDOP,VDOP,SATS',...gnData.map(r=>r.nm+','+r.la.toFixed(8)+','+r.lo.toFixed(8)+','+r.h+','+r.fix+','+r.pd+','+r.hd+','+r.vd+','+r.sv)].join('\n')],{type:'text/csv'}));a.download='gnss_points.csv';a.click();}
-function gnN2(msg,t){const n=document.getElementById('gn-n');n.textContent=msg;n.className='notif show '+t;setTimeout(()=>n.classList.remove('show'),3000);}
-const gnDz=document.getElementById('gn-dz');gnDz.addEventListener('dragover',e=>{e.preventDefault();gnDz.classList.add('ov');});gnDz.addEventListener('dragleave',()=>gnDz.classList.remove('ov'));gnDz.addEventListener('drop',e=>{e.preventDefault();gnDz.classList.remove('ov');const f=e.dataTransfer.files[0];if(f){const r=new FileReader();r.onload=ev=>Papa.parse(ev.target.result,{header:true,skipEmptyLines:true,complete:res=>gnProc(res.data)});r.readAsText(f);}});
-function nmeaFile(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{document.getElementById('nmea-txt').value=e.target.result.slice(0,8000);nmeaParse();};r.readAsText(f);}
-function nmeaParse(){const txt=document.getElementById('nmea-txt').value,lines=txt.split(/\r?\n/).filter(l=>l.match(/\$(GN|GP|GL|GB)GGA/));const n=document.getElementById('nmea-n');if(!lines.length){n.textContent='No GGA sentences found';n.className='notif show er';return;}const parsed=lines.map((ln,i)=>{const p=ln.split(',');if(p.length<10)return null;try{const la=nDD(p[2],p[3]),lo=nDD(p[4],p[5]),fix=['Invalid','GPS','DGPS','PPS','RTK Fixed','RTK Float','Est','Manual','Sim'][parseInt(p[6])]||p[6],sv=p[7],alt=parseFloat(p[9]);return{nm:'NMEA-'+String(i+1).padStart(3,'0'),la,lo,h:alt.toFixed(3),fix,sv};}catch(e){return null;}}).filter(Boolean);document.getElementById('nmea-tb').innerHTML=parsed.map((r,i)=>'<tr><td class="mn">'+(i+1)+'</td><td class="mn" style="font-size:9.5px">'+r.la.toFixed(6)+'</td><td class="mn" style="font-size:9.5px">'+r.lo.toFixed(6)+'</td><td class="mn" style="font-size:9.5px">'+r.h+'</td><td style="font-size:9.5px;'+(r.fix.includes('RTK')?'color:#4ADE80':r.fix==='DGPS'?'color:#F5BE18':'color:var(--M)')+'">'+r.fix+'</td><td class="mn" style="font-size:9.5px">'+r.sv+'</td></tr>').join('');n.textContent=parsed.length+' GGA parsed and plotted';n.className='notif show ok';document.getElementById('nmea-wrap').style.display='block';const fc={'GPS':'#1FA8D9','DGPS':'#F5BE18','RTK Fixed':'#4ADE80','RTK Float':'#22D3EE'};parsed.forEach(pt=>{const c=fc[pt.fix]||'#22D3EE';const mk=L.circleMarker([pt.la,pt.lo],{radius:6,color:c,fillColor:c,fillOpacity:.8,weight:2});mk.addTo(map);mk.bindTooltip('<b>'+pt.nm+'</b><br>H:'+pt.h+'m Fix:'+pt.fix+' SVs:'+pt.sv);const id=addF('NMEA',mk,pt.nm,{lat:pt.la,lng:pt.lo,elev:parseFloat(pt.h),fix:pt.fix,src:'NMEA GGA'});mk.on('click',()=>selF(id));});if(parsed.length)map.fitBounds(L.featureGroup(parsed.map(p=>L.circleMarker([p.la,p.lo]))).getBounds(),{padding:[60,60]});}
-function impT(m,el){document.querySelectorAll('#imp-pills .up').forEach(p=>p.classList.remove('on'));el.classList.add('on');['ts','gnss','nmea'].forEach(id=>document.getElementById('it-'+id).style.display='none');document.getElementById('it-'+m).style.display='block';}
-let lvRows=[{id:1,lab:'BM-1',bs:'1.523',is:'',fs:'',note:'Start BM'},{id:2,lab:'TP-1',bs:'2.108',is:'',fs:'0.945',note:''},{id:3,lab:'TP-2',bs:'1.654',is:'0.410',fs:'1.302',note:'IS shot'},{id:4,lab:'BM-2',bs:'',is:'',fs:'0.812',note:'Closing'}],lvCnt=4;
-function lvRend(){const tb=document.getElementById('lv-tb');if(!tb)return;tb.innerHTML=lvRows.map(r=>'<tr><td><input value="'+r.lab+'" oninput="lvUp('+r.id+',\'lab\',this.value)" class="nm" style="width:50px;background:transparent;border:none;color:var(--Cy);font-weight:700;outline:none;font-family:monospace;font-size:10px"></td>'+['bs','is','fs'].map(f=>'<td><input value="'+(r[f]||'')+'" oninput="lvUp('+r.id+',\''+f+'\',this.value)" style="background:transparent;border:none;color:'+(f==='bs'?'#4ADE80':f==='fs'?'#FCA5A5':'var(--M)')+';font-family:monospace;font-size:10px;width:48px;outline:none"></td>').join('')+'<td class="mn" id="lv-hi-'+r.id+'" style="color:#7DD3FC">---</td><td class="mn ok" id="lv-el-'+r.id+'">---</td><td><input value="'+(r.note||'')+'" oninput="lvUp('+r.id+',\'note\',this.value)" style="background:transparent;border:none;color:var(--Dm);font-size:10px;width:55px;outline:none"></td><td><button onclick="lvRows=lvRows.filter(x=>x.id!=='+r.id+');lvRend()" style="background:none;border:none;color:rgba(239,68,68,.35);cursor:pointer;font-size:12px">\u00d7</button></td></tr>').join('');}
-function lvUp(id,f,v){const r=lvRows.find(x=>x.id===id);if(r)r[f]=v;}
-function lvAdd(){lvCnt++;lvRows.push({id:lvCnt,lab:'PT-'+lvCnt,bs:'',is:'',fs:'',note:''});lvRend();}
-function lvCompute(){let curHI=0,curElev=parseFloat(document.getElementById('lv-bm').value)||100,sumBS=0,sumFS=0;lvRows.forEach((row,i)=>{const bs=parseFloat(row.bs),fs=parseFloat(row.fs),is_=parseFloat(row.is);if(i===0){if(!isNaN(bs)){curHI=curElev+bs;sumBS+=bs;}const h=document.getElementById('lv-hi-'+row.id),e=document.getElementById('lv-el-'+row.id);if(h)h.textContent=isNaN(bs)?'---':curHI.toFixed(4);if(e)e.textContent=curElev.toFixed(4);}else{if(!isNaN(fs)){curElev=curHI-fs;sumFS+=fs;}if(!isNaN(bs)){curHI=curElev+bs;sumBS+=bs;}const h=document.getElementById('lv-hi-'+row.id),e=document.getElementById('lv-el-'+row.id);if(h)h.textContent=(isNaN(bs)&&isNaN(fs))?'---':curHI.toFixed(4);if(e)e.textContent=isNaN(fs)?'---':curElev.toFixed(4);}if(!isNaN(is_)){const e=document.getElementById('lv-el-'+row.id);if(e)e.textContent=(curHI-is_).toFixed(4)+' (IS)';}});const sb=document.getElementById('lv-sbs'),sf=document.getElementById('lv-sfs');if(sb)sb.textContent=sumBS.toFixed(4)+' m';if(sf)sf.textContent=sumFS.toFixed(4)+' m';document.getElementById('lv-sum').style.display='block';const cl=parseFloat(document.getElementById('lv-cl').value);if(!isNaN(cl)){const err=curElev-cl;const d=document.getElementById('lv-closure');d.style.display='block';d.innerHTML='<div class="rb '+(Math.abs(err)<0.005?'ok':'wn')+'"><div class="rl">CLOSURE ERROR</div><div class="rv">'+err.toFixed(4)+' m  '+(Math.abs(err)<0.005?'\u2713 OK':'\u26a0 CHECK')+'</div></div>';}}
-function lvCSV(){const rows=[['STATION','BS','IS','FS','HI','ELEVATION','NOTE'],...lvRows.map(r=>[r.lab,r.bs,r.is,r.fs,(document.getElementById('lv-hi-'+r.id)||{}).textContent||'',(document.getElementById('lv-el-'+r.id)||{}).textContent||'',r.note])].map(r=>r.join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([rows],{type:'text/csv'}));a.download='leveling.csv';a.click();}
-function skT(id,el){document.querySelectorAll('#sk-pills .up').forEach(p=>p.classList.remove('on'));if(el)el.classList.add('on');['so','inv','hc','vc'].forEach(x=>document.getElementById('sk-'+x).style.display='none');document.getElementById('sk-'+id).style.display='block';}
-let soRes=null;
-function soComp(){const la=+document.getElementById('so-la').value,lo=+document.getElementById('so-lo').value,azV=+document.getElementById('so-az').value,d=+document.getElementById('so-d').value;if([la,lo,azV,d].some(isNaN))return;const[la2,lo2]=destFn([la,lo],azV,d);soRes=[la2,lo2];const utm=toUTM(la2,lo2);document.getElementById('so-la2').textContent=la2.toFixed(10)+'\u00b0';document.getElementById('so-lo2').textContent=lo2.toFixed(10)+'\u00b0';document.getElementById('so-dms').textContent=toDMS(la2,true)+'  '+toDMS(lo2,false);document.getElementById('so-utm').textContent='Z'+utm.z+utm.b+'  E:'+utm.E+'  N:'+utm.N;document.getElementById('so-res').style.display='block';}
-function soPlot(){if(!soRes)return;const mk=L.circleMarker(soRes,{radius:8,color:'#4ADE80',fillColor:'#4ADE80',fillOpacity:.9,weight:2});mk.addTo(map);mk.bindTooltip('Stakeout Point');const id=addF('Stakeout',mk,'Stakeout Point',{lat:soRes[0],lng:soRes[1],src:'Stakeout'});mk.on('click',()=>selF(id));map.setView(soRes,17);}
-function ivComp(){const la1=+document.getElementById('iv-la1').value,lo1=+document.getElementById('iv-lo1').value,la2=+document.getElementById('iv-la2').value,lo2=+document.getElementById('iv-lo2').value;if([la1,lo1,la2,lo2].some(isNaN))return;const d=hav([la1,lo1],[la2,lo2]),azV=azFn([la1,lo1],[la2,lo2]),baz=(azV+180)%360;document.getElementById('iv-d').textContent=d.toFixed(4)+' m';document.getElementById('iv-faz').textContent=azV.toFixed(6)+'\u00b0';document.getElementById('iv-baz').textContent=baz.toFixed(6)+'\u00b0';document.getElementById('iv-qb').textContent=qBrng(azV);document.getElementById('iv-tbl').innerHTML=Object.keys(DU).map(u=>'<tr><td style="color:var(--Dm)">'+u+'</td><td class="mn" style="text-align:right">'+cvD(d,u).toFixed(4)+'</td></tr>').join('');document.getElementById('iv-res').style.display='block';}
-function hcComp(){let R=+document.getElementById('hc-r').value||null,D=+document.getElementById('hc-d').value||null,T=+document.getElementById('hc-t').value||null,L=+document.getElementById('hc-l').value||null;if(R&&D){const dr=d2r(D);T=R*Math.tan(dr/2);L=R*dr;}else if(R&&T){const dr=2*Math.atan(T/R);D=r2d(dr);L=R*dr;}else if(R&&L){const dr=L/R;D=r2d(dr);T=R*Math.tan(dr/2);}else return;const dr=d2r(D),E=R*(1/Math.cos(dr/2)-1),M=R*(1-Math.cos(dr/2)),LC=2*R*Math.sin(dr/2),DC=5729.578/R;[['hc-R',R.toFixed(4)+' m'],['hc-D',D.toFixed(6)+'\u00b0'],['hc-T',T.toFixed(4)+' m'],['hc-L',L.toFixed(4)+' m'],['hc-E',E.toFixed(4)+' m'],['hc-M',M.toFixed(4)+' m'],['hc-LC',LC.toFixed(4)+' m'],['hc-DC',DC.toFixed(4)+'\u00b0']].forEach(([id,v])=>document.getElementById(id).textContent=v);document.getElementById('hc-res').style.display='block';}
-function vcComp(){const g1=+document.getElementById('vc-g1').value/100,g2=+document.getElementById('vc-g2').value/100,L=+document.getElementById('vc-l').value,pvSta=+document.getElementById('vc-s').value,pvEl=+document.getElementById('vc-e').value;if([g1,g2,L,pvSta,pvEl].some(isNaN))return;const r=(g2-g1)/L,bvSta=pvSta-L/2,bvEl=pvEl-g1*L/2,evSta=pvSta+L/2,evEl=pvEl+g2*L/2,g1p=+document.getElementById('vc-g1').value,g2p=+document.getElementById('vc-g2').value,K=Math.abs(L/(g2p-g1p));document.getElementById('vc-bs').textContent=bvSta.toFixed(3)+' m';document.getElementById('vc-be').textContent=bvEl.toFixed(4)+' m';document.getElementById('vc-es').textContent=evSta.toFixed(3)+' m';document.getElementById('vc-ee').textContent=evEl.toFixed(4)+' m';document.getElementById('vc-k').textContent=K.toFixed(3)+' m/%';document.getElementById('vc-r').textContent=(r*100).toFixed(6)+'%/m';if((g1>0&&g2<0)||(g1<0&&g2>0)){const x=-g1/r;if(x>=0&&x<=L){document.getElementById('vc-hlb').style.display='block';document.getElementById('vc-hll').textContent=(g1>0?'HIGH':'LOW')+' POINT STA / ELEV';document.getElementById('vc-hl').textContent=(bvSta+x).toFixed(3)+' m  /  '+(bvEl+g1*x+0.5*r*x*x).toFixed(4)+' m';}}else document.getElementById('vc-hlb').style.display='none';document.getElementById('vc-tb').innerHTML=Array.from({length:13},(_,i)=>{const x=(i/12)*L;return{sta:bvSta+x,el:bvEl+g1*x+0.5*r*x*x,gr:((g1+r*x)*100).toFixed(4)};}).map(s=>'<tr><td class="mn">'+s.sta.toFixed(3)+'</td><td class="mn" style="color:var(--Cy)">'+s.el.toFixed(4)+'</td><td class="mn" style="'+(+s.gr>0?'color:#4ADE80':'color:#FCA5A5')+'">'+(+s.gr>0?'+':'')+s.gr+'%</td></tr>').join('');document.getElementById('vc-res').style.display='block';}
-function gfRun(){const la=+document.getElementById('gf-la').value||25.2,dt=document.getElementById('gf-dt').value||new Date().toISOString().slice(0,10);document.getElementById('gf-dtlbl').textContent=dt;const hrs=Array.from({length:24},(_,h)=>{const vis=(Math.sin((h-6)*PI/12)*0.3+0.7)*(1-Math.abs(la)/90*0.25),rnd=s=>Math.abs(Math.sin(s*137.5+h*53.7+la))%1;const gps=Math.round(5+4*vis+rnd(1)*2),glo=Math.round(3+3*vis+rnd(2)*2),gal=Math.round(3+3*vis+rnd(3)*2),bds=Math.round(4+4*vis+rnd(4)*2),tot=gps+glo+gal+bds,pdop=Math.max(1.0,5.5-tot*0.18+(1-(Math.sin((h+3)*PI/10)*0.5+0.5))*0.7);const dq=dopQ(pdop);return{h,gps,glo,gal,bds,tot,pdop:+pdop.toFixed(2),q:dq.l,qc:dq.c};});const best=hrs.reduce((a,b)=>a.pdop<b.pdop?a:b),worst=hrs.reduce((a,b)=>a.pdop>b.pdop?a:b);document.getElementById('gf-best').textContent=String(best.h).padStart(2,'0')+':00 \u2013 '+String((best.h+2)%24).padStart(2,'0')+':00  PDOP:'+best.pdop+'  '+best.tot+' SVs';document.getElementById('gf-worst').textContent=String(worst.h).padStart(2,'0')+':00  PDOP:'+worst.pdop;const cv=document.getElementById('gf-cv'),ctx=cv.getContext('2d');const dpr=window.devicePixelRatio||1;cv.width=(cv.clientWidth||260)*dpr;cv.height=90*dpr;ctx.scale(dpr,dpr);const W=cv.clientWidth||260,H=90,maxP=6,pad=18;ctx.fillStyle='#040D16';ctx.fillRect(0,0,W,H);const bw=(W-4)/24-1;hrs.forEach((hr,i)=>{const bH=(Math.min(hr.pdop,maxP)/maxP)*(H-pad-6),x=2+i*(bw+1),y=pad+(H-pad-6)-bH;ctx.fillStyle=hr.qc+'cc';ctx.fillRect(x,y,bw,bH);if(i%6===0){ctx.fillStyle='rgba(90,131,158,.6)';ctx.font='7px monospace';ctx.textAlign='center';ctx.fillText(String(i).padStart(2,'0')+'h',x+bw/2,H-1);}});ctx.fillStyle='rgba(90,131,158,.5)';ctx.font='7px monospace';ctx.textAlign='right';[1,2,3,5].forEach(v=>{const y=pad+(H-pad-6)*(1-v/maxP);ctx.fillText(v,14,y+3);});document.getElementById('gf-tb').innerHTML=hrs.map(h=>'<tr><td class="mn">'+String(h.h).padStart(2,'0')+':00</td><td class="mn" style="color:'+h.qc+';font-weight:700">'+h.pdop+'</td><td style="font-size:9px;color:'+h.qc+'">'+h.q+'</td><td class="mn" style="color:#93C5FD">'+h.gps+'</td><td class="mn" style="color:#C4B5FD">'+h.glo+'</td><td class="mn" style="color:#6EE7B7">'+h.gal+'</td><td class="mn" style="color:#FDE68A">'+h.bds+'</td><td class="mn" style="color:var(--Cy);font-weight:700">'+h.tot+'</td></tr>').join('');document.getElementById('gf-res').style.display='block';}
-const LX_SAMPLE='<?xml version="1.0" encoding="UTF-8"?><LandXML version="1.2" xmlns="http://www.landxml.org/schema/LandXML-1.2"><CgPoints><CgPoint name="BM-100" desc="Benchmark" code="BM">5000.000 5000.000 45.250</CgPoint><CgPoint name="TP-1" desc="Turn Point" code="TP">5152.432 5047.876 46.120</CgPoint><CgPoint name="NE-COR" desc="NE Corner" code="PROP">5325.100 5110.500 48.010</CgPoint><CgPoint name="SW-COR" desc="SW Corner" code="PROP">5200.000 5000.000 46.750</CgPoint></CgPoints><Alignments><Alignment name="CL-MAIN" desc="Main Road" length="423.5" staStart="0"><CoordGeom><Line length="200.0" dir="0.0"/><Curve length="157.08" radius="200" rot="ccw"/><Line length="66.42" dir="90.0"/></CoordGeom></Alignment></Alignments></LandXML>';
-let lxPts=[],lxAls=[];
-function lxFile(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{document.getElementById('lx-txt').value=e.target.result;lxParse();};r.readAsText(f);}
-function lxParse(){try{const doc=new DOMParser().parseFromString(document.getElementById('lx-txt').value,'application/xml');if(doc.querySelector('parsererror'))throw new Error('Invalid XML');lxPts=[...doc.querySelectorAll('CgPoint,cgPoint')].map(el=>{const p=el.textContent.trim().split(/[\s,]+/);return{nm:el.getAttribute('name')||el.getAttribute('id')||'',desc:el.getAttribute('desc')||'',code:el.getAttribute('code')||'',N:p[0]||'',E:p[1]||'',Z:p[2]||''};});lxAls=[...doc.querySelectorAll('Alignment')].map(el=>({nm:el.getAttribute('name')||'',len:el.getAttribute('length')||'',elems:[...el.querySelectorAll('Line,Curve,Spiral')].map(e=>({t:e.tagName,len:e.getAttribute('length')||'',rad:e.getAttribute('radius')||'',dir:e.getAttribute('dir')||'',rot:e.getAttribute('rot')||''}))}));document.getElementById('lx-ptc').textContent=lxPts.length;document.getElementById('lx-alc').textContent=lxAls.length;lxRend();document.getElementById('lx-res').style.display='block';const n=document.getElementById('lx-n');n.textContent=lxPts.length+' points, '+lxAls.length+' alignments';n.className='notif show ok';}catch(e){const n=document.getElementById('lx-n');n.textContent='Error: '+e.message;n.className='notif show er';}}
-function lxRend(){const q=(document.getElementById('lx-q').value||'').toLowerCase();const fl=lxPts.filter(p=>!q||[p.nm,p.desc,p.code].some(v=>v.toLowerCase().includes(q)));document.getElementById('lx-tb').innerHTML=fl.map(p=>'<tr><td class="mn" style="color:var(--Cy)">'+p.nm+'</td><td style="font-size:9.5px;color:var(--M)">'+p.code+'</td><td class="mn" style="font-size:9.5px">'+p.N+'</td><td class="mn" style="font-size:9.5px">'+p.E+'</td><td class="mn" style="font-size:9.5px;color:#4ADE80">'+(p.Z||'---')+'</td></tr>').join('');document.getElementById('lx-altb').innerHTML=lxAls.flatMap(al=>al.elems.map((e,i)=>'<tr><td style="color:var(--Cy);font-weight:700">'+(i===0?al.nm:'')+'</td><td class="mn" style="font-size:9.5px">'+(i===0&&al.len?al.len+' m':'')+'</td><td style="color:'+(e.t==='Line'?'#4ADE80':e.t==='Curve'?'#22D3EE':'#A78BFA')+';font-weight:700;font-size:9.5px">'+e.t.toUpperCase()+'</td><td class="mn" style="font-size:9.5px">'+(e.len?e.len+' m':'')+(e.rad?' r='+e.rad+' m':'')+(e.dir?' dir='+e.dir+'\u00b0':'')+(e.rot?' '+e.rot:'')+'</td></tr>')).join('');}
-function lxFilter(){lxRend();}
-function lxTab(id,el){document.querySelectorAll('#lx-pills .up').forEach(p=>p.classList.remove('on'));el.classList.add('on');document.getElementById('lx-pts').style.display=id==='pts'?'block':'none';document.getElementById('lx-al').style.display=id==='al'?'block':'none';}
-function lxPlot(){const sn=+document.getElementById('ts-sn').value||0,se=+document.getElementById('ts-se').value||0;lxPts.forEach((pt,i)=>{const N=+pt.N,E=+pt.E;if(isNaN(N)||isNaN(E))return;const la=DUBAI[0]+(N-(sn||5000))/111320,lo=DUBAI[1]+(E-(se||5000))/(111320*Math.cos(d2r(DUBAI[0])));const c=COLS[i%COLS.length];const mk=L.circleMarker([la,lo],{radius:6,color:c,fillColor:c,fillOpacity:.85,weight:2});mk.addTo(map);mk.bindTooltip('<b>'+pt.nm+'</b> ['+pt.code+']<br>Z: '+(pt.Z||'---'));const id=addF('LandXML',mk,pt.nm,{lat:la,lng:lo,elev:parseFloat(pt.Z)||undefined,src:'LandXML'});mk.on('click',()=>selF(id));});zA();}
-function lxCSV(){const q=(document.getElementById('lx-q').value||'').toLowerCase();const fl=lxPts.filter(p=>!q||[p.nm,p.desc,p.code].some(v=>v.toLowerCase().includes(q)));const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([['NAME,DESC,CODE,NORTHING,EASTING,ELEVATION',...fl.map(p=>p.nm+','+p.desc+','+p.code+','+p.N+','+p.E+','+p.Z)].join('\n')],{type:'text/csv'}));a.download='landxml_points.csv';a.click();}
-function dubChk(){const h=+document.getElementById('dub-h').value,v=+document.getElementById('dub-v').value,m=document.getElementById('dub-m').value;if(isNaN(h)||isNaN(v))return;const c=h<=.025&&v<=.05?{n:'CLASS A \u2014 CADASTRAL',c:'#1FA8D9',p:true}:h<=.1&&v<=.15?{n:'CLASS B \u2014 ENGINEERING',c:'#4ADE80',p:true}:h<=.25&&v<=.35?{n:'CLASS C \u2014 TOPOGRAPHIC',c:'#F5BE18',p:true}:h<=1&&v<=2?{n:'CLASS D \u2014 GIS',c:'#A78BFA',p:true}:{n:'NON-COMPLIANT',c:'#EF4444',p:false};document.getElementById('dub-r').innerHTML='<div style="background:'+(c.p?'rgba(34,197,94,.07)':'rgba(239,68,68,.07)')+';border:1px solid '+(c.p?'rgba(34,197,94,.2)':'rgba(239,68,68,.2)')+';border-radius:9px;padding:11px;text-align:center;margin-top:5px"><div style="font-weight:800;color:'+c.c+';font-size:11px;letter-spacing:.5px">'+c.n+'</div><div style="color:'+(c.p?'#4ADE80':'#EF4444')+';font-weight:700;font-size:11px;margin:4px 0">'+(c.p?'\u2713 COMPLIANT':'\u00d7 NON-COMPLIANT')+'</div><div style="font-size:10px;color:var(--M)">H: \u00b1'+(h*1000).toFixed(1)+'mm \u00b7 V: \u00b1'+(v*1000).toFixed(1)+'mm \u00b7 '+m+'</div></div>';}
-function initPills(){const ap=document.getElementById('a-pills'),dp=document.getElementById('d-pills');if(ap)ap.innerHTML=Object.keys(AU).map(u=>'<button class="up'+(u===aU?' on':'')+'" onclick="aU=\''+u+'\';document.querySelectorAll(\'#a-pills .up\').forEach(p=>p.classList.remove(\'on\'));this.classList.add(\'on\')">'+u+'</button>').join('');if(dp)dp.innerHTML=Object.keys(DU).map(u=>'<button class="up'+(u===dU?' on':'')+'" onclick="dU=\''+u+'\';document.querySelectorAll(\'#d-pills .up\').forEach(p=>p.classList.remove(\'on\'));this.classList.add(\'on\')">'+u+'</button>').join('');}
-initPills();lvRend();document.getElementById('gf-dt').value=new Date().toISOString().slice(0,10);
-window.addEventListener('resize',()=>{const cv=document.getElementById('gf-cv');if(cv)cv.style.width='100%';});
+(function(){
+  const cv=document.getElementById('cv-gauge-hero');
+  if(!cv) return;
+  const cx=cv.getContext('2d'); const W=cv.width,H=cv.height;
+  const sensors=[
+    {name:'S-01 North Wall',color:'#C8941F',data:[],th:8},
+    {name:'S-02 South Column',color:'#34D399',data:[],th:10},
+    {name:'S-03 East Footing',color:'#A78BFA',data:[],th:7}
+  ];
+  sensors.forEach((s,i)=>{for(let j=0;j<70;j++)s.data.push(Math.sin(j*.08+i*1.1)*3+Math.random()*.8+i*1.2);});
+  let t=0;
+  function frame(){
+    t++;
+    cx.fillStyle='#04100A';cx.fillRect(0,0,W,H);
+    cx.strokeStyle='rgba(200,148,31,.06)';cx.lineWidth=.5;
+    for(let x=0;x<W;x+=36){cx.beginPath();cx.moveTo(x,0);cx.lineTo(x,H);cx.stroke();}
+    for(let y=0;y<H;y+=30){cx.beginPath();cx.moveTo(0,y);cx.lineTo(W,y);cx.stroke();}
+    cx.fillStyle='rgba(11,45,30,.7)';cx.strokeStyle='rgba(200,148,31,.18)';cx.lineWidth=1;
+    cx.beginPath();cx.roundRect(10,10,W-20,42,6);cx.fill();cx.stroke();
+    cx.fillStyle='#C8941F';cx.font='bold 11px monospace';cx.fillText('● GAUGE MONITORING — LIVE',18,30);
+    const now=new Date();cx.fillStyle='rgba(200,220,200,.5)';cx.font='9px monospace';
+    cx.fillText('SENSORS: 3 ACTIVE | '+now.toTimeString().slice(0,8)+' GST',18,46);
+    sensors.forEach((s,si)=>{
+      const val=Math.sin(t*.018+si*1.4)*3.5+Math.random()*.4+si*1.5;
+      s.data.push(val);if(s.data.length>70)s.data.shift();
+      const alert=val>s.th*.9;
+      const yBase=64+si*112;const chartH=72;const chartW=W-100;
+      cx.fillStyle='rgba(11,45,30,.5)';cx.strokeStyle='rgba(255,255,255,.06)';cx.lineWidth=.5;
+      cx.beginPath();cx.roundRect(14,yBase,W-28,96,4);cx.fill();cx.stroke();
+      if(alert){cx.fillStyle='rgba(239,68,68,.12)';cx.fillRect(14,yBase,W-28,96);}
+      cx.fillStyle=s.color;cx.font='bold 9.5px monospace';cx.fillText(s.name,22,yBase+16);
+      cx.fillStyle='rgba(200,220,200,.45)';cx.font='8.5px monospace';
+      cx.fillText('SETTLEMENT: '+(val>0?'+':'')+val.toFixed(2)+'mm',22,yBase+30);
+      if(alert){cx.fillStyle='rgba(239,68,68,.9)';cx.font='bold 8px monospace';cx.fillText('⚠ THRESHOLD',W-105,yBase+16);}
+      cx.strokeStyle=s.color;cx.lineWidth=1.6;cx.beginPath();
+      const pts=s.data;const pw=chartW/pts.length;
+      pts.forEach((v,pi)=>{const px=90+pi*pw;const py=yBase+72-(v/15)*chartH;pi===0?cx.moveTo(px,py):cx.lineTo(px,py);});
+      cx.stroke();
+      cx.strokeStyle='rgba(239,68,68,.35)';cx.lineWidth=.8;cx.setLineDash([4,4]);
+      const ty=yBase+72-(s.th/15)*chartH;
+      cx.beginPath();cx.moveTo(90,ty);cx.lineTo(W-14,ty);cx.stroke();cx.setLineDash([]);
+    });
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
+const _obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('in')}),{threshold:.07});
+document.querySelectorAll('.fi').forEach(el=>_obs.observe(el));
 </script>
-</body>
-</html>
+</body></html>
