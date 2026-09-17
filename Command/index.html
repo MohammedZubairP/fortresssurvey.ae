@@ -722,7 +722,7 @@ function docWeekdayDate(ds){if(!ds)return'—';try{return new Date(ds+'T12:00:00
 const PRINT_BASE_CSS=`
 @page{size:A4;margin:16mm 14mm 18mm 14mm}
 *{box-sizing:border-box}
-body{font-family:Arial,Helvetica,sans-serif;color:#111;font-size:12px;line-height:1.5;margin:0;padding:0;position:relative}
+body{font-family:Arial,Helvetica,sans-serif;color:#111;font-size:12px;line-height:1.5;margin:0;padding:0;position:relative;min-height:263mm}
 .wm{position:fixed;top:38%;left:50%;transform:translate(-50%,-50%);width:65%;max-width:420px;opacity:0.07;z-index:-1;pointer-events:none}
 .hdr-logo{display:block;margin:0 auto 12px;height:64px}
 .co-row{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid #000;padding-bottom:9px;margin-bottom:14px;gap:14px}
@@ -758,9 +758,10 @@ footer.pf{margin-top:26px;border-top:1px solid #000;padding-top:5px;font-size:9.
 .survey-table caption{background:#e9e9e6;border:1px solid #000;padding:4px;font-weight:bold;font-size:11.5px}
 .survey-table th,.survey-table td{border:1px solid #000;padding:5px 7px;font-size:11px;text-align:center}
 .sign-block{display:flex;flex-wrap:wrap;align-items:flex-end;gap:40px;margin-top:26px}
-.sign-block .signatory{display:flex;align-items:flex-end;gap:6px}
-.sign-block img.sig{height:46px}
-.sign-block img.stamp{height:92px;margin-left:-14px}
+.signatory{display:flex;align-items:flex-end;gap:6px}
+img.sig{height:46px}
+img.stamp{height:92px}
+.sign-block img.stamp{margin-left:-14px}
 .photo-block{margin:16px 0;text-align:left}
 .photo-block img{max-width:260px;max-height:200px;border:1px solid #999}
 .photo-block .cap{font-style:italic;font-weight:bold;font-size:11px;margin-top:4px}
@@ -774,10 +775,13 @@ function itemsCalc(items,includeVat,vatPct,discount,discountType){
   return{rows,subtotal,vat,discAmt,total};
 }
 function buildQIHTML(kind,d){
-  const {rows,subtotal,vat,discAmt,total}=itemsCalc(d.items,d.includeVat,d.vatPct,d.discount,d.discountType);
+  const terms=d.terms===undefined?DEFAULT_TERMS:d.terms;
+  const vatPct=d.vatPct===undefined?5:d.vatPct;
+  const includeVat=d.includeVat!==false;
+  const {rows,subtotal,vat,discAmt,total}=itemsCalc(d.items,includeVat,vatPct,d.discount,d.discountType);
   const arTitle=kind==='Quotation'?'اقتباس':'فاتورة';
   const itemRows=rows.map(r=>`<tr><td class="c">${r.no}</td><td>${(r.description||'').replace(/</g,'&lt;')}</td><td class="c">${r.unit||''}</td><td class="c">${r.qty||''}</td><td class="r">${r.unitPrice?numFmt(r.unitPrice):''}</td><td class="r">${r.amount?numFmt(r.amount):''}</td></tr>`).join('');
-  const termsLis=(d.terms||'').split('\n').filter(x=>x.trim()).map(t=>`<li>${t.replace(/^\d+\.\s*/,'').replace(/</g,'&lt;')}</li>`).join('');
+  const termsLis=(terms||'').split('\n').filter(x=>x.trim()).map(t=>`<li>${t.replace(/^\d+\.\s*/,'').replace(/</g,'&lt;')}</li>`).join('');
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${kind}-${d.refNo||''}</title><style>${PRINT_BASE_CSS}</style></head><body>
   <img class="wm" src="${IMG_WATERMARK}"/>
   <img class="hdr-logo" src="${IMG_LOGO}"/>
@@ -798,7 +802,7 @@ function buildQIHTML(kind,d){
   <table class="items"><thead><tr><th style="width:6%">No.</th><th>Description</th><th style="width:10%">Unit</th><th style="width:8%">Qty.</th><th style="width:16%" class="r">Unit Price (AED)</th><th style="width:16%" class="r">Amount (AED)</th></tr></thead><tbody>${itemRows}</tbody></table>
   <table class="totals">
     <tr><td class="lbl">Subtotal</td><td class="r">${numFmt(subtotal)}</td></tr>
-    ${d.includeVat?`<tr><td class="lbl">VAT ${d.vatPct||0}%</td><td class="r">${numFmt(vat)}</td></tr>`:''}
+    ${includeVat?`<tr><td class="lbl">VAT ${vatPct||0}%</td><td class="r">${numFmt(vat)}</td></tr>`:''}
     ${(Number(d.discount)||0)>0?`<tr><td class="lbl">Discount${d.discountType==='%'?(' ('+d.discount+'%)'):''}</td><td class="r">-${numFmt(discAmt)}</td></tr>`:''}
     <tr class="tot"><td class="lbl">Total Amount</td><td class="r">${numFmt(total)}</td></tr>
   </table>
@@ -806,8 +810,26 @@ function buildQIHTML(kind,d){
   <footer class="pf">⌖ Office No. 338 Al Khabaisi, Deira, Dubai, UAE &nbsp;◉ www.fortresssurvey.ae, &nbsp;✉ info@fortresssurvey.ae</footer>
   </body></html>`;
 }
+const CERT_DEFAULT_POS={stampPos:{x:2,y:90},sig1Pos:{x:22,y:91},sig2Pos:{x:55,y:91},photoPos:{x:2,y:65}};
 function buildCertHTML(d){
+  const verifyPara=d.verifyPara===undefined?DEFAULT_VERIFY_PARA:d.verifyPara;
+  const checkPara=d.checkPara===undefined?DEFAULT_CHECK_PARA:d.checkPara;
+  const tableNote=d.tableNote===undefined?'All values in meters.':d.tableNote;
+  const signeeName=d.signeeName===undefined?'Mohammed Zubair Pasha':d.signeeName;
+  const signeeTitle=d.signeeTitle===undefined?'Technical Director':d.signeeTitle;
+  const signeeContact=d.signeeContact===undefined?'+971503594612':d.signeeContact;
+  const layout=!!d.layoutMode;
+  const stampPos=d.stampPos||CERT_DEFAULT_POS.stampPos;
+  const sig1Pos=d.sig1Pos||CERT_DEFAULT_POS.sig1Pos;
+  const sig2Pos=d.sig2Pos||CERT_DEFAULT_POS.sig2Pos;
+  const photoPos=d.photoPos||CERT_DEFAULT_POS.photoPos;
+  const ps=p=>`position:absolute;margin:0;left:${p.x}%;top:${p.y}%;`;
   const rows=(d.rows||[]).map(r=>`<tr><td>${r.pointNo||''}</td><td>${r.northing||'---'}</td><td>${r.easting||'---'}</td><td><b>${r.level||''}</b></td><td>${(r.remarks||'').replace(/</g,'&lt;')}</td></tr>`).join('');
+  const photoBlock=d.photoDataUrl?`<div class="photo-block"${layout?` style="${ps(photoPos)}"`:''}><img src="${d.photoDataUrl}"/><div class="cap">${d.photoCaption||''}</div></div>`:'';
+  const sig2Html=(d.signee2Enabled&&d.signee2Name)?`<div class="signatory"${layout?` style="${ps(sig2Pos)}"`:''}>${d.signee2SigDataUrl?`<img class="sig" src="${d.signee2SigDataUrl}"/>`:''}<div style="margin-left:6px"><b>${d.signee2Name||''}</b>${d.signee2Title?` (${d.signee2Title})`:''}${d.signee2Contact?`<br/>Contact No: ${d.signee2Contact}`:''}</div></div>`:'';
+  const signSection=layout
+    ?`<img class="stamp" src="${IMG_STAMP}" style="${ps(stampPos)}"/><div class="signatory" style="${ps(sig1Pos)}"><img class="sig" src="${d.signeeSigDataUrl||IMG_SIGNATURE}"/><div style="margin-left:6px"><b>${signeeName}</b>${signeeTitle?` (${signeeTitle})`:''}<br/>Contact No: ${signeeContact}</div></div>${sig2Html}`
+    :`<div class="sign-block"><div class="signatory"><img class="stamp" src="${IMG_STAMP}"/><img class="sig" src="${d.signeeSigDataUrl||IMG_SIGNATURE}"/><div style="margin-left:6px"><b>${signeeName}</b>${signeeTitle?` (${signeeTitle})`:''}<br/>Contact No: ${signeeContact}</div></div>${sig2Html}</div>`;
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${d.refNo||'Certificate'}</title><style>${PRINT_BASE_CSS}</style></head><body>
   <img class="hdr-logo" src="${IMG_LOGO}"/>
   <div class="co-row"><div><b>Fortress Survey Engineering Services L.L.C.</b><b>Dubai – U.A.E</b></div><div class="co-ar">فورتريس لخدمات الهندسة المساحية ش.ذ.م.م<br/>دبي – الإمارات العربية المتحدة</div></div>
@@ -819,14 +841,12 @@ function buildCertHTML(d){
   ${d.consultant?`<div class="cert-block">Consultant: <b>${d.consultant}</b></div>`:''}
   <div class="cert-block">This is to certify that on behalf of M/S Fortress Survey Engineering Services L.L.C. the site surveyor has completed the confirmation of ${d.certKeyword||''} for the above-mentioned project in accordance with the values provided.</div>
   <table class="survey-table"><caption colspan="5">Site Survey Details</caption><thead><tr><th>Point No.</th><th>Northing _DLTM (m)</th><th>Easting _DLTM (m)</th><th>Level (m)</th><th>REMARKS</th></tr></thead><tbody>${rows}</tbody></table>
-  <div class="cert-block"><b>Table (1):</b> ${d.tableNote||'All values in meters.'}${d.dmGateLevel?` <b>DM Required Gate Level = ${d.dmGateLevel}</b>`:''}</div>
-  <div class="cert-block">${(d.verifyPara||'').replace(/</g,'&lt;')}</div>
-  <div class="cert-block">${(d.checkPara||'').replace(/</g,'&lt;')}</div>
-  ${d.photoDataUrl?`<div class="photo-block"><img src="${d.photoDataUrl}"/><div class="cap">${d.photoCaption||''}</div></div>`:''}
-  <div class="sign-block">
-    <div class="signatory"><img class="stamp" src="${IMG_STAMP}"/><img class="sig" src="${d.signeeSigDataUrl||IMG_SIGNATURE}"/><div style="margin-left:6px"><b>${d.signeeName||''}</b>${d.signeeTitle?` (${d.signeeTitle})`:''}<br/>Contact No: ${d.signeeContact||''}</div></div>
-    ${d.signee2Enabled&&d.signee2Name?`<div class="signatory">${d.signee2SigDataUrl?`<img class="sig" src="${d.signee2SigDataUrl}"/>`:''}<div style="margin-left:6px"><b>${d.signee2Name||''}</b>${d.signee2Title?` (${d.signee2Title})`:''}${d.signee2Contact?`<br/>Contact No: ${d.signee2Contact}`:''}</div></div>`:''}
-  </div>
+  <div class="cert-block"><b>Table (1):</b> ${tableNote}${d.dmGateLevel?` <b>DM Required Gate Level = ${d.dmGateLevel}</b>`:''}</div>
+  <div class="cert-block">${verifyPara.replace(/</g,'&lt;')}</div>
+  <div class="cert-block">${checkPara.replace(/</g,'&lt;')}</div>
+  ${layout?'':photoBlock}
+  ${signSection}
+  ${layout?photoBlock:''}
   <footer class="pf">Office No. 338 Al Khabaisi, Deira, &nbsp; www.fortresssurvey.ae, &nbsp; info@fortresssurvey.ae</footer>
   </body></html>`;
 }
@@ -916,7 +936,7 @@ function QIForm({kind,draft,setDraft,onReview,counters}){
 }
 function QIReview({kind,draft,setDraft,counters,onBack,onConfirm}){
   const [editing,setEditing]=useState(false);
-  const html=buildQIHTML(kind,{...draft,terms:draft.terms===undefined?DEFAULT_TERMS:draft.terms,vatPct:draft.vatPct===undefined?5:draft.vatPct,includeVat:draft.includeVat!==false});
+  const html=buildQIHTML(kind,draft);
   const valid=draft.clientDetails&&(draft.items||[]).some(i=>i.description);
   return h('div',{},
     h('div',{style:{...C.btw,marginBottom:10,flexWrap:'wrap',gap:8}},
@@ -1032,6 +1052,57 @@ function CertFormFields({draft,setDraft,counters}){
           )
         )
       )
+    ),
+    h('div',{style:{...C.card,marginBottom:14}},
+      h('div',{style:{...C.btw,marginBottom:4}},
+        h('div',{},h('div',{style:{fontWeight:500,fontSize:13}},'Manual Placement'),h('div',{style:{fontSize:11,color:'var(--tx2)',marginTop:2}},'Drag the stamp, signature(s) and photo to position them anywhere on the page — like a PDF editor.')),
+        h('button',{onClick:()=>setDraft(d=>({...d,layoutMode:!d.layoutMode})),style:{width:42,height:24,borderRadius:12,border:'none',cursor:'pointer',background:draft.layoutMode?'#3B6D11':'var(--bg3)',position:'relative',flexShrink:0}},h('div',{style:{width:18,height:18,borderRadius:'50%',background:'white',position:'absolute',top:3,left:draft.layoutMode?21:3,transition:'left .2s'}}))
+      ),
+      draft.layoutMode&&h(LayoutEditor,{draft,setDraft})
+    )
+  );
+}
+function LayoutEditor({draft,setDraft}){
+  const ref=useRef();
+  const dragRef=useRef(null);
+  const [drag,setDrag]=useState(null);
+  const items=[
+    {key:'stampPos',label:'Stamp',def:CERT_DEFAULT_POS.stampPos},
+    {key:'sig1Pos',label:'Signature 1',def:CERT_DEFAULT_POS.sig1Pos},
+    ...(draft.signee2Enabled&&draft.signee2Name?[{key:'sig2Pos',label:'Signature 2',def:CERT_DEFAULT_POS.sig2Pos}]:[]),
+    ...(draft.photoDataUrl?[{key:'photoPos',label:'Photo',def:CERT_DEFAULT_POS.photoPos}]:[]),
+  ];
+  const posFor=(key,def)=>(drag&&drag.key===key)?{x:drag.x,y:drag.y}:(draft[key]||def);
+  const onDown=(key)=>e=>{
+    e.preventDefault();
+    const move=ev=>{
+      const rect=ref.current.getBoundingClientRect();
+      const pt=ev.touches?ev.touches[0]:ev;
+      let x=((pt.clientX-rect.left)/rect.width)*100;
+      let y=((pt.clientY-rect.top)/rect.height)*100;
+      x=Math.max(0,Math.min(94,Math.round(x*10)/10));
+      y=Math.max(0,Math.min(94,Math.round(y*10)/10));
+      dragRef.current={key,x,y};
+      setDrag({key,x,y});
+    };
+    const up=()=>{
+      document.removeEventListener('mousemove',move);document.removeEventListener('mouseup',up);
+      document.removeEventListener('touchmove',move);document.removeEventListener('touchend',up);
+      const cur=dragRef.current;
+      dragRef.current=null;
+      setDrag(null);
+      if(cur)setDraft(d=>({...d,[cur.key]:{x:cur.x,y:cur.y}}));
+    };
+    document.addEventListener('mousemove',move);document.addEventListener('mouseup',up);
+    document.addEventListener('touchmove',move,{passive:false});document.addEventListener('touchend',up);
+  };
+  const html=buildCertHTML({...draft,layoutMode:true});
+  const resetLayout=()=>setDraft(d=>{const nx={...d};delete nx.stampPos;delete nx.sig1Pos;delete nx.sig2Pos;delete nx.photoPos;delete nx.layoutMode;return nx;});
+  return h('div',{style:{marginTop:12}},
+    h('div',{style:{...C.btw,marginBottom:8}},h('div',{style:{fontSize:11,color:'var(--tx2)'}},'Drag a tag below to reposition it. The document updates when you release.'),h(Btn,{ch:'Reset to Default Layout',sm:true,onClick:resetLayout})),
+    h('div',{ref,style:{position:'relative',width:'100%',maxWidth:480,margin:'0 auto',aspectRatio:'210/297',border:'1px solid var(--bd)',background:'#fff',overflow:'hidden',boxShadow:'0 1px 4px rgba(0,0,0,0.08)'}},
+      h('iframe',{srcDoc:html,style:{position:'absolute',inset:0,width:'100%',height:'100%',border:'none',pointerEvents:'none'},title:'Layout Preview'}),
+      items.map(it=>{const pos=posFor(it.key,it.def);return h('div',{key:it.key,onMouseDown:onDown(it.key),onTouchStart:onDown(it.key),style:{position:'absolute',left:pos.x+'%',top:pos.y+'%',background:drag&&drag.key===it.key?'#8a5323':'rgba(138,83,35,0.85)',color:'#fff',fontSize:9,fontWeight:600,padding:'3px 7px',borderRadius:4,cursor:'grab',userSelect:'none',whiteSpace:'nowrap',boxShadow:'0 1px 3px rgba(0,0,0,0.3)',zIndex:5}},it.label);})
     )
   );
 }
@@ -1044,7 +1115,7 @@ function CertForm({draft,setDraft,onReview,counters}){
 }
 function CertReview({draft,setDraft,counters,onBack,onConfirm}){
   const [editing,setEditing]=useState(false);
-  const html=buildCertHTML({...draft,tableNote:draft.tableNote===undefined?'All values in meters.':draft.tableNote,verifyPara:draft.verifyPara===undefined?DEFAULT_VERIFY_PARA:draft.verifyPara,checkPara:draft.checkPara===undefined?DEFAULT_CHECK_PARA:draft.checkPara,signeeName:draft.signeeName===undefined?'Mohammed Zubair Pasha':draft.signeeName,signeeTitle:draft.signeeTitle===undefined?'Technical Director':draft.signeeTitle,signeeContact:draft.signeeContact===undefined?'+971503594612':draft.signeeContact});
+  const html=buildCertHTML(draft);
   const valid=draft.clientDetails&&draft.certTitleEn;
   return h('div',{},
     h('div',{style:{...C.btw,marginBottom:10,flexWrap:'wrap',gap:8}},
