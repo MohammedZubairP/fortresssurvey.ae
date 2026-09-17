@@ -757,14 +757,19 @@ footer.pf{margin-top:26px;border-top:1px solid #000;padding-top:5px;font-size:9.
 .survey-table{width:100%;border-collapse:collapse;margin:14px 0 4px}
 .survey-table caption{background:#e9e9e6;border:1px solid #000;padding:4px;font-weight:bold;font-size:11.5px}
 .survey-table th,.survey-table td{border:1px solid #000;padding:5px 7px;font-size:11px;text-align:center}
-.sign-block{display:flex;flex-wrap:wrap;align-items:flex-end;gap:40px;margin-top:26px}
 .signatory{display:flex;align-items:flex-end;gap:6px}
-img.sig{height:46px}
-img.stamp{height:92px}
-.sign-block img.stamp{margin-left:-14px}
-.photo-block{margin:16px 0;text-align:left}
-.photo-block img{max-width:260px;max-height:200px;border:1px solid #999}
+img.sig{display:block;width:42mm;height:auto}
+img.stamp{display:block;width:30mm;height:auto}
+.photo-block{text-align:left}
+.photo-block img{display:block;width:65mm;height:auto;border:1px solid #999}
 .photo-block .cap{font-style:italic;font-weight:bold;font-size:11px;margin-top:4px}
+.img-holder{position:relative;display:inline-block}
+.ed-field{border-radius:2px}
+.ed-field[contenteditable="true"]:hover{outline:1px dashed #8a5323;background:rgba(138,83,35,0.04)}
+.ed-field[contenteditable="true"]:focus{outline:2px solid #8a5323;background:#fff8f0}
+.drag-item{cursor:grab}
+.drag-item:hover{outline:1px dashed rgba(138,83,35,0.5)}
+.rs-handle{position:absolute;right:-7px;bottom:-7px;width:14px;height:14px;background:#8a5323;border:2px solid #fff;border-radius:3px;cursor:nwse-resize;box-shadow:0 1px 3px rgba(0,0,0,0.4);z-index:9}
 `;
 function itemsCalc(items,includeVat,vatPct,discount,discountType){
   const rows=(items||[]).map(it=>({...it,amount:(Number(it.qty)||0)*(Number(it.unitPrice)||0)}));
@@ -774,27 +779,35 @@ function itemsCalc(items,includeVat,vatPct,discount,discountType){
   const total=subtotal+vat-discAmt;
   return{rows,subtotal,vat,discAmt,total};
 }
-function buildQIHTML(kind,d){
+function efield(editable,field,value,tag){
+  tag=tag||'span';
+  const esc=(value==null?'':String(value)).replace(/</g,'&lt;');
+  return editable?`<${tag} class="ed-field" data-field="${field}" contenteditable="true">${esc}</${tag}>`:esc;
+}
+function buildQIBody(kind,d){
+  const editable=!!d.editable;
   const terms=d.terms===undefined?DEFAULT_TERMS:d.terms;
   const vatPct=d.vatPct===undefined?5:d.vatPct;
   const includeVat=d.includeVat!==false;
   const {rows,subtotal,vat,discAmt,total}=itemsCalc(d.items,includeVat,vatPct,d.discount,d.discountType);
   const arTitle=kind==='Quotation'?'اقتباس':'فاتورة';
-  const itemRows=rows.map(r=>`<tr><td class="c">${r.no}</td><td>${(r.description||'').replace(/</g,'&lt;')}</td><td class="c">${r.unit||''}</td><td class="c">${r.qty||''}</td><td class="r">${r.unitPrice?numFmt(r.unitPrice):''}</td><td class="r">${r.amount?numFmt(r.amount):''}</td></tr>`).join('');
-  const termsLis=(terms||'').split('\n').filter(x=>x.trim()).map(t=>`<li>${t.replace(/^\d+\.\s*/,'').replace(/</g,'&lt;')}</li>`).join('');
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${kind}-${d.refNo||''}</title><style>${PRINT_BASE_CSS}</style></head><body>
+  const itemRows=rows.map((r,i)=>`<tr><td class="c">${r.no}</td><td>${efield(editable,'item:'+i+':description',r.description)}</td><td class="c">${efield(editable,'item:'+i+':unit',r.unit)}</td><td class="c">${efield(editable,'item:'+i+':qty',r.qty)}</td><td class="r">${efield(editable,'item:'+i+':unitPrice',r.unitPrice)}</td><td class="r">${r.amount?numFmt(r.amount):''}</td></tr>`).join('');
+  const termsBlock=editable
+    ?`<div class="ed-field" data-field="terms" contenteditable="true" style="white-space:pre-wrap">${(terms||'').replace(/</g,'&lt;')}</div>`
+    :`<ol>${(terms||'').split('\n').filter(x=>x.trim()).map(t=>`<li>${t.replace(/^\d+\.\s*/,'').replace(/</g,'&lt;')}</li>`).join('')}</ol>`;
+  return `
   <img class="wm" src="${IMG_WATERMARK}"/>
   <img class="hdr-logo" src="${IMG_LOGO}"/>
   <div class="co-row"><div><b>Fortress Survey Engineering</b><b>Services L.L.C.</b><b>Dubai – U.A.E</b></div><div class="co-ar">فورتريس لخدمات الهندسة<br/>المساحية ش.ذ.م.م<br/>دبي - الإمارات العربية المتحدة</div></div>
   <div class="title-bar"><div class="en">${kind}</div><div class="ar">${arTitle}</div></div>
   <div class="details-grid">
     <div class="col">
-      <div><span class="lbl">Client Details:</span> ${d.clientDetails||''}</div>
-      <div><span class="lbl">Project Details:</span> ${d.projectDetails||''}</div>
-      <div><span class="lbl">Point of Contact:</span> ${d.pointOfContact||''}</div>
+      <div><span class="lbl">Client Details:</span> ${efield(editable,'clientDetails',d.clientDetails)}</div>
+      <div><span class="lbl">Project Details:</span> ${efield(editable,'projectDetails',d.projectDetails)}</div>
+      <div><span class="lbl">Point of Contact:</span> ${efield(editable,'pointOfContact',d.pointOfContact)}</div>
     </div>
     <div class="col">
-      <div><span class="lbl">Reference No.:</span> ${d.refNo||''}</div>
+      <div><span class="lbl">Reference No.:</span> ${efield(editable,'refNo',d.refNo)}</div>
       <div><span class="lbl">Issue Date:</span> ${fD(d.issueDate)}</div>
       <div><span class="lbl">Valid Until:</span> ${fD(d.validUntil)}</div>
     </div>
@@ -806,49 +819,61 @@ function buildQIHTML(kind,d){
     ${(Number(d.discount)||0)>0?`<tr><td class="lbl">Discount${d.discountType==='%'?(' ('+d.discount+'%)'):''}</td><td class="r">-${numFmt(discAmt)}</td></tr>`:''}
     <tr class="tot"><td class="lbl">Total Amount</td><td class="r">${numFmt(total)}</td></tr>
   </table>
-  <div class="terms"><span class="h">TERMS &amp; CONDITIONS</span><ol>${termsLis}</ol></div>
+  <div class="terms"><span class="h">TERMS &amp; CONDITIONS</span>${termsBlock}</div>
   <footer class="pf">⌖ Office No. 338 Al Khabaisi, Deira, Dubai, UAE &nbsp;◉ www.fortresssurvey.ae, &nbsp;✉ info@fortresssurvey.ae</footer>
-  </body></html>`;
+  `;
 }
-const CERT_DEFAULT_POS={stampPos:{x:2,y:90},sig1Pos:{x:22,y:91},sig2Pos:{x:55,y:91},photoPos:{x:2,y:65}};
-function buildCertHTML(d){
+function buildQIHTML(kind,d){
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${kind}-${d.refNo||''}</title><style>${PRINT_BASE_CSS}</style></head><body>${buildQIBody(kind,{...d,editable:false})}</body></html>`;
+}
+const CERT_DEFAULT_POS={stampPos:{x:2,y:86},sig1Pos:{x:20,y:88},sig2Pos:{x:55,y:88},photoPos:{x:2,y:58}};
+const CERT_DEFAULT_SIZE={stampSize:30,sig1Size:42,sig2Size:42,photoSize:65};
+function buildCertBody(d){
+  const editable=!!d.editable;
   const verifyPara=d.verifyPara===undefined?DEFAULT_VERIFY_PARA:d.verifyPara;
   const checkPara=d.checkPara===undefined?DEFAULT_CHECK_PARA:d.checkPara;
   const tableNote=d.tableNote===undefined?'All values in meters.':d.tableNote;
   const signeeName=d.signeeName===undefined?'Mohammed Zubair Pasha':d.signeeName;
   const signeeTitle=d.signeeTitle===undefined?'Technical Director':d.signeeTitle;
   const signeeContact=d.signeeContact===undefined?'+971503594612':d.signeeContact;
-  const layout=!!d.layoutMode;
   const stampPos=d.stampPos||CERT_DEFAULT_POS.stampPos;
   const sig1Pos=d.sig1Pos||CERT_DEFAULT_POS.sig1Pos;
   const sig2Pos=d.sig2Pos||CERT_DEFAULT_POS.sig2Pos;
   const photoPos=d.photoPos||CERT_DEFAULT_POS.photoPos;
+  const stampSize=d.stampSize||CERT_DEFAULT_SIZE.stampSize;
+  const sig1Size=d.sig1Size||CERT_DEFAULT_SIZE.sig1Size;
+  const sig2Size=d.sig2Size||CERT_DEFAULT_SIZE.sig2Size;
+  const photoSize=d.photoSize||CERT_DEFAULT_SIZE.photoSize;
   const ps=p=>`position:absolute;margin:0;left:${p.x}%;top:${p.y}%;`;
-  const rows=(d.rows||[]).map(r=>`<tr><td>${r.pointNo||''}</td><td>${r.northing||'---'}</td><td>${r.easting||'---'}</td><td><b>${r.level||''}</b></td><td>${(r.remarks||'').replace(/</g,'&lt;')}</td></tr>`).join('');
-  const photoBlock=d.photoDataUrl?`<div class="photo-block"${layout?` style="${ps(photoPos)}"`:''}><img src="${d.photoDataUrl}"/><div class="cap">${d.photoCaption||''}</div></div>`:'';
-  const sig2Html=(d.signee2Enabled&&d.signee2Name)?`<div class="signatory"${layout?` style="${ps(sig2Pos)}"`:''}>${d.signee2SigDataUrl?`<img class="sig" src="${d.signee2SigDataUrl}"/>`:''}<div style="margin-left:6px"><b>${d.signee2Name||''}</b>${d.signee2Title?` (${d.signee2Title})`:''}${d.signee2Contact?`<br/>Contact No: ${d.signee2Contact}`:''}</div></div>`:'';
-  const signSection=layout
-    ?`<img class="stamp" src="${IMG_STAMP}" style="${ps(stampPos)}"/><div class="signatory" style="${ps(sig1Pos)}"><img class="sig" src="${d.signeeSigDataUrl||IMG_SIGNATURE}"/><div style="margin-left:6px"><b>${signeeName}</b>${signeeTitle?` (${signeeTitle})`:''}<br/>Contact No: ${signeeContact}</div></div>${sig2Html}`
-    :`<div class="sign-block"><div class="signatory"><img class="stamp" src="${IMG_STAMP}"/><img class="sig" src="${d.signeeSigDataUrl||IMG_SIGNATURE}"/><div style="margin-left:6px"><b>${signeeName}</b>${signeeTitle?` (${signeeTitle})`:''}<br/>Contact No: ${signeeContact}</div></div>${sig2Html}</div>`;
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${d.refNo||'Certificate'}</title><style>${PRINT_BASE_CSS}</style></head><body>
+  const rs=key=>editable?`<div class="rs-handle" data-rs="${key}"></div>`:'';
+  const drag=key=>editable?` data-drag="${key}" class="drag-item"`:'';
+  const rows=(d.rows||[]).map((r,i)=>`<tr><td>${efield(editable,'row:'+i+':pointNo',r.pointNo)}</td><td>${efield(editable,'row:'+i+':northing',r.northing||'---')}</td><td>${efield(editable,'row:'+i+':easting',r.easting||'---')}</td><td><b>${efield(editable,'row:'+i+':level',r.level)}</b></td><td>${efield(editable,'row:'+i+':remarks',r.remarks)}</td></tr>`).join('');
+  const photoBlock=d.photoDataUrl?`<div class="photo-block"${ps(photoPos)?` style="${ps(photoPos)}"`:''}${drag('photoPos')}><span class="img-holder"><img src="${d.photoDataUrl}" style="width:${photoSize}mm"/>${rs('photoSize')}</span><div class="cap">${efield(editable,'photoCaption',d.photoCaption)}</div></div>`:'';
+  const sig2Html=(d.signee2Enabled&&d.signee2Name)?`<div style="${ps(sig2Pos)}"${drag('sig2Pos')}><div class="signatory">${d.signee2SigDataUrl?`<span class="img-holder"><img class="sig" src="${d.signee2SigDataUrl}" style="width:${sig2Size}mm"/>${rs('sig2Size')}</span>`:''}<div style="margin-left:6px"><b>${efield(editable,'signee2Name',d.signee2Name)}</b>${d.signee2Title?` (${efield(editable,'signee2Title',d.signee2Title)})`:''}${d.signee2Contact?`<br/>Contact No: ${efield(editable,'signee2Contact',d.signee2Contact)}`:''}</div></div></div>`:'';
+  const signSection=`<div style="${ps(stampPos)}"${drag('stampPos')}><span class="img-holder"><img class="stamp" src="${IMG_STAMP}" style="width:${stampSize}mm"/>${rs('stampSize')}</span></div>
+    <div style="${ps(sig1Pos)}"${drag('sig1Pos')}><div class="signatory"><span class="img-holder"><img class="sig" src="${d.signeeSigDataUrl||IMG_SIGNATURE}" style="width:${sig1Size}mm"/>${rs('sig1Size')}</span><div style="margin-left:6px"><b>${efield(editable,'signeeName',signeeName)}</b>${signeeTitle?` (${efield(editable,'signeeTitle',signeeTitle)})`:''}<br/>Contact No: ${efield(editable,'signeeContact',signeeContact)}</div></div></div>
+    ${sig2Html}`;
+  return `
   <img class="hdr-logo" src="${IMG_LOGO}"/>
   <div class="co-row"><div><b>Fortress Survey Engineering Services L.L.C.</b><b>Dubai – U.A.E</b></div><div class="co-ar">فورتريس لخدمات الهندسة المساحية ش.ذ.م.م<br/>دبي – الإمارات العربية المتحدة</div></div>
-  <div class="cert-ref"><div>Reference No. &nbsp;<b>${d.refNo||''}</b></div><div>Date: ${docWeekdayDate(d.date)}</div></div>
-  <div class="cert-title"><div class="en">${d.certTitleEn||''}</div><div class="ar">${d.certTitleAr||''}</div></div>
-  <div class="cert-block"><span class="lbl">Client Details:</span><br/><b>${d.clientDetails||''}</b></div>
-  <div class="cert-block"><b>Project Details:</b> ${d.projectDetails||''}</div>
-  <div class="cert-block">${d.parcelId?`<b>Parcel ID:</b> ${d.parcelId} &nbsp; `:''}${d.community?`Community: <b>${d.community}</b> &nbsp; `:''}${d.owner?`Owner: <b>${d.owner}</b>`:''}</div>
-  ${d.consultant?`<div class="cert-block">Consultant: <b>${d.consultant}</b></div>`:''}
-  <div class="cert-block">This is to certify that on behalf of M/S Fortress Survey Engineering Services L.L.C. the site surveyor has completed the confirmation of ${d.certKeyword||''} for the above-mentioned project in accordance with the values provided.</div>
+  <div class="cert-ref"><div>Reference No. &nbsp;<b>${efield(editable,'refNo',d.refNo)}</b></div><div>Date: ${docWeekdayDate(d.date)}</div></div>
+  <div class="cert-title"><div class="en">${efield(editable,'certTitleEn',d.certTitleEn)}</div><div class="ar">${efield(editable,'certTitleAr',d.certTitleAr)}</div></div>
+  <div class="cert-block"><span class="lbl">Client Details:</span><br/><b>${efield(editable,'clientDetails',d.clientDetails)}</b></div>
+  <div class="cert-block"><b>Project Details:</b> ${efield(editable,'projectDetails',d.projectDetails)}</div>
+  <div class="cert-block">${d.parcelId!==undefined?`<b>Parcel ID:</b> ${efield(editable,'parcelId',d.parcelId)} &nbsp; `:''}${d.community!==undefined?`Community: <b>${efield(editable,'community',d.community)}</b> &nbsp; `:''}${d.owner!==undefined?`Owner: <b>${efield(editable,'owner',d.owner)}</b>`:''}</div>
+  ${d.consultant!==undefined?`<div class="cert-block">Consultant: <b>${efield(editable,'consultant',d.consultant)}</b></div>`:''}
+  <div class="cert-block">This is to certify that on behalf of M/S Fortress Survey Engineering Services L.L.C. the site surveyor has completed the confirmation of ${efield(editable,'certKeyword',d.certKeyword)} for the above-mentioned project in accordance with the values provided.</div>
   <table class="survey-table"><caption colspan="5">Site Survey Details</caption><thead><tr><th>Point No.</th><th>Northing _DLTM (m)</th><th>Easting _DLTM (m)</th><th>Level (m)</th><th>REMARKS</th></tr></thead><tbody>${rows}</tbody></table>
-  <div class="cert-block"><b>Table (1):</b> ${tableNote}${d.dmGateLevel?` <b>DM Required Gate Level = ${d.dmGateLevel}</b>`:''}</div>
-  <div class="cert-block">${verifyPara.replace(/</g,'&lt;')}</div>
-  <div class="cert-block">${checkPara.replace(/</g,'&lt;')}</div>
-  ${layout?'':photoBlock}
+  <div class="cert-block"><b>Table (1):</b> ${efield(editable,'tableNote',tableNote)}${d.dmGateLevel!==undefined?` <b>DM Required Gate Level = ${efield(editable,'dmGateLevel',d.dmGateLevel)}</b>`:''}</div>
+  <div class="cert-block" style="white-space:pre-wrap">${efield(editable,'verifyPara',verifyPara,'div')}</div>
+  <div class="cert-block" style="white-space:pre-wrap">${efield(editable,'checkPara',checkPara,'div')}</div>
+  ${photoBlock}
   ${signSection}
-  ${layout?photoBlock:''}
   <footer class="pf">Office No. 338 Al Khabaisi, Deira, &nbsp; www.fortresssurvey.ae, &nbsp; info@fortresssurvey.ae</footer>
-  </body></html>`;
+  `;
+}
+function buildCertHTML(d){
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${d.refNo||'Certificate'}</title><style>${PRINT_BASE_CSS}</style></head><body>${buildCertBody({...d,editable:false})}</body></html>`;
 }
 function printDocHTML(html,filenameHint){
   const win=window.open('','_blank');
@@ -869,6 +894,119 @@ function useDraft(key,initial){
   const [v,setV]=useState(()=>ld(key,initial));
   useEffect(()=>{sv(key,v);},[v,key]);
   return[v,setV];
+}
+function commitDraftField(setDraft,field,rawText){
+  const text=(rawText||'').replace(/\u00A0/g,' ');
+  if(field.startsWith('item:')){
+    const [,idx,key]=field.split(':');
+    setDraft(d=>{const items=[...(d.items||[])];if(!items[idx])return d;items[idx]={...items[idx],[key]:(key==='qty'||key==='unitPrice')?text.replace(/[^0-9.]/g,''):text};return{...d,items};});
+  }else if(field.startsWith('row:')){
+    const [,idx,key]=field.split(':');
+    setDraft(d=>{const rows=[...(d.rows||[])];if(!rows[idx])return d;rows[idx]={...rows[idx],[key]:text};return{...d,rows};});
+  }else{
+    setDraft(d=>({...d,[field]:text}));
+  }
+}
+function WysiwygEditor({buildBody,draft,setDraft}){
+  const rootRef=useRef();
+  const html=buildBody({...draft,editable:true});
+  useEffect(()=>{
+    const root=rootRef.current;
+    if(!root)return;
+    const page=root.querySelector('.page-surface')||root;
+
+    const onFocusOut=e=>{
+      const el=e.target;
+      if(el&&el.dataset&&el.dataset.field){
+        commitDraftField(setDraft,el.dataset.field,el.innerText);
+      }
+    };
+    const onKeyDown=e=>{
+      if(e.key==='Enter'&&e.target.dataset&&e.target.dataset.field&&e.target.tagName==='SPAN'){
+        e.preventDefault();e.target.blur();
+      }
+    };
+
+    const onResizeDown=e=>{
+      const handle=e.target.closest&&e.target.closest('.rs-handle');
+      if(!handle||!root.contains(handle))return;
+      e.preventDefault();e.stopPropagation();
+      const key=handle.dataset.rs;
+      const holder=handle.parentElement;
+      const img=holder.querySelector('img');
+      if(!img)return;
+      const startX=(e.touches?e.touches[0].clientX:e.clientX);
+      const startWidth=img.getBoundingClientRect().width;
+      const pageRect=page.getBoundingClientRect();
+      const mmPerPx=182/pageRect.width;
+      let newSizeMm=null;
+      const move=ev=>{
+        const pt=ev.touches?ev.touches[0]:ev;
+        const deltaPx=pt.clientX-startX;
+        const newWidthPx=Math.max(15,startWidth+deltaPx);
+        newSizeMm=Math.round(newWidthPx*mmPerPx*10)/10;
+        img.style.width=newSizeMm+'mm';
+      };
+      const up=()=>{
+        document.removeEventListener('mousemove',move);document.removeEventListener('mouseup',up);
+        document.removeEventListener('touchmove',move);document.removeEventListener('touchend',up);
+        if(newSizeMm)setDraft(d=>({...d,[key]:newSizeMm}));
+      };
+      document.addEventListener('mousemove',move);document.addEventListener('mouseup',up);
+      document.addEventListener('touchmove',move,{passive:false});document.addEventListener('touchend',up);
+    };
+
+    const onDragDown=e=>{
+      if(e.target.closest&&e.target.closest('.rs-handle'))return;
+      if(e.target.closest&&e.target.closest('.ed-field'))return;
+      const wrap=e.target.closest&&e.target.closest('[data-drag]');
+      if(!wrap||!root.contains(wrap))return;
+      e.preventDefault();
+      const key=wrap.dataset.drag;
+      let last=null;
+      const move=ev=>{
+        const rect=page.getBoundingClientRect();
+        const pt=ev.touches?ev.touches[0]:ev;
+        let x=((pt.clientX-rect.left)/rect.width)*100;
+        let y=((pt.clientY-rect.top)/rect.height)*100;
+        x=Math.max(0,Math.min(95,Math.round(x*10)/10));
+        y=Math.max(0,Math.min(95,Math.round(y*10)/10));
+        wrap.style.left=x+'%';wrap.style.top=y+'%';
+        last={x,y};
+      };
+      const up=()=>{
+        document.removeEventListener('mousemove',move);document.removeEventListener('mouseup',up);
+        document.removeEventListener('touchmove',move);document.removeEventListener('touchend',up);
+        if(last)setDraft(d=>({...d,[key]:{x:last.x,y:last.y}}));
+      };
+      document.addEventListener('mousemove',move);document.addEventListener('mouseup',up);
+      document.addEventListener('touchmove',move,{passive:false});document.addEventListener('touchend',up);
+    };
+
+    root.addEventListener('focusout',onFocusOut);
+    root.addEventListener('keydown',onKeyDown);
+    root.addEventListener('mousedown',onResizeDown,true);
+    root.addEventListener('touchstart',onResizeDown,true);
+    root.addEventListener('mousedown',onDragDown);
+    root.addEventListener('touchstart',onDragDown,{passive:false});
+    return()=>{
+      root.removeEventListener('focusout',onFocusOut);
+      root.removeEventListener('keydown',onKeyDown);
+      root.removeEventListener('mousedown',onResizeDown,true);
+      root.removeEventListener('touchstart',onResizeDown,true);
+      root.removeEventListener('mousedown',onDragDown);
+      root.removeEventListener('touchstart',onDragDown);
+    };
+  },[html,setDraft]);
+  const pageCss=PRINT_BASE_CSS.replace('body{','.page-surface{');
+  return h('div',{style:{...C.card,padding:0,overflow:'auto',background:'#e5e5e2'}},
+    h('div',{style:{padding:'16px',display:'flex',justifyContent:'center'}},
+      h('div',{ref:rootRef,style:{width:'210mm',flexShrink:0}},
+        h('style',null,pageCss),
+        h('div',{className:'page-surface',style:{background:'#fff',boxShadow:'0 1px 6px rgba(0,0,0,0.15)'},dangerouslySetInnerHTML:{__html:html}})
+      )
+    )
+  );
 }
 function ItemsEditor({items,onChange}){
   const rows=items&&items.length?items:[];
@@ -935,20 +1073,16 @@ function QIForm({kind,draft,setDraft,onReview,counters}){
   );
 }
 function QIReview({kind,draft,setDraft,counters,onBack,onConfirm}){
-  const [editing,setEditing]=useState(false);
-  const html=buildQIHTML(kind,draft);
   const valid=draft.clientDetails&&(draft.items||[]).some(i=>i.description);
   return h('div',{},
     h('div',{style:{...C.btw,marginBottom:10,flexWrap:'wrap',gap:8}},
-      h('div',{style:{fontSize:12,color:'var(--tx2)'}},editing?'Edit any field — the preview below updates as you type.':'Review carefully — this is exactly what will be generated as the PDF.'),
+      h('div',{style:{fontSize:12,color:'var(--tx2)'}},'Click any text to edit it directly — like a Word document. Changes are saved as you go.'),
       h('div',{style:{display:'flex',gap:8}},
-        h(Btn,{ch:editing?'Done Editing':'✎ Edit & Modify',onClick:()=>setEditing(x=>!x)}),
         h(Btn,{ch:'← Back to Form',onClick:onBack}),
         h(Btn,{ch:'Confirm & Generate PDF',pri:true,disabled:!valid,onClick:onConfirm})
       )
     ),
-    editing&&h('div',{style:{...C.card,marginBottom:14,border:'1px solid var(--brand)'}},h(QIFormFields,{kind,draft,setDraft,counters})),
-    h('div',{style:{...C.card,padding:0,overflow:'hidden'}},h('iframe',{srcDoc:html,style:{width:'100%',height:'80vh',border:'none',background:'#fff'},title:'Document Preview'}))
+    h(WysiwygEditor,{buildBody:d=>buildQIBody(kind,d),draft,setDraft})
   );
 }
 function CertFormFields({draft,setDraft,counters}){
@@ -1053,57 +1187,7 @@ function CertFormFields({draft,setDraft,counters}){
         )
       )
     ),
-    h('div',{style:{...C.card,marginBottom:14}},
-      h('div',{style:{...C.btw,marginBottom:4}},
-        h('div',{},h('div',{style:{fontWeight:500,fontSize:13}},'Manual Placement'),h('div',{style:{fontSize:11,color:'var(--tx2)',marginTop:2}},'Drag the stamp, signature(s) and photo to position them anywhere on the page — like a PDF editor.')),
-        h('button',{onClick:()=>setDraft(d=>({...d,layoutMode:!d.layoutMode})),style:{width:42,height:24,borderRadius:12,border:'none',cursor:'pointer',background:draft.layoutMode?'#3B6D11':'var(--bg3)',position:'relative',flexShrink:0}},h('div',{style:{width:18,height:18,borderRadius:'50%',background:'white',position:'absolute',top:3,left:draft.layoutMode?21:3,transition:'left .2s'}}))
-      ),
-      draft.layoutMode&&h(LayoutEditor,{draft,setDraft})
-    )
-  );
-}
-function LayoutEditor({draft,setDraft}){
-  const ref=useRef();
-  const dragRef=useRef(null);
-  const [drag,setDrag]=useState(null);
-  const items=[
-    {key:'stampPos',label:'Stamp',def:CERT_DEFAULT_POS.stampPos},
-    {key:'sig1Pos',label:'Signature 1',def:CERT_DEFAULT_POS.sig1Pos},
-    ...(draft.signee2Enabled&&draft.signee2Name?[{key:'sig2Pos',label:'Signature 2',def:CERT_DEFAULT_POS.sig2Pos}]:[]),
-    ...(draft.photoDataUrl?[{key:'photoPos',label:'Photo',def:CERT_DEFAULT_POS.photoPos}]:[]),
-  ];
-  const posFor=(key,def)=>(drag&&drag.key===key)?{x:drag.x,y:drag.y}:(draft[key]||def);
-  const onDown=(key)=>e=>{
-    e.preventDefault();
-    const move=ev=>{
-      const rect=ref.current.getBoundingClientRect();
-      const pt=ev.touches?ev.touches[0]:ev;
-      let x=((pt.clientX-rect.left)/rect.width)*100;
-      let y=((pt.clientY-rect.top)/rect.height)*100;
-      x=Math.max(0,Math.min(94,Math.round(x*10)/10));
-      y=Math.max(0,Math.min(94,Math.round(y*10)/10));
-      dragRef.current={key,x,y};
-      setDrag({key,x,y});
-    };
-    const up=()=>{
-      document.removeEventListener('mousemove',move);document.removeEventListener('mouseup',up);
-      document.removeEventListener('touchmove',move);document.removeEventListener('touchend',up);
-      const cur=dragRef.current;
-      dragRef.current=null;
-      setDrag(null);
-      if(cur)setDraft(d=>({...d,[cur.key]:{x:cur.x,y:cur.y}}));
-    };
-    document.addEventListener('mousemove',move);document.addEventListener('mouseup',up);
-    document.addEventListener('touchmove',move,{passive:false});document.addEventListener('touchend',up);
-  };
-  const html=buildCertHTML({...draft,layoutMode:true});
-  const resetLayout=()=>setDraft(d=>{const nx={...d};delete nx.stampPos;delete nx.sig1Pos;delete nx.sig2Pos;delete nx.photoPos;delete nx.layoutMode;return nx;});
-  return h('div',{style:{marginTop:12}},
-    h('div',{style:{...C.btw,marginBottom:8}},h('div',{style:{fontSize:11,color:'var(--tx2)'}},'Drag a tag below to reposition it. The document updates when you release.'),h(Btn,{ch:'Reset to Default Layout',sm:true,onClick:resetLayout})),
-    h('div',{ref,style:{position:'relative',width:'100%',maxWidth:480,margin:'0 auto',aspectRatio:'210/297',border:'1px solid var(--bd)',background:'#fff',overflow:'hidden',boxShadow:'0 1px 4px rgba(0,0,0,0.08)'}},
-      h('iframe',{srcDoc:html,style:{position:'absolute',inset:0,width:'100%',height:'100%',border:'none',pointerEvents:'none'},title:'Layout Preview'}),
-      items.map(it=>{const pos=posFor(it.key,it.def);return h('div',{key:it.key,onMouseDown:onDown(it.key),onTouchStart:onDown(it.key),style:{position:'absolute',left:pos.x+'%',top:pos.y+'%',background:drag&&drag.key===it.key?'#8a5323':'rgba(138,83,35,0.85)',color:'#fff',fontSize:9,fontWeight:600,padding:'3px 7px',borderRadius:4,cursor:'grab',userSelect:'none',whiteSpace:'nowrap',boxShadow:'0 1px 3px rgba(0,0,0,0.3)',zIndex:5}},it.label);})
-    )
+    h('div',{style:{fontSize:11,color:'var(--tx2)'}},'Position, size and text can all be adjusted directly on the Review screen after this.')
   );
 }
 function CertForm({draft,setDraft,onReview,counters}){
@@ -1114,20 +1198,18 @@ function CertForm({draft,setDraft,onReview,counters}){
   );
 }
 function CertReview({draft,setDraft,counters,onBack,onConfirm}){
-  const [editing,setEditing]=useState(false);
-  const html=buildCertHTML(draft);
   const valid=draft.clientDetails&&draft.certTitleEn;
+  const resetLayout=()=>setDraft(d=>{const nx={...d};delete nx.stampPos;delete nx.sig1Pos;delete nx.sig2Pos;delete nx.photoPos;delete nx.stampSize;delete nx.sig1Size;delete nx.sig2Size;delete nx.photoSize;return nx;});
   return h('div',{},
     h('div',{style:{...C.btw,marginBottom:10,flexWrap:'wrap',gap:8}},
-      h('div',{style:{fontSize:12,color:'var(--tx2)'}},editing?'Edit any field — the preview below updates as you type.':'Review carefully — this is exactly what will be generated as the PDF.'),
-      h('div',{style:{display:'flex',gap:8}},
-        h(Btn,{ch:editing?'Done Editing':'✎ Edit & Modify',onClick:()=>setEditing(x=>!x)}),
+      h('div',{style:{fontSize:12,color:'var(--tx2)',maxWidth:420}},'Click any text to edit it. Drag the stamp, signature(s) or photo to reposition — drag the small handle on their corner to resize.'),
+      h('div',{style:{display:'flex',gap:8,flexWrap:'wrap'}},
+        h(Btn,{ch:'Reset Positions',sm:true,onClick:resetLayout}),
         h(Btn,{ch:'← Back to Form',onClick:onBack}),
         h(Btn,{ch:'Confirm & Generate PDF',pri:true,disabled:!valid,onClick:onConfirm})
       )
     ),
-    editing&&h('div',{style:{...C.card,marginBottom:14,border:'1px solid var(--brand)'}},h(CertFormFields,{draft,setDraft,counters})),
-    h('div',{style:{...C.card,padding:0,overflow:'hidden'}},h('iframe',{srcDoc:html,style:{width:'100%',height:'80vh',border:'none',background:'#fff'},title:'Certificate Preview'}))
+    h(WysiwygEditor,{buildBody:buildCertBody,draft,setDraft})
   );
 }
 function HistoryList({docs,onReprint,onDelete,onDuplicate}){
