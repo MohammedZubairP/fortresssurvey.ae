@@ -824,7 +824,8 @@ function buildQIBody(kind,d){
   `;
 }
 function buildQIHTML(kind,d){
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${kind}-${d.refNo||''}</title><style>${PRINT_BASE_CSS}</style></head><body>${buildQIBody(kind,{...d,editable:false})}</body></html>`;
+  const body=d.customBodyHtml?stripEditingChrome(d.customBodyHtml):buildQIBody(kind,{...d,editable:false});
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${kind}-${d.refNo||''}</title><style>${PRINT_BASE_CSS}</style></head><body>${body}</body></html>`;
 }
 const CERT_DEFAULT_POS={stampPos:{x:2,y:86},sig1Pos:{x:20,y:88},sig2Pos:{x:55,y:88},photoPos:{x:2,y:58}};
 const CERT_DEFAULT_SIZE={stampSize:30,sig1Size:42,sig2Size:42,photoSize:65};
@@ -845,8 +846,8 @@ function buildCertBody(d){
   const sig2Size=d.sig2Size||CERT_DEFAULT_SIZE.sig2Size;
   const photoSize=d.photoSize||CERT_DEFAULT_SIZE.photoSize;
   const ps=p=>`position:absolute;margin:0;left:${p.x}%;top:${p.y}%;`;
-  const rs=key=>editable?`<div class="rs-handle" data-rs="${key}"></div>`:'';
-  const drag=key=>editable?` data-drag="${key}" class="drag-item"`:'';
+  const rs=key=>editable?`<div class="rs-handle" contenteditable="false" data-rs="${key}"></div>`:'';
+  const drag=key=>editable?` data-drag="${key}" class="drag-item" contenteditable="false"`:'';
   const rows=(d.rows||[]).map((r,i)=>`<tr><td>${efield(editable,'row:'+i+':pointNo',r.pointNo)}</td><td>${efield(editable,'row:'+i+':northing',r.northing||'---')}</td><td>${efield(editable,'row:'+i+':easting',r.easting||'---')}</td><td><b>${efield(editable,'row:'+i+':level',r.level)}</b></td><td>${efield(editable,'row:'+i+':remarks',r.remarks)}</td></tr>`).join('');
   const photoBlock=d.photoDataUrl?`<div class="photo-block"${ps(photoPos)?` style="${ps(photoPos)}"`:''}${drag('photoPos')}><span class="img-holder"><img src="${d.photoDataUrl}" style="width:${photoSize}mm"/>${rs('photoSize')}</span><div class="cap">${efield(editable,'photoCaption',d.photoCaption)}</div></div>`:'';
   const sig2Html=(d.signee2Enabled&&d.signee2Name)?`<div style="${ps(sig2Pos)}"${drag('sig2Pos')}><div class="signatory">${d.signee2SigDataUrl?`<span class="img-holder"><img class="sig" src="${d.signee2SigDataUrl}" style="width:${sig2Size}mm"/>${rs('sig2Size')}</span>`:''}<div style="margin-left:6px"><b>${efield(editable,'signee2Name',d.signee2Name)}</b>${d.signee2Title?` (${efield(editable,'signee2Title',d.signee2Title)})`:''}${d.signee2Contact?`<br/>Contact No: ${efield(editable,'signee2Contact',d.signee2Contact)}`:''}</div></div></div>`:'';
@@ -873,7 +874,18 @@ function buildCertBody(d){
   `;
 }
 function buildCertHTML(d){
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${d.refNo||'Certificate'}</title><style>${PRINT_BASE_CSS}</style></head><body>${buildCertBody({...d,editable:false})}</body></html>`;
+  const body=d.customBodyHtml?stripEditingChrome(d.customBodyHtml):buildCertBody({...d,editable:false});
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${d.refNo||'Certificate'}</title><style>${PRINT_BASE_CSS}</style></head><body>${body}</body></html>`;
+}
+function stripEditingChrome(html){
+  const tmp=document.createElement('div');
+  tmp.innerHTML=html;
+  tmp.querySelectorAll('.rs-handle').forEach(el=>el.remove());
+  tmp.querySelectorAll('[contenteditable]').forEach(el=>el.removeAttribute('contenteditable'));
+  tmp.querySelectorAll('[data-field]').forEach(el=>el.removeAttribute('data-field'));
+  tmp.querySelectorAll('[data-drag]').forEach(el=>{el.removeAttribute('data-drag');el.classList.remove('drag-item');});
+  tmp.querySelectorAll('[data-rs]').forEach(el=>el.removeAttribute('data-rs'));
+  return tmp.innerHTML;
 }
 function printDocHTML(html,filenameHint){
   const win=window.open('','_blank');
@@ -907,29 +919,31 @@ function commitDraftField(setDraft,field,rawText){
     setDraft(d=>({...d,[field]:text}));
   }
 }
-function WysiwygEditor({buildBody,draft,setDraft}){
+function WysiwygEditor({buildBody,draft,setDraft,resetToken}){
   const rootRef=useRef();
-  const html=buildBody({...draft,editable:true});
+  const pageRef=useRef();
   useEffect(()=>{
     const root=rootRef.current;
     if(!root)return;
-    const page=root.querySelector('.page-surface')||root;
+    const page=root.querySelector('.page-surface');
+    if(!page)return;
+    pageRef.current=page;
+    page.innerHTML=draft.customBodyHtml||buildBody({...draft,editable:true});
+    page.setAttribute('contenteditable','true');
+    page.setAttribute('spellcheck','false');
 
-    const onFocusOut=e=>{
-      const el=e.target;
-      if(el&&el.dataset&&el.dataset.field){
-        commitDraftField(setDraft,el.dataset.field,el.innerText);
-      }
+    let saveTimer=null;
+    const scheduleSave=()=>{
+      clearTimeout(saveTimer);
+      saveTimer=setTimeout(()=>{
+        setDraft(d=>({...d,customBodyHtml:page.innerHTML}));
+      },400);
     };
-    const onKeyDown=e=>{
-      if(e.key==='Enter'&&e.target.dataset&&e.target.dataset.field&&e.target.tagName==='SPAN'){
-        e.preventDefault();e.target.blur();
-      }
-    };
+    const onInput=()=>scheduleSave();
 
     const onResizeDown=e=>{
       const handle=e.target.closest&&e.target.closest('.rs-handle');
-      if(!handle||!root.contains(handle))return;
+      if(!handle||!page.contains(handle))return;
       e.preventDefault();e.stopPropagation();
       const key=handle.dataset.rs;
       const holder=handle.parentElement;
@@ -950,7 +964,7 @@ function WysiwygEditor({buildBody,draft,setDraft}){
       const up=()=>{
         document.removeEventListener('mousemove',move);document.removeEventListener('mouseup',up);
         document.removeEventListener('touchmove',move);document.removeEventListener('touchend',up);
-        if(newSizeMm)setDraft(d=>({...d,[key]:newSizeMm}));
+        if(newSizeMm)scheduleSave();
       };
       document.addEventListener('mousemove',move);document.addEventListener('mouseup',up);
       document.addEventListener('touchmove',move,{passive:false});document.addEventListener('touchend',up);
@@ -958,12 +972,9 @@ function WysiwygEditor({buildBody,draft,setDraft}){
 
     const onDragDown=e=>{
       if(e.target.closest&&e.target.closest('.rs-handle'))return;
-      if(e.target.closest&&e.target.closest('.ed-field'))return;
       const wrap=e.target.closest&&e.target.closest('[data-drag]');
-      if(!wrap||!root.contains(wrap))return;
+      if(!wrap||!page.contains(wrap))return;
       e.preventDefault();
-      const key=wrap.dataset.drag;
-      let last=null;
       const move=ev=>{
         const rect=page.getBoundingClientRect();
         const pt=ev.touches?ev.touches[0]:ev;
@@ -972,38 +983,43 @@ function WysiwygEditor({buildBody,draft,setDraft}){
         x=Math.max(0,Math.min(95,Math.round(x*10)/10));
         y=Math.max(0,Math.min(95,Math.round(y*10)/10));
         wrap.style.left=x+'%';wrap.style.top=y+'%';
-        last={x,y};
       };
       const up=()=>{
         document.removeEventListener('mousemove',move);document.removeEventListener('mouseup',up);
         document.removeEventListener('touchmove',move);document.removeEventListener('touchend',up);
-        if(last)setDraft(d=>({...d,[key]:{x:last.x,y:last.y}}));
+        scheduleSave();
       };
       document.addEventListener('mousemove',move);document.addEventListener('mouseup',up);
       document.addEventListener('touchmove',move,{passive:false});document.addEventListener('touchend',up);
     };
 
-    root.addEventListener('focusout',onFocusOut);
-    root.addEventListener('keydown',onKeyDown);
-    root.addEventListener('mousedown',onResizeDown,true);
-    root.addEventListener('touchstart',onResizeDown,true);
-    root.addEventListener('mousedown',onDragDown);
-    root.addEventListener('touchstart',onDragDown,{passive:false});
+    page.addEventListener('input',onInput);
+    page.addEventListener('mousedown',onResizeDown,true);
+    page.addEventListener('touchstart',onResizeDown,true);
+    page.addEventListener('mousedown',onDragDown);
+    page.addEventListener('touchstart',onDragDown,{passive:false});
     return()=>{
-      root.removeEventListener('focusout',onFocusOut);
-      root.removeEventListener('keydown',onKeyDown);
-      root.removeEventListener('mousedown',onResizeDown,true);
-      root.removeEventListener('touchstart',onResizeDown,true);
-      root.removeEventListener('mousedown',onDragDown);
-      root.removeEventListener('touchstart',onDragDown);
+      clearTimeout(saveTimer);
+      page.removeEventListener('input',onInput);
+      page.removeEventListener('mousedown',onResizeDown,true);
+      page.removeEventListener('touchstart',onResizeDown,true);
+      page.removeEventListener('mousedown',onDragDown);
+      page.removeEventListener('touchstart',onDragDown);
     };
-  },[html,setDraft]);
-  const pageCss=PRINT_BASE_CSS.replace('body{','.page-surface{');
-  return h('div',{style:{...C.card,padding:0,overflow:'auto',background:'#e5e5e2'}},
-    h('div',{style:{padding:'16px',display:'flex',justifyContent:'center'}},
-      h('div',{ref:rootRef,style:{width:'210mm',flexShrink:0}},
-        h('style',null,pageCss),
-        h('div',{className:'page-surface',style:{background:'#fff',boxShadow:'0 1px 6px rgba(0,0,0,0.15)'},dangerouslySetInnerHTML:{__html:html}})
+    // eslint-disable-next-line
+  },[resetToken]);
+  const pageCss=PRINT_BASE_CSS.replace('body{','.page-surface{')+`
+.page-surface{outline:none}
+.page-surface [data-drag]{cursor:grab}
+`;
+  return h('div',{ref:rootRef},
+    h('div',{style:{...C.card,marginBottom:8,fontSize:11,color:'var(--tx2)',padding:'8px 12px'}},'Click anywhere to type — add, edit or delete any text, just like a Word document. Drag the stamp, signatures or photo to move them; drag their corner handle to resize.'),
+    h('div',{style:{...C.card,padding:0,overflow:'auto',background:'#e5e5e2'}},
+      h('div',{style:{padding:'16px',display:'flex',justifyContent:'center'}},
+        h('div',{style:{width:'210mm',flexShrink:0}},
+          h('style',null,pageCss),
+          h('div',{className:'page-surface',style:{background:'#fff',boxShadow:'0 1px 6px rgba(0,0,0,0.15)',cursor:'text'}})
+        )
       )
     )
   );
@@ -1073,16 +1089,19 @@ function QIForm({kind,draft,setDraft,onReview,counters}){
   );
 }
 function QIReview({kind,draft,setDraft,counters,onBack,onConfirm}){
+  const [resetToken,setResetToken]=useState(0);
   const valid=draft.clientDetails&&(draft.items||[]).some(i=>i.description);
+  const resetDoc=()=>{setDraft(d=>{const nx={...d};delete nx.customBodyHtml;return nx;});setResetToken(t=>t+1);};
   return h('div',{},
     h('div',{style:{...C.btw,marginBottom:10,flexWrap:'wrap',gap:8}},
-      h('div',{style:{fontSize:12,color:'var(--tx2)'}},'Click any text to edit it directly — like a Word document. Changes are saved as you go.'),
-      h('div',{style:{display:'flex',gap:8}},
+      h('div',{style:{fontSize:12,color:'var(--tx2)'}},'This is now the live document — click anywhere to edit or add text.'),
+      h('div',{style:{display:'flex',gap:8,flexWrap:'wrap'}},
+        h(Btn,{ch:'Reset to Form Version',sm:true,onClick:resetDoc}),
         h(Btn,{ch:'← Back to Form',onClick:onBack}),
         h(Btn,{ch:'Confirm & Generate PDF',pri:true,disabled:!valid,onClick:onConfirm})
       )
     ),
-    h(WysiwygEditor,{buildBody:d=>buildQIBody(kind,d),draft,setDraft})
+    h(WysiwygEditor,{buildBody:d=>buildQIBody(kind,d),draft,setDraft,resetToken})
   );
 }
 function CertFormFields({draft,setDraft,counters}){
@@ -1198,18 +1217,22 @@ function CertForm({draft,setDraft,onReview,counters}){
   );
 }
 function CertReview({draft,setDraft,counters,onBack,onConfirm}){
+  const [resetToken,setResetToken]=useState(0);
   const valid=draft.clientDetails&&draft.certTitleEn;
-  const resetLayout=()=>setDraft(d=>{const nx={...d};delete nx.stampPos;delete nx.sig1Pos;delete nx.sig2Pos;delete nx.photoPos;delete nx.stampSize;delete nx.sig1Size;delete nx.sig2Size;delete nx.photoSize;return nx;});
+  const resetDoc=()=>{
+    setDraft(d=>{const nx={...d};['customBodyHtml','stampPos','sig1Pos','sig2Pos','photoPos','stampSize','sig1Size','sig2Size','photoSize'].forEach(k=>delete nx[k]);return nx;});
+    setResetToken(t=>t+1);
+  };
   return h('div',{},
     h('div',{style:{...C.btw,marginBottom:10,flexWrap:'wrap',gap:8}},
-      h('div',{style:{fontSize:12,color:'var(--tx2)',maxWidth:420}},'Click any text to edit it. Drag the stamp, signature(s) or photo to reposition — drag the small handle on their corner to resize.'),
+      h('div',{style:{fontSize:12,color:'var(--tx2)'}},'This is now the live document — click anywhere to edit or add text.'),
       h('div',{style:{display:'flex',gap:8,flexWrap:'wrap'}},
-        h(Btn,{ch:'Reset Positions',sm:true,onClick:resetLayout}),
+        h(Btn,{ch:'Reset to Form Version',sm:true,onClick:resetDoc}),
         h(Btn,{ch:'← Back to Form',onClick:onBack}),
         h(Btn,{ch:'Confirm & Generate PDF',pri:true,disabled:!valid,onClick:onConfirm})
       )
     ),
-    h(WysiwygEditor,{buildBody:buildCertBody,draft,setDraft})
+    h(WysiwygEditor,{buildBody:buildCertBody,draft,setDraft,resetToken})
   );
 }
 function HistoryList({docs,onReprint,onDelete,onDuplicate}){
