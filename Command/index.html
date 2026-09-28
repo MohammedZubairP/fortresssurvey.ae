@@ -134,7 +134,7 @@ const IMG_STAMP='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAaQAAAGkCAYAAAB+T
 // auto-included stamp/signature). Any cached customBodyHtml saved under an
 // older version is ignored and regenerated fresh, so stale drafts can never
 // resurrect old template behavior.
-const TEMPLATE_VERSION=2;
+const TEMPLATE_VERSION=3;
 const DEFAULT_TERMS=[
  'This quotation is valid for 30 days from the date of issue.',
  'Prices are in UAE Dirhams (AED) and exclusive of 5% VAT unless stated.',
@@ -739,16 +739,18 @@ function AccountsSection({accounts,saveAccounts}){
     ),
     importMsg&&h('div',{style:{fontSize:12,color:'var(--txS)',background:'var(--bgS)',border:'0.5px solid #97C459',borderRadius:'var(--rm)',padding:'9px 13px',marginBottom:12}},importMsg),
     h('div',{style:{...C.card,overflow:'auto',padding:0}},
-      h('table',{style:{width:'100%',borderCollapse:'collapse',fontSize:12,tableLayout:'fixed'}},
-        h(TH,{cols:[{l:'Company',w:'22%'},{l:'Cat',w:'6%'},{l:'Contact',w:'16%'},{l:'Status',w:'14%'},{l:'Registration',w:'12%'},{l:'Assigned',w:'10%'},{l:'Next Action',w:'12%'},{l:'',w:'6%'}]}),
-        h('tbody',{},fil.length===0?h('tr',{},h('td',{colSpan:8,style:{textAlign:'center',padding:28,color:'var(--tx2)'}},'No accounts found')):
+      h('table',{style:{width:'100%',borderCollapse:'collapse',fontSize:12,tableLayout:'fixed',minWidth:1050}},
+        h(TH,{cols:[{l:'Company',w:'17%'},{l:'Cat',w:'5%'},{l:'Contact',w:'10%'},{l:'Phone',w:'11%'},{l:'Email',w:'15%'},{l:'Status',w:'11%'},{l:'Registration',w:'9%'},{l:'Assigned',w:'7%'},{l:'Next Action',w:'8%'},{l:'',w:'4%'}]}),
+        h('tbody',{},fil.length===0?h('tr',{},h('td',{colSpan:10,style:{textAlign:'center',padding:28,color:'var(--tx2)'}},'No accounts found')):
           fil.map(a=>{const st=ASCOL[a.status]||{};return h('tr',{key:a.id,style:{borderBottom:'0.5px solid var(--bd)',cursor:'pointer'},onMouseEnter:e=>e.currentTarget.style.background='var(--bg2)',onMouseLeave:e=>e.currentTarget.style.background=''},
-            h('td',{style:{padding:'9px 8px'},onClick:()=>setQv(a)},h('div',{style:{...C.row}},h(Av,{name:a.company,id:a.id}),h('div',{},h('div',{style:{fontWeight:500,color:'var(--txI)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}},a.company),h('div',{style:{fontSize:11,color:'var(--tx2)'}},a.service||'—')))),
+            h('td',{style:{padding:'9px 8px'},onClick:()=>setQv(a)},h('div',{style:{...C.row}},h(Av,{name:a.company,id:a.id}),h('div',{style:{minWidth:0}},h('div',{style:{fontWeight:500,color:'var(--txI)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}},a.company),h('div',{style:{fontSize:11,color:'var(--tx2)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}},a.service||'—')))),
             h('td',{style:{padding:'9px 8px'}},h(Chip,{l:a.category||'—',c:CATCOL[a.category],bg:'var(--bg2)'})),
-            h('td',{style:{padding:'9px 8px',fontSize:11}},a.contactName||'—'),
+            h('td',{style:{padding:'9px 8px',fontSize:11,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}},a.contactName||'—'),
+            h('td',{style:{padding:'9px 8px',fontSize:11,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}},a.phone||'—'),
+            h('td',{style:{padding:'9px 8px',fontSize:11,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}},a.email||'—'),
             h('td',{style:{padding:'9px 8px'}},h(IE,{value:a.status||'Not Contacted',onSave:v=>inlineUpdate(a.id,'status',v),opts:ACC_STATUS})),
             h('td',{style:{padding:'9px 8px'}},h(Chip,{l:a.registration||'Not Required',c:REGCOL[a.registration],bg:'var(--bg2)'})),
-            h('td',{style:{padding:'9px 8px',fontSize:11}},a.assignedTo||'—'),
+            h('td',{style:{padding:'9px 8px',fontSize:11,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}},a.assignedTo||'—'),
             h('td',{style:{padding:'9px 8px',fontSize:11,color:a.nextActionDate&&isOD(a.nextActionDate)?'var(--txD)':'var(--tx2)'}},a.nextActionDate?fD(a.nextActionDate):'—'),
             h('td',{style:{padding:'9px 8px',textAlign:'right'}},h('button',{onClick:e=>{e.stopPropagation();saveAccounts(accounts.filter(x=>x.id!==a.id));if(qv?.id===a.id)setQv(null);},style:{background:'none',border:'none',cursor:'pointer',color:'var(--tx3)',fontSize:16}},'×'))
           );})
@@ -867,7 +869,7 @@ table.totals tr.tot td{font-weight:bold}
 .terms .h{text-decoration:underline;font-weight:bold;margin-bottom:8px;display:block}
 .terms ol{margin:0;padding-left:16px}
 .terms li{margin-bottom:5px}
-footer.pf{margin-top:26px;border-top:1px solid #000;padding-top:5px;font-size:9.5px;text-align:center;color:#111}
+footer.pf{position:absolute;left:0;right:0;bottom:6mm;margin-top:0;border-top:1px solid #000;padding-top:5px;font-size:9.5px;text-align:center;color:#111}
 .cert-ref{display:flex;justify-content:space-between;font-size:12px;margin:14px 0}
 .cert-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .cert-title .en{font-weight:bold;font-size:15px;text-decoration:underline}
@@ -950,7 +952,7 @@ function buildQIHTML(kind,d){
   const body=useCached?stripEditingChrome(d.customBodyHtml):buildQIBody(kind,{...d,editable:false});
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${kind}-${d.refNo||''}</title><style>${PRINT_BASE_CSS}</style></head><body>${body}</body></html>`;
 }
-const CERT_DEFAULT_POS={stampPos:{x:2,y:86},sig1Pos:{x:20,y:88},sig2Pos:{x:55,y:88},photoPos:{x:2,y:58}};
+const CERT_DEFAULT_POS={stampPos:{x:2,y:86},sig1Pos:{x:40,y:88},sig2Pos:{x:70,y:88},photoPos:{x:2,y:58}};
 const CERT_DEFAULT_SIZE={stampSize:30,sig1Size:42,sig2Size:42,photoSize:65};
 function buildCertBody(d){
   const editable=!!d.editable;
@@ -960,6 +962,7 @@ function buildCertBody(d){
   const signeeName=d.signeeName===undefined?'Mohammed Zubair Pasha':d.signeeName;
   const signeeTitle=d.signeeTitle===undefined?'Technical Director':d.signeeTitle;
   const signeeContact=d.signeeContact===undefined?'+971503594612':d.signeeContact;
+  const photoCaption=d.photoCaption===undefined?'Photo 1: Reference':d.photoCaption;
   const stampPos=d.stampPos||CERT_DEFAULT_POS.stampPos;
   const sig1Pos=d.sig1Pos||CERT_DEFAULT_POS.sig1Pos;
   const sig2Pos=d.sig2Pos||CERT_DEFAULT_POS.sig2Pos;
@@ -972,7 +975,7 @@ function buildCertBody(d){
   const rs=key=>editable?`<div class="rs-handle" contenteditable="false" data-rs="${key}"></div>`:'';
   const drag=key=>editable?` data-drag="${key}" class="drag-item" contenteditable="false"`:'';
   const rows=(d.rows||[]).map((r,i)=>`<tr><td>${efield(editable,'row:'+i+':pointNo',r.pointNo)}</td><td>${efield(editable,'row:'+i+':northing',r.northing||'---')}</td><td>${efield(editable,'row:'+i+':easting',r.easting||'---')}</td><td><b>${efield(editable,'row:'+i+':level',r.level)}</b></td><td>${efield(editable,'row:'+i+':remarks',r.remarks)}</td></tr>`).join('');
-  const photoBlock=d.photoDataUrl?`<div class="photo-block"${ps(photoPos)?` style="${ps(photoPos)}"`:''}${drag('photoPos')}><span class="img-holder"><img src="${d.photoDataUrl}" style="width:${photoSize}mm"/>${rs('photoSize')}</span><div class="cap">${efield(editable,'photoCaption',d.photoCaption)}</div></div>`:'';
+  const photoBlock=d.photoDataUrl?`<div class="photo-block"${ps(photoPos)?` style="${ps(photoPos)}"`:''}${drag('photoPos')}><span class="img-holder"><img src="${d.photoDataUrl}" style="width:${photoSize}mm"/>${rs('photoSize')}</span><div class="cap">${efield(editable,'photoCaption',photoCaption)}</div></div>`:'';
   const sig2Html=(d.signee2Enabled&&d.signee2Name)?`<div style="${ps(sig2Pos)}"${drag('sig2Pos')}><div class="signatory">${d.signee2SigDataUrl?`<span class="img-holder"><img class="sig" src="${d.signee2SigDataUrl}" style="width:${sig2Size}mm"/>${rs('sig2Size')}</span>`:''}<div style="margin-left:6px"><b>${efield(editable,'signee2Name',d.signee2Name)}</b>${d.signee2Title?` (${efield(editable,'signee2Title',d.signee2Title)})`:''}${d.signee2Contact?`<br/>Contact No: ${efield(editable,'signee2Contact',d.signee2Contact)}`:''}</div></div></div>`:'';
   const stampInner=d.stampDataUrl?`<span class="img-holder"><img class="stamp" src="${d.stampDataUrl}" style="width:${stampSize}mm"/>${rs('stampSize')}</span>`:(editable?`<span class="add-ph stamp-ph" contenteditable="false" data-add="stamp">+ Stamp</span>`:'');
   const sigInner=d.signeeSigDataUrl?`<span class="img-holder"><img class="sig" src="${d.signeeSigDataUrl}" style="width:${sig1Size}mm"/>${rs('sig1Size')}</span>`:(editable?`<span class="add-ph" contenteditable="false" data-add="sig">+ Signature</span>`:'');
@@ -1900,7 +1903,7 @@ function CertFormFields({draft,setDraft,counters}){
       h('div',{style:{fontWeight:500,fontSize:13,marginBottom:10}},'Site Photo (optional)'),
       h('input',{type:'file',accept:'image/*',onChange:onPhoto,style:{marginBottom:10}}),
       draft.photoDataUrl&&h('img',{src:draft.photoDataUrl,style:{maxWidth:200,display:'block',marginBottom:8,border:'1px solid var(--bd)'}}),
-      draft.photoDataUrl&&h(Inp2,{label:'Photo Caption',value:draft.photoCaption||'Photo No.1: Site',onChange:p('photoCaption')})
+      draft.photoDataUrl&&h(Inp2,{label:'Photo Caption',value:draft.photoCaption||'Photo 1: Reference',onChange:p('photoCaption')})
     ),
     h('div',{style:{...C.card,marginBottom:14}},
       h('div',{style:{fontWeight:500,fontSize:13,marginBottom:10}},'Sign-Off'),
