@@ -45,7 +45,8 @@ if(typeof React==='undefined'){
 }
 </script>
 <script>
-const {createElement:h,useState,useEffect,useCallback,useRef,Fragment}=React;
+const {createElement:h,useState,useEffect,useCallback,useRef,Fragment,createContext,useContext}=React;
+const LabelCtx=createContext('');
 // ══════════════════════════ CORE ══════════════════════════
 const CEMAIL='admin@fortresssurvey.ae';
 const DPASS='Fortress@2026';
@@ -134,10 +135,10 @@ const IMG_STAMP='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAaQAAAGkCAYAAAB+T
 // auto-included stamp/signature). Any cached customBodyHtml saved under an
 // older version is ignored and regenerated fresh, so stale drafts can never
 // resurrect old template behavior.
-const TEMPLATE_VERSION=5;
+const TEMPLATE_VERSION=6;
 const DEFAULT_TERMS=[
  'This quotation is valid for 30 days from the date of issue.',
- 'Prices are in UAE Dirhams (AED) and exclusive of 5% VAT unless stated.',
+ 'Prices are in UAE Dirhams (AED).',
  'Payment terms: 50% advance upon confirmation; balance upon delivery of deliverables.',
  'Fortress Surveying Engineering Services shall provide all equipment and qualified personnel.',
  'Client shall provide safe and unobstructed site access during agreed times.',
@@ -145,6 +146,7 @@ const DEFAULT_TERMS=[
  'Survey work is subject to weather and site conditions. Delays beyond our control are excluded.',
  'All deliverables remain property of Fortress Surveying Engineering Services L.L.C. until full payment is received.',
  'All regulatory Authority fees, permit fees, and third-party costs are not included unless agreed.',
+ 'NOCs, approval from any Regulatory Authorities, internal permissions and security clearance has to be arranged by the client.',
  'Any disputes/disagreement shall be resolved under Dubai jurisdiction and UAE law, under the relevant clause.'
 ].join('\n');
 const CERT_TYPES=[
@@ -153,6 +155,10 @@ const CERT_TYPES=[
  {v:'DTM',en:'Confirmation of DTM / Contours Certificate',ar:'شهادة تأكيد النموذج الرقمي للتضاريس',kw:'confirmation of DTM / contours',pre:'DTC'},
  {v:'BOUNDARY',en:'Confirmation of Boundary / Demarcation Certificate',ar:'شهادة تأكيد الحدود',kw:'confirmation of boundary demarcation',pre:'LDC'},
  {v:'SETOUT',en:'Confirmation of Setting-Out Certificate',ar:'شهادة تأكيد التخطيط الموقعي',kw:'setting-out',pre:'SOC'},
+ {v:'FORMATION',en:'Formation Level Certificate',ar:'شهادة مستوى التشكيل',kw:'marking of formation level',pre:'CFL',pd:'Confirmation of Formation Level'},
+ {v:'FFL',en:'Gate Level & FFL Certificate',ar:'شهادة مستوى البوابة',kw:'marking of gate level',pre:'FGL',pd:'Fixing GL and checking villa FFL'},
+ {v:'SSLV',en:'Structural Slab Level Certificate',ar:'شهادة تأكيد مستوى البلاطة الإنشائية',kw:'marking of structural slab level',pre:'SSL',pd:'Confirmation of Structural Slab Level of Residential Villa'},
+ {v:'DEMARC',en:'Demarcation Certificate',ar:'شهادة تحديد معالم الأرض',kw:'setting-out and verification of the plot boundaries',pre:'DMC',pd:'Confirmation of Plot Demarcation'},
  {v:'CUSTOM',en:'',ar:'',kw:'',pre:'FMC'}
 ];
 const certPrefix=(t,code)=>{const ct=CERT_TYPES.find(x=>x.v===t)||CERT_TYPES[0];return ct.pre+(code?'-'+code:'');};
@@ -172,11 +178,14 @@ function Chip({l,c,bg}){return h('span',{style:{display:'inline-block',padding:'
 function Av({name,id,sz=28}){const col=acol(id||name||'x');return h('div',{title:name,style:{width:sz,height:sz,borderRadius:'50%',background:col+'22',border:'1.5px solid '+col,display:'flex',alignItems:'center',justifyContent:'center',fontSize:Math.max(10,Math.round(sz*.36)),fontWeight:500,color:col,flexShrink:0,userSelect:'none'}},inits(name));}
 function Btn({ch,onClick,pri,sm,dan,full,disabled,style:st={}}){return h('button',{onClick,disabled,style:{padding:sm?'4px 10px':'6px 14px',borderRadius:'var(--rm)',fontSize:sm?11:13,fontWeight:500,cursor:disabled?'default':'pointer',opacity:disabled?.6:1,display:'inline-flex',alignItems:'center',gap:5,width:full?'100%':undefined,justifyContent:full?'center':undefined,...(pri?{background:'var(--tx1)',color:'var(--bg1)',border:'none'}:dan?{background:'#FCEBEB',color:'#A32D2D',border:'0.5px solid #F09595'}:{background:'transparent',color:'var(--tx1)',border:'0.5px solid var(--bdm)'}),lineHeight:1,...st}},ch);}
 function Inp2({label,value,onChange,type='text',opts,ph,req,rows,disabled}){
+  const sp=useContext(LabelCtx);const [,tick]=useState(0);
+  const lk=sp+'|'+label;const lab=(sp&&label)?(ld('ftc:labels',{})[lk]||label):label;
+  const ren=()=>{const n=prompt('Rename this field (leave empty to restore the original name):',lab);if(n===null)return;const m=ld('ftc:labels',{});if(n.trim())m[lk]=n.trim();else delete m[lk];sv('ftc:labels',m);tick(x=>x+1);};
   let el;
   if(opts)el=h('select',{value,onChange,disabled,style:{...C.inp,background:'var(--bg1)'}},h('option',{value:''},'— select —'),opts.map(o=>h('option',{key:typeof o==='object'?o.v:o,value:typeof o==='object'?o.v:o},typeof o==='object'?o.l:o)));
   else if(rows)el=h('textarea',{value,onChange,placeholder:ph,required:req,disabled,style:{...C.inp,resize:'vertical',minHeight:rows*24}});
   else el=h('input',{type,value,onChange,placeholder:ph,required:req,disabled,style:C.inp});
-  return h('div',{style:{marginBottom:10}},label&&h('label',{style:{display:'block',fontSize:12,color:'var(--tx2)',marginBottom:3}},label+(req?' *':'')),el);
+  return h('div',{style:{marginBottom:10}},label&&h('label',{style:{display:'block',fontSize:12,color:'var(--tx2)',marginBottom:3}},lab+(req?' *':''),sp&&h('button',{type:'button',title:'Rename this field',onClick:ren,style:{background:'none',border:'none',cursor:'pointer',fontSize:10,opacity:.55,marginLeft:4}},'✎')),el);
 }
 function Tabs({tabs,active,onChange}){return h('div',{style:{display:'flex',borderBottom:'0.5px solid var(--bd)',marginBottom:14,overflowX:'auto'}},tabs.map(t=>h('button',{key:t.id,onClick:()=>onChange(t.id),style:{padding:'7px 13px',background:'none',border:'none',borderBottom:active===t.id?'2px solid var(--brand)':'2px solid transparent',color:active===t.id?'var(--tx1)':'var(--tx2)',cursor:'pointer',fontSize:13,fontWeight:active===t.id?600:400,marginBottom:-1,whiteSpace:'nowrap'}},t.l)));}
 function Stat({label,val,c,sub}){return h('div',{style:{...C.surf,padding:'12px 14px'}},h('div',{style:{fontSize:11,color:'var(--tx2)',marginBottom:4}},label),h('div',{style:{fontSize:20,fontWeight:500,color:c||'var(--tx1)'}},val),sub&&h('div',{style:{fontSize:10,color:'var(--tx3)',marginTop:2}},sub));}
@@ -734,7 +743,7 @@ function AccountsSection({accounts,saveAccounts}){
         )
       )
     ),
-    modal&&h(Modal,{title:edit?'Edit Account':'Add Target Account',onClose:()=>{setModal(false);setEdit(null);},w:640},h(AccountForm,{initial:edit,onSave:saveAcc,onClose:()=>{setModal(false);setEdit(null);}})),
+    modal&&h(Modal,{title:edit?'Edit Account':'Add Target Account',onClose:()=>{setModal(false);setEdit(null);},w:640},h(LabelCtx.Provider,{value:'accounts'},h(AccountForm,{initial:edit,onSave:saveAcc,onClose:()=>{setModal(false);setEdit(null);}}))),
     qv&&h(Modal,{title:'Account Details',onClose:()=>setQv(null),w:520},h(AccountQuickView,{acc:qv,onClose:()=>setQv(null),onAddAct:addAct,onSaveAll:saveAll})),
     importOpen&&h(Modal,{title:'Import Accounts from CSV',onClose:()=>setImportOpen(false),w:640},h(ImportCSVModal,{onImport:doImportRows,onClose:()=>setImportOpen(false)}))
   );
@@ -781,7 +790,7 @@ function FinanceSection({receivables,saveReceivables,goto}){
         )
       )
     ),
-    modal&&h(Modal,{title:edit?'Edit Invoice':'Add Invoice',onClose:()=>{setModal(false);setEdit(null);},w:560},h(ReceivableForm,{initial:edit,onSave:save,onClose:()=>{setModal(false);setEdit(null);}}))
+    modal&&h(Modal,{title:edit?'Edit Invoice':'Add Invoice',onClose:()=>{setModal(false);setEdit(null);},w:560},h(LabelCtx.Provider,{value:'finance'},h(ReceivableForm,{initial:edit,onSave:save,onClose:()=>{setModal(false);setEdit(null);}})))
   );
 }
 // ══════════════════════════ REPORTS ══════════════════════════
@@ -873,7 +882,7 @@ img.stamp{display:block;width:30mm;height:auto}
 .add-ph.stamp-ph{min-width:80px;height:80px}
 `;
 function itemsCalc(items,includeVat,vatPct,discount,discountType){
-  const rows=(items||[]).map(it=>({...it,amount:(Number(it.qty)||0)*(Number(it.unitPrice)||0)}));
+  const rows=(items||[]).map(it=>({...it,amount:(it.amount!==undefined&&it.amount!=='')?(Number(String(it.amount).replace(/,/g,''))||0):(Number(String(it.qty).replace(/,/g,''))||0)*(Number(String(it.unitPrice).replace(/,/g,''))||0)}));
   const subtotal=rows.reduce((s,r)=>s+r.amount,0);
   const vat=includeVat?subtotal*(Number(vatPct)||0)/100:0;
   const discAmt=discountType==='%'?subtotal*(Number(discount)||0)/100:(Number(discount)||0);
@@ -887,45 +896,58 @@ function efield(editable,field,value,tag){
 }
 function buildQIBody(kind,d){
   const editable=!!d.editable;
-  const terms=d.terms===undefined?DEFAULT_TERMS:d.terms;
+  const isInv=kind==='Invoice';
+  const terms=d.terms===undefined?(isInv?INV_TERMS:DEFAULT_TERMS):d.terms;
   const vatPct=d.vatPct===undefined?5:d.vatPct;
   const includeVat=d.includeVat!==false;
   const {rows,subtotal,vat,discAmt,total}=itemsCalc(d.items,includeVat,vatPct,d.discount,d.discountType);
+  const paid=Number(d.paid)||0;
   const arTitle=kind==='Quotation'?'اقتباس':'فاتورة';
-  const itemRows=rows.map((r,i)=>`<tr><td class="c">${r.no}</td><td>${efield(editable,'item:'+i+':description',r.description)}</td><td class="c">${efield(editable,'item:'+i+':unit',r.unit)}</td><td class="c">${efield(editable,'item:'+i+':qty',r.qty)}</td><td class="r">${efield(editable,'item:'+i+':unitPrice',r.unitPrice)}</td><td class="r">${r.amount?numFmt(r.amount):''}</td></tr>`).join('');
+  const L=(k,def)=>efield(editable,'lbl:'+k,d['lbl:'+k]!==undefined?d['lbl:'+k]:def);
+  const T=(k,v)=>efield(editable,'tot:'+k,d['tot:'+k]!==undefined?d['tot:'+k]:v);
+  const issue=d.issueDate||tod(),valid=d.validUntil||addDays(tod(),30);
+  const signeeName=d.signeeName===undefined?'Mohammed Zubair Pasha':d.signeeName,signeeTitle=d.signeeTitle===undefined?'Manager':d.signeeTitle,signeeContact=d.signeeContact===undefined?'+971503099162':d.signeeContact;
+  let itemRows=rows.map((r,i)=>`<tr><td class="c">${efield(editable,'item:'+i+':no',r.no)}</td><td>${efield(editable,'item:'+i+':description',r.description)}</td><td class="c">${efield(editable,'item:'+i+':unit',r.unit)}</td><td class="c">${efield(editable,'item:'+i+':qty',r.qty)}</td><td class="r">${efield(editable,'item:'+i+':unitPrice',r.unitPrice)}</td><td class="r">${efield(editable,'item:'+i+':amount',r.amount?numFmt(r.amount):'')}</td></tr>`).join('');
+  for(let k=rows.length;k<5;k++)itemRows+=`<tr><td class="c">${k+1}</td><td>${editable?'&nbsp;':''}</td><td></td><td></td><td></td><td></td></tr>`;
+  const tcTitle=d.tcTitle||'TERMS & CONDITIONS';
   const termsBlock=editable
     ?`<div class="ed-field" data-field="terms" contenteditable="true" style="white-space:pre-wrap">${(terms||'').replace(/</g,'&lt;')}</div>`
     :`<ol>${(terms||'').split('\n').filter(x=>x.trim()).map(t=>`<li>${t.replace(/^\d+\.\s*/,'').replace(/</g,'&lt;')}</li>`).join('')}</ol>`;
+  const block=d.deployBlock&&d.deployBlock.trim()?`<div style="margin:14px 0 0;border:1px solid #000;padding:8px 10px;font-size:11.5px;line-height:1.7;white-space:pre-wrap">${editable?`<div class="ed-field" data-field="deployBlock" contenteditable="true">${d.deployBlock.replace(/</g,'&lt;')}</div>`:d.deployBlock.replace(/</g,'&lt;')}</div>`:'';
   return `
   <img class="wm" src="${IMG_WATERMARK}"/>
   <div style="text-align:center;margin-bottom:12px"><span class="img-holder" contenteditable="false"><img class="hdr-logo" src="${IMG_LOGO}" style="width:${d.logoSize||55}mm"/>${editable?'<div class="rs-handle" contenteditable="false" data-rs="logo"></div>':''}</span></div>
   <div class="co-row"><div><b>Fortress Survey Engineering</b><b>Services L.L.C.</b><b>Dubai – U.A.E</b></div><div class="co-ar">فورتريس لخدمات الهندسة<br/>المساحية ش.ذ.م.م<br/>دبي - الإمارات العربية المتحدة</div></div>
-  <div class="title-bar"><div class="en">${kind}</div><div class="ar">${arTitle}</div></div>
+  <div class="title-bar"><div class="en">${L('title',kind)}</div><div class="ar">${arTitle}</div></div>
   <div class="details-grid">
     <div class="col">
-      <div><span class="lbl">Client Details:</span> ${efield(editable,'clientDetails',d.clientDetails)}</div>
-      <div><span class="lbl">Project Details:</span> ${efield(editable,'projectDetails',d.projectDetails)}</div>
-      <div><span class="lbl">Point of Contact:</span> ${efield(editable,'pointOfContact',d.pointOfContact)}</div>
+      <div><span class="lbl">${L('client','Client Details:')}</span> ${efield(editable,'clientDetails',d.clientDetails)}</div>
+      <div><span class="lbl">${L('project','Project Details:')}</span> ${efield(editable,'projectDetails',d.projectDetails)}</div>
+      <div><span class="lbl">${L('poc','Point of Contact:')}</span> ${efield(editable,'pointOfContact',d.pointOfContact)}</div>
     </div>
     <div class="col">
-      <div><span class="lbl">Reference No.:</span> ${efield(editable,'refNo',d.refNo)}</div>
-      <div><span class="lbl">Issue Date:</span> ${fD(d.issueDate||tod())}</div>
-      <div><span class="lbl">Valid Until:</span> ${fD(d.validUntil||addDays(tod(),30))}</div>
+      <div><span class="lbl">${L('ref','Reference No.:')}</span> ${efield(editable,'refNo',d.refNo)}</div>
+      <div><span class="lbl">${L('issue','Issue Date:')}</span> ${efield(editable,'issueText',d.issueText!==undefined?d.issueText:fD(issue))}</div>
+      <div><span class="lbl">${L('valid','Valid Until:')}</span> ${efield(editable,'validText',d.validText!==undefined?d.validText:fD(valid))}</div>
     </div>
   </div>
-  <table class="items"><thead><tr><th style="width:6%">No.</th><th>Description</th><th style="width:10%">Unit</th><th style="width:8%">Qty.</th><th style="width:16%" class="r">Unit Price (AED)</th><th style="width:16%" class="r">Amount (AED)</th></tr></thead><tbody>${itemRows}</tbody></table>
+  <div style="font-weight:bold;margin:6px 0 4px">${L('detailsHdr',kind+' Details')}</div>
+  <table class="items"><thead><tr><th style="width:6%">${L('thNo','No.')}</th><th>${L('thDesc','Description')}</th><th style="width:10%">${L('thUnit','Unit')}</th><th style="width:8%">${L('thQty','Qty.')}</th><th style="width:16%" class="r">${L('thPrice','Unit Price (AED)')}</th><th style="width:16%" class="r">${L('thAmt','Amount (AED)')}</th></tr></thead><tbody>${itemRows}</tbody></table>
   <table class="totals">
-    <tr><td class="lbl">Subtotal</td><td class="r">${numFmt(subtotal)}</td></tr>
-    ${includeVat?`<tr><td class="lbl">VAT ${vatPct||0}%</td><td class="r">${numFmt(vat)}</td></tr>`:''}
-    ${(Number(d.discount)||0)>0?`<tr><td class="lbl">Discount${d.discountType==='%'?(' ('+d.discount+'%)'):''}</td><td class="r">-${numFmt(discAmt)}</td></tr>`:''}
-    <tr class="tot"><td class="lbl">Total Amount</td><td class="r">${numFmt(total)}</td></tr>
+    <tr><td class="lbl">${L('subtotal','Subtotal')}</td><td class="r">${T('subtotal',numFmt(subtotal))}</td></tr>
+    ${includeVat?`<tr><td class="lbl">${L('vat','VAT '+(vatPct||0)+'%')}</td><td class="r">${T('vat',numFmt(vat))}</td></tr>`:''}
+    <tr><td class="lbl">${L('disc','Discount (where applicable)')}</td><td class="r">${T('disc',numFmt(discAmt))}</td></tr>
+    <tr class="tot"><td class="lbl">${L('total','Total Amount (AED)')}</td><td class="r">${T('total',numFmt(total))}</td></tr>
+    ${isInv&&paid>0?`<tr><td class="lbl">${L('paid','Already paid')}</td><td class="r">${T('paid',numFmt(paid))}</td></tr><tr class="tot"><td class="lbl">${L('pending','Pending Amount')}</td><td class="r">${T('pending',numFmt(total-paid))}</td></tr>`:''}
   </table>
-  <div class="terms"><span class="h">TERMS &amp; CONDITIONS</span>${termsBlock}</div>
+  ${block}
+  <div class="terms"><span class="h">${efield(editable,'tcTitle',tcTitle)}</span>${termsBlock}</div>
+  <div style="margin-top:22px;font-size:12px"><b>${efield(editable,'signeeName',signeeName)}</b> (${efield(editable,'signeeTitle',signeeTitle)})<br/>${efield(editable,'signeeContact',signeeContact)}</div>
   <footer class="pf">⌖ Office No. 338 Al Khabaisi, Deira, Dubai, UAE &nbsp;◉ www.fortresssurvey.ae, &nbsp;✉ info@fortresssurvey.ae</footer>
   `;
 }
 function buildQIHTML(kind,d){
-  const useCached=d.customBodyHtml&&d.templateVersion===TEMPLATE_VERSION;
+  const useCached=d.customBodyHtml&&(d.templateVersion===TEMPLATE_VERSION||kind==='Imported');
   const body=useCached?stripEditingChrome(d.customBodyHtml):buildQIBody(kind,{...d,editable:false});
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${kind}-${d.refNo||''}</title><style>${PRINT_BASE_CSS}</style></head><body>${body}</body></html>`;
 }
@@ -1021,7 +1043,7 @@ function commitDraftField(setDraft,field,rawText){
   const text=(rawText||'').replace(/\u00A0/g,' ');
   if(field.startsWith('item:')){
     const [,idx,key]=field.split(':');
-    setDraft(d=>{const items=[...(d.items||[])];if(!items[idx])return d;items[idx]={...items[idx],[key]:(key==='qty'||key==='unitPrice')?text.replace(/[^0-9.]/g,''):text};return{...d,items};});
+    setDraft(d=>{const items=[...(d.items||[])];if(!items[idx])return d;items[idx]={...items[idx],[key]:(key==='qty'||key==='unitPrice')?text.replace(/[^0-9.]/g,''):text};if(key==='qty'||key==='unitPrice')delete items[idx].amount;return{...d,items};});
   }else if(field.startsWith('row:')){
     const [,idx,key]=field.split(':');
     setDraft(d=>{const rows=[...(d.rows||[])];if(!rows[idx])return d;rows[idx]={...rows[idx],[key]:text};return{...d,rows};});
@@ -1767,11 +1789,13 @@ function QIFormFields({kind,draft,setDraft,counters}){
   useEffect(()=>{if(!draft.refNo){const{ref}=nextRefNo(kind==='Quotation'?'FSE-QTN':'FSE-INV',counters);setDraft(d=>({...d,refNo:ref}));}},[]);
   const {subtotal,vat,discAmt,total}=itemsCalc(draft.items,draft.includeVat,draft.vatPct,draft.discount,draft.discountType);
   return h('div',{},
+    h(TemplatePicker,{kind,draft,setDraft}),
     h('div',{style:{...C.card,marginBottom:14}},
       h('div',{style:{fontWeight:500,fontSize:13,marginBottom:10}},'Basic Information'),
       h('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'0 14px'}},
         h(Inp2,{label:'Client Details',value:draft.clientDetails||'',onChange:p('clientDetails'),req:true,ph:'Company / individual name'}),
-        h(Inp2,{label:'Reference No.',value:draft.refNo||'',onChange:p('refNo')}),
+        h(Inp2,{label:'Reference No. (auto: prefix-date-no.)',value:draft.refNo||'',onChange:e=>setDraft(d=>({...d,refNo:e.target.value,refManual:true}))}),
+        h(Inp2,{label:'Reference prefix (e.g. client code SSD)',value:draft.refPrefix===undefined?(kind==='Quotation'?'FSE-QTN':'FSE-INV'):draft.refPrefix,onChange:e=>{const v=e.target.value.toUpperCase();setDraft(d=>({...d,refPrefix:v,refNo:d.refManual?d.refNo:nextRefNo(v||(kind==='Quotation'?'FSE-QTN':'FSE-INV'),counters).ref}));}}),
         h(Inp2,{label:'Project Details',value:draft.projectDetails||'',onChange:p('projectDetails')}),
         h(Inp2,{label:'Issue Date',value:draft.issueDate||tod(),onChange:p('issueDate'),type:'date'}),
         h(Inp2,{label:'Point of Contact',value:draft.pointOfContact||'',onChange:p('pointOfContact')}),
@@ -1788,12 +1812,14 @@ function QIFormFields({kind,draft,setDraft,counters}){
         h(Inp2,{label:'Discount',value:draft.discount||'',onChange:p('discount'),type:'number'})
       ),
       h(Inp2,{label:'Discount Type',value:draft.discountType||'AED',onChange:p('discountType'),opts:['AED','%']}),
+      kind==='Invoice'&&h(Inp2,{label:'Already paid (AED)',value:draft.paid||'',onChange:p('paid'),type:'number'}),
       h('div',{style:{...C.surf,fontSize:13,marginTop:6}},h('div',{style:{...C.btw}},h('span',{},'Subtotal'),h('span',{},numFmt(subtotal)+' AED')),draft.includeVat!==false&&h('div',{style:{...C.btw}},h('span',{},'VAT ('+(draft.vatPct===undefined?5:draft.vatPct)+'%)'),h('span',{},numFmt(vat)+' AED')),(Number(draft.discount)||0)>0&&h('div',{style:{...C.btw}},h('span',{},'Discount'),h('span',{},'-'+numFmt(discAmt)+' AED')),h('div',{style:{...C.btw,fontWeight:700,borderTop:'0.5px solid var(--bd)',marginTop:4,paddingTop:4}},h('span',{},'Total'),h('span',{},numFmt(total)+' AED')))
     ),
-    h('div',{style:{...C.card,marginBottom:14}},h('div',{style:{fontWeight:500,fontSize:13,marginBottom:10}},'Terms & Conditions'),h('textarea',{value:draft.terms===undefined?DEFAULT_TERMS:draft.terms,onChange:p('terms'),rows:8,style:{...C.inp,resize:'vertical',fontSize:12,lineHeight:1.6}}),h('div',{style:{fontSize:11,color:'var(--tx2)',marginTop:4}},'One clause per line — numbering is added automatically in the document.'))
+    h('div',{style:{...C.card,marginBottom:14}},h('div',{style:{fontWeight:500,fontSize:13,marginBottom:10}},'Terms & Conditions'),h('textarea',{value:draft.terms===undefined?(kind==='Invoice'?INV_TERMS:DEFAULT_TERMS):draft.terms,onChange:p('terms'),rows:8,style:{...C.inp,resize:'vertical',fontSize:12,lineHeight:1.6}}),h('div',{style:{fontSize:11,color:'var(--tx2)',marginTop:4}},'One clause per line — numbering is added automatically in the document.'))
   );
 }
-function QIForm({kind,draft,setDraft,onReview,counters}){
+function QIForm(p){return h(LabelCtx.Provider,{value:'doc-'+p.kind},h(QIFormInner,p));}
+function QIFormInner({kind,draft,setDraft,onReview,counters}){
   const valid=draft.clientDetails&&(draft.items||[]).some(i=>i.description);
   return h('div',{},
     h(QIFormFields,{kind,draft,setDraft,counters}),
@@ -1806,9 +1832,9 @@ function QIReview({kind,draft,setDraft,counters,onBack,onConfirm}){
   const resetDoc=()=>{setDraft(d=>{const nx={...d};delete nx.customBodyHtml;return nx;});setResetToken(t=>t+1);};
   return h('div',{},
     h('div',{style:{...C.btw,marginBottom:10,flexWrap:'wrap',gap:8}},
-      h('div',{style:{fontSize:12,color:'var(--tx2)'}},'This is now the live document — click anywhere to edit or add text.'),
+      h('div',{style:{fontSize:12,color:'var(--tx2)'}},'Live document — every text, number, label and table cell is editable. If you change the form after editing here, press “Reset to Form Version”.'),
       h('div',{style:{display:'flex',gap:8,flexWrap:'wrap'}},
-        h(Btn,{ch:'Reset to Form Version',sm:true,onClick:resetDoc}),
+        h(Btn,{ch:'⇩ Word (.doc)',sm:true,onClick:()=>dlWordFromPage(draft.refNo||'document')}),h(Btn,{ch:'Reset to Form Version',sm:true,onClick:resetDoc}),
         h(Btn,{ch:'← Back to Form',onClick:onBack}),
         h(Btn,{ch:'Confirm & Generate PDF',pri:true,disabled:!valid,onClick:onConfirm})
       )
@@ -1819,7 +1845,7 @@ function QIReview({kind,draft,setDraft,counters,onBack,onConfirm}){
 function CertFormFields({draft,setDraft,counters}){
   const p=k=>e=>setDraft(d=>({...d,[k]:e&&e.target?e.target.value:e}));
   useEffect(()=>{if(!draft.refNo&&draft.certTitleEn!==undefined)setDraft(d=>({...d,refNo:nextRefNo(certPrefix(d.certType||'SSL',d.issuerCode===undefined?'OAM':d.issuerCode),counters).ref}));},[]);
-  const applyCertType=v=>{const ct=CERT_TYPES.find(x=>x.v===v);setDraft(d=>({...d,certType:v,certTitleEn:ct.en,certTitleAr:ct.ar,certKeyword:ct.kw,refNo:d.refManual?d.refNo:nextRefNo(certPrefix(v,d.issuerCode===undefined?'OAM':d.issuerCode),counters).ref}));};
+  const applyCertType=v=>{const ct=CERT_TYPES.find(x=>x.v===v);setDraft(d=>({...d,certType:v,certTitleEn:ct.en,certTitleAr:ct.ar,certKeyword:ct.kw,projectDetails:(!d.projectDetails||CERT_TYPES.some(x=>x.pd&&x.pd===d.projectDetails))?(ct.pd||''):d.projectDetails,refNo:d.refManual?d.refNo:nextRefNo(certPrefix(v,d.issuerCode===undefined?'OAM':d.issuerCode),counters).ref}));};
   useEffect(()=>{if(draft.certTitleEn===undefined)applyCertType(draft.certType||'SSL');},[]);
   const rows=draft.rows&&draft.rows.length?draft.rows:[];
   const updRow=(i,patch)=>setDraft(d=>({...d,rows:rows.map((r,idx)=>idx===i?{...r,...patch}:r)}));
@@ -1929,7 +1955,8 @@ function CertFormFields({draft,setDraft,counters}){
     h('div',{style:{fontSize:11,color:'var(--tx2)'}},'Position, size and text can all be adjusted directly on the Review screen after this.')
   );
 }
-function CertForm({draft,setDraft,onReview,counters}){
+function CertForm(p){return h(LabelCtx.Provider,{value:'doc-cert'},h(CertFormInner,p));}
+function CertFormInner({draft,setDraft,onReview,counters}){
   const valid=draft.clientDetails&&draft.certTitleEn;
   return h('div',{},
     h(CertFormFields,{draft,setDraft,counters}),
@@ -1945,9 +1972,9 @@ function CertReview({draft,setDraft,counters,onBack,onConfirm}){
   };
   return h('div',{},
     h('div',{style:{...C.btw,marginBottom:10,flexWrap:'wrap',gap:8}},
-      h('div',{style:{fontSize:12,color:'var(--tx2)'}},'This is now the live document — click anywhere to edit or add text.'),
+      h('div',{style:{fontSize:12,color:'var(--tx2)'}},'Live document — every text, number, label and table cell is editable. If you change the form after editing here, press “Reset to Form Version”.'),
       h('div',{style:{display:'flex',gap:8,flexWrap:'wrap'}},
-        h(Btn,{ch:'Reset to Form Version',sm:true,onClick:resetDoc}),
+        h(Btn,{ch:'⇩ Word (.doc)',sm:true,onClick:()=>dlWordFromPage(draft.refNo||'document')}),h(Btn,{ch:'Reset to Form Version',sm:true,onClick:resetDoc}),
         h(Btn,{ch:'← Back to Form',onClick:onBack}),
         h(Btn,{ch:'Confirm & Generate PDF',pri:true,disabled:!valid,onClick:onConfirm})
       )
@@ -1955,17 +1982,17 @@ function CertReview({draft,setDraft,counters,onBack,onConfirm}){
     h(WysiwygEditor,{buildBody:buildCertBody,draft,setDraft,resetToken})
   );
 }
-function HistoryList({docs,onReprint,onDelete,onDuplicate}){
+function HistoryList({docs,onReprint,onDelete,onDuplicate,onEdit}){
   const [f,setF]=useState('');
   const fil=docs.filter(d=>!f||d.type===f);
   const sorted=[...fil].sort((a,b)=>b.createdAt<a.createdAt?-1:1);
   return h('div',{},
-    h('div',{style:{marginBottom:12}},h('select',{value:f,onChange:e=>setF(e.target.value),style:{width:180}},h('option',{value:''},'All Document Types'),['Quotation','Invoice','Certificate'].map(t=>h('option',{key:t,value:t},t)))),
+    h('div',{style:{marginBottom:12}},h('select',{value:f,onChange:e=>setF(e.target.value),style:{width:180}},h('option',{value:''},'All Document Types'),['Quotation','Invoice','Certificate','Imported'].map(t=>h('option',{key:t,value:t},t)))),
     h('div',{style:{...C.card,overflow:'auto',padding:0}},
       h('table',{style:{width:'100%',borderCollapse:'collapse',fontSize:12}},
         h(TH,{cols:[{l:'Type',w:'12%'},{l:'Reference No.',w:'20%'},{l:'Client',w:'26%'},{l:'Date',w:'12%'},{l:'Amount',w:'14%',r:true},{l:'',w:'16%'}]}),
         h('tbody',{},sorted.length===0?h('tr',{},h('td',{colSpan:6,style:{textAlign:'center',padding:24,color:'var(--tx2)'}},'No documents generated yet')):
-          sorted.map(dd=>{const isQI=dd.type!=='Certificate';const amt=isQI?itemsCalc(dd.data.items,dd.data.includeVat,dd.data.vatPct,dd.data.discount,dd.data.discountType).total:null;
+          sorted.map(dd=>{const isQI=dd.type==='Quotation'||dd.type==='Invoice';const amt=isQI?itemsCalc(dd.data.items,dd.data.includeVat,dd.data.vatPct,dd.data.discount,dd.data.discountType).total:null;
             return h('tr',{key:dd.id,style:{borderBottom:'0.5px solid var(--bd)'}},
               h('td',{style:{padding:'8px'}},h(Chip,{l:dd.type,c:dd.type==='Invoice'?'#854F0B':dd.type==='Quotation'?'#185FA5':'#534AB7',bg:'var(--bg2)'})),
               h('td',{style:{padding:'8px',fontWeight:500}},dd.data.refNo),
@@ -1973,7 +2000,7 @@ function HistoryList({docs,onReprint,onDelete,onDuplicate}){
               h('td',{style:{padding:'8px'}},fD(dd.data.issueDate||dd.data.date)),
               h('td',{style:{padding:'8px',textAlign:'right'}},amt!=null?numFmt(amt)+' AED':'—'),
               h('td',{style:{padding:'8px',textAlign:'right',whiteSpace:'nowrap'}},
-                h('button',{onClick:()=>onReprint(dd),style:{background:'none',border:'none',cursor:'pointer',color:'var(--txI)',fontSize:11,marginRight:8}},'View/Print'),
+                h('button',{onClick:()=>onReprint(dd),style:{background:'none',border:'none',cursor:'pointer',color:'var(--txI)',fontSize:11,marginRight:8}},'View/Print'),h('button',{onClick:()=>onEdit&&onEdit(dd),style:{background:'none',border:'none',cursor:'pointer',color:'var(--brand)',fontSize:11,marginRight:8,fontWeight:600}},'✎ Edit'),
                 h('button',{onClick:()=>onDuplicate(dd),style:{background:'none',border:'none',cursor:'pointer',color:'var(--txI)',fontSize:11,marginRight:8}},'Duplicate'),
                 h('button',{onClick:()=>onDelete(dd.id),style:{background:'none',border:'none',cursor:'pointer',color:'var(--tx3)',fontSize:15}},'×')
               )
@@ -1991,21 +2018,22 @@ function DocumentsSection({docs,saveDocs,counters,saveCounters}){
   const [cStep,setCStep]=useState('form');const[cDraft,setCDraft]=useDraft('ftc:draftCertificate',{});
   const [viewDoc,setViewDoc]=useState(null);
   const finalize=(type,draft,resetDraft,setStep)=>{
-    const prefix=type==='Quotation'?'FSE-QTN':type==='Invoice'?'FSE-INV':certPrefix(draft.certType||'SSL',draft.issuerCode===undefined?'OAM':draft.issuerCode);
+    const prefix=type==='Quotation'?(draft.refPrefix||'FSE-QTN'):type==='Invoice'?(draft.refPrefix||'FSE-INV'):certPrefix(draft.certType||'SSL',draft.issuerCode===undefined?'OAM':draft.issuerCode);
     const{n}=nextRefNo(prefix,counters);
     const rec={id:uid(),type,createdAt:new Date().toISOString(),data:draft};
-    saveDocs([...docs,rec]);
-    saveCounters({...counters,[prefix]:n});
+    if(draft._editId){saveDocs(docs.map(r=>r.id===draft._editId?{...r,data:{...draft,_editId:undefined}}:r));}
+    else{saveDocs([...docs,rec]);saveCounters({...counters,[prefix]:n});}
     const html=type==='Certificate'?buildCertHTML(draft):buildQIHTML(type,draft);
     printDocHTML(html,type+'-'+draft.refNo);
     resetDraft({});setStep('form');
   };
   return h('div',{},
-    h(Tabs,{tabs:[{id:'quotation',l:'Quotation'},{id:'invoice',l:'Invoice'},{id:'certificate',l:'Field Certificate'},{id:'history',l:'History ('+docs.length+')'}],active:tab,onChange:setTab}),
+    h(Tabs,{tabs:[{id:'quotation',l:'Quotation'},{id:'invoice',l:'Invoice'},{id:'certificate',l:'Field Certificate'},{id:'import',l:'Import PDF / Word'},{id:'history',l:'History ('+docs.length+')'}],active:tab,onChange:setTab}),
     tab==='quotation'&&(qStep==='form'?h(QIForm,{kind:'Quotation',draft:qDraft,setDraft:setQDraft,onReview:()=>setQStep('review'),counters}):h(QIReview,{kind:'Quotation',draft:qDraft,setDraft:setQDraft,counters,onBack:()=>setQStep('form'),onConfirm:()=>finalize('Quotation',qDraft,setQDraft,setQStep)})),
     tab==='invoice'&&(iStep==='form'?h(QIForm,{kind:'Invoice',draft:iDraft,setDraft:setIDraft,onReview:()=>setIStep('review'),counters}):h(QIReview,{kind:'Invoice',draft:iDraft,setDraft:setIDraft,counters,onBack:()=>setIStep('form'),onConfirm:()=>finalize('Invoice',iDraft,setIDraft,setIStep)})),
     tab==='certificate'&&(cStep==='form'?h(CertForm,{draft:cDraft,setDraft:setCDraft,onReview:()=>setCStep('review'),counters}):h(CertReview,{draft:cDraft,setDraft:setCDraft,counters,onBack:()=>setCStep('form'),onConfirm:()=>finalize('Certificate',cDraft,setCDraft,setCStep)})),
-    tab==='history'&&h(HistoryList,{docs,onReprint:dd=>{const html=dd.type==='Certificate'?buildCertHTML(dd.data):buildQIHTML(dd.type,dd.data);printDocHTML(html,dd.type+'-'+dd.data.refNo);},onDelete:id=>saveDocs(docs.filter(d=>d.id!==id)),onDuplicate:dd=>{if(dd.type==='Quotation'){setQDraft({...dd.data,refNo:''});setTab('quotation');setQStep('form');}else if(dd.type==='Invoice'){setIDraft({...dd.data,refNo:''});setTab('invoice');setIStep('form');}else{setCDraft({...dd.data,refNo:''});setTab('certificate');setCStep('form');}}})
+    tab==='import'&&h(ImportDoc,{docs,saveDocs}),
+    tab==='history'&&h(HistoryList,{docs,onEdit:dd=>{if(dd.type==='Quotation'){setQDraft({...dd.data,_editId:dd.id});setTab('quotation');setQStep('review');}else if(dd.type==='Invoice'){setIDraft({...dd.data,_editId:dd.id});setTab('invoice');setIStep('review');}else if(dd.type==='Certificate'){setCDraft({...dd.data,_editId:dd.id});setTab('certificate');setCStep('review');}else{sv('ftc:draftImport',{title:dd.data.refNo,customBodyHtml:dd.data.customBodyHtml,templateVersion:TEMPLATE_VERSION,_editId:dd.id});setTab('import');}},onReprint:dd=>{const html=dd.type==='Certificate'?buildCertHTML(dd.data):buildQIHTML(dd.type,dd.data);printDocHTML(html,dd.type+'-'+dd.data.refNo);},onDelete:id=>{if(confirm('Delete this saved document?'))saveDocs(docs.filter(d=>d.id!==id));},onDuplicate:dd=>{if(dd.type==='Quotation'){setQDraft({...dd.data,refNo:''});setTab('quotation');setQStep('form');}else if(dd.type==='Invoice'){setIDraft({...dd.data,refNo:''});setTab('invoice');setIStep('form');}else{setCDraft({...dd.data,refNo:''});setTab('certificate');setCStep('form');}}})
   );
 }
 // ══════════════════════════ PROJECT STATUS + EMPLOYEES (generic data pages) ══════════════════════════
@@ -2016,13 +2044,14 @@ const PGROUPS=[{t:'Project',f:[{k:'project',l:'Project'},{k:'client',l:'Client'}
 {t:'Payment',f:[{k:'amt',l:'Amount (AED)',t:'number'},{k:'payMethod',l:'Payment method'},{k:'paidTo',l:'Payment paid to'},{k:'amtStatus',l:'Amount status',o:PAYST},{k:'paidAmt',l:'Amount received so far (if Partial)',t:'number'},{k:'dueDate',l:'Payment due date',t:'date'},{k:'surAmt',l:'Surveyor amount',t:'number'},{k:'surStatus',l:'Surveyor amount status',o:PAYST},{k:'invNo',l:'Invoice no'}]},
 {t:'Certificate',f:[{k:'certNo',l:'Certificate no'},{k:'certStatus',l:'Certificate status',o:CERTST},{k:'certDate',l:'Certificate issue date',t:'date'}]},
 {t:'Notes',f:[{k:'comments',l:'Comments',rows:3}]}];
-function GForm({groups,initial,onSave,onClose,extra,space}){
+function GFormInner({groups,initial,onSave,onClose,extra,space}){
   const [f,setF]=useState(initial||{});const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
   return h('div',{},groups.map(g=>h('div',{key:g.t},h('div',{style:{fontWeight:600,fontSize:12,color:'var(--brand)',margin:'8px 0 4px'}},g.t),h('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'0 12px'}},g.f.map(x=>h('div',{key:x.k,style:{gridColumn:x.rows?'1 / -1':undefined}},h(Inp2,{label:x.l,value:f[x.k]??'',onChange:s(x.k),type:x.t||'text',opts:x.o,rows:x.rows})))))),
     extra&&extra(f,setF),
     space&&h(CustomFields,{space,f,setF}),
     h('div',{style:{display:'flex',justifyContent:'flex-end',gap:8,marginTop:10}},h(Btn,{ch:'Cancel',onClick:onClose}),h(Btn,{ch:'Save',pri:true,onClick:()=>onSave(f)})));
 }
+function GForm(p){return h(LabelCtx.Provider,{value:p.space||''},h(GFormInner,p));}
 function ProjectsSection({projects,saveProjects}){
   const [q,setQ]=useState(''),[sf,setSf]=useState(''),[m,setM]=useState(null);
   const fil=projects.filter(p=>(!q||(p.project+' '+p.client+' '+(p.qRef||'')).toLowerCase().includes(q.toLowerCase()))&&(!sf||p.status===sf));
@@ -2172,6 +2201,109 @@ function CertServicesSection({certs,saveCerts}){
         td(cfList('certs',c),{fontSize:11,color:'var(--tx2)'}),
         td(h('span',{style:{whiteSpace:'nowrap'}},h('button',{title:'Edit',onClick:()=>setM(c),style:ibs},'✎'),h('button',{title:'Duplicate',onClick:()=>saveCerts([...certs,{...c,id:uid(),certNo:'',status:'Received',delDate:'',payStatus:'Unpaid'}]),style:ibs},'⧉'),h('button',{title:'Delete',onClick:()=>{if(confirm('Delete this certificate record?'))saveCerts(certs.filter(x=>x.id!==c.id));},style:{...ibs,color:'var(--txD)'}},'×')))))))),
     m&&h(Modal,{title:m.id?'Edit Certificate':'Add Certificate (for another company)',onClose:()=>setM(null),w:800},h(GForm,{groups:CGROUPS,initial:m,space:'certs',onSave:save,onClose:()=>setM(null)})));
+}
+
+// ══════════════════════════ TEMPLATES / IMPORT / WORD EXPORT ══════════════════════════
+const INV_TERMS="Payment shall be made within 7 days from the invoice date, unless otherwise agreed in writing.\nThe invoice covers only the surveying services and deliverables stated in the approved quotation/PO.\nAny additional survey work, revisits, extra points, additional drawings, revisions, or services outside the agreed scope will be charged separately upon client approval.\nThe client shall provide safe and timely site access, required permits/NOCs, approved drawings, reference/control information and other necessary project information.\nSurvey results and drawings are based on the site conditions, information and reference data available at the time of survey.\nAny changes to the site, design, benchmarks, control points or reference information after completion of the survey may require re-survey/revision at additional cost.\nAny authority/third-party fees, permits, NOCs or additional certification requirements are excluded unless specifically included in the quotation.\nDeliverables will be provided in the agreed format and scope. Additional formats or modifications may be charged separately.\nAny discrepancy or concern regarding the survey deliverables should be reported promptly for review and verification.\nPayment shall be made to the company bank account stated on the invoice. The invoice number should be referred to with the payment.\nAll amounts are in AED. VAT, where applicable, will be charged in accordance with UAE tax regulations.\nAcceptance of the quotation/PO and commencement of the work shall constitute acceptance of the agreed commercial terms and scope";
+const MONTHLY_BLOCK=(eq)=>'Deployment: 1 Surveyor\nContract Period: Monthly\nWorking Hours: 8 Hours/Day, 5 Days/Week\nWeekly Off: Saturday & Sunday\nOvertime: Additional, if applicable\nPublic Holidays: Additional, if work is requested\nSurvey Equipment: '+(eq?'Included as per quotation':'Excluded as per quotation')+'\nTransportation: '+(eq?'Included':'Provided by the client')+'\nAccommodation: '+(eq?'Included':'Provided by the client')+'\nPayment: Within 7 days of monthly invoice\nMobilization: As mutually agreed\nTermination Notice: 30 Days';
+const MONTHLY_TERMS_NOEQ="This quotation is valid for 30 days from the date of issue.\nAll prices are quoted in UAE Dirhams (AED) and are exclusive of VAT, where applicable.\nThe monthly rate is applicable for the deployment of one qualified Surveyor for the agreed project/site and period.\nPayment Terms: Monthly payment shall be made within 7 days from the invoice date, unless otherwise agreed in writing. The monthly invoice will be raised as per the agreed deployment period.\nNormal working hours shall be 8 hours per day, 5 days per week, unless otherwise agreed. Any work beyond the agreed working hours will be considered overtime and charged separately.\nWork required on Sundays, UAE public holidays, or outside normal working hours shall be subject to prior agreement and may be charged additionally.\nFortress Surveying Engineering Services L.L.C. shall provide qualified surveying personnel and the equipment specifically mentioned in the quotation. Any additional or specialized equipment required shall be charged separately unless included in the agreed scope.\nThe client shall provide safe and unobstructed site access, work permits, inductions, necessary PPE/site-specific safety requirements, approved drawings, coordinates, benchmarks/control points and other information required to perform the work.\nThe Surveyor shall carry out surveying activities based on approved drawings, coordinates, benchmarks and instructions provided by the client/project team. Fortress shall not be responsible for errors resulting from incorrect, outdated, incomplete or unapproved information provided by others.\nThe deployed Surveyor shall perform the surveying duties agreed under the scope of work. Any substantial additional scope, additional manpower, preparation of additional drawings/reports, or services outside the agreed deployment shall be quoted separately.\nAny rework or repeat survey resulting from design changes, revised drawings, site modifications, damaged/removed survey points, or incorrect information supplied by the client may be charged separately.\nAny delay or idle time caused by site restrictions, lack of access, permit delays, work-front unavailability, client instructions, other contractors, or circumstances beyond Fortress's control shall not reduce the agreed monthly rate.\nTransportation to and from the project site shall be [included / provided by the client / charged separately], as stated in the quotation.\nAccommodation and meals for the Surveyor shall be [included / excluded / provided by the client], as agreed in the quotation.\nIn case the assigned Surveyor becomes unavailable due to leave, illness or other unavoidable circumstances, Fortress will make reasonable efforts to provide a suitable replacement without unnecessary interruption to the project.\nThe client shall provide a safe working environment and comply with applicable site HSE requirements. Fortress personnel shall have the right to stop work where conditions present an immediate safety risk.\nThe Surveyor shall remain employee/personnel of Fortress Surveying Engineering Services L.L.C. The client/site team may provide day-to-day site instructions relating to the agreed scope, but any changes to commercial terms, manpower or scope shall be coordinated with Fortress management.\nAll authority fees, permit fees, NOCs, security passes, access cards, approvals and third-party charges are excluded unless specifically mentioned in the quotation and shall be arranged/borne by the client.\nAny survey drawings, reports, coordinates or other deliverables specifically included in the scope will be submitted in the agreed format. Additional deliverables shall be subject to separate agreement.\nEither party may terminate the monthly deployment by providing 30 days' written notice, unless a different notice period is agreed in the quotation or contract. Amounts due for services already provided shall remain payable.\nAny dispute arising from the services shall be handled in accordance with the applicable laws of the UAE and the competent courts of Dubai, subject to the terms of the executed contract/PO.", MONTHLY_TERMS_EQ="This quotation is valid for 30 days from the date of issue.\nAll prices are quoted in UAE Dirhams (AED) and are exclusive of VAT, where applicable.\nThe monthly rate covers one qualified Surveyor together with the survey equipment specifically mentioned in the quotation for the agreed project/site.\nPayment Terms: Monthly payment shall be made within 7 days from the invoice date, unless otherwise agreed in writing.\nNormal working hours shall be 8 hours per day, 5 days per week. Any work beyond the agreed working hours shall be considered overtime and may be charged separately.\nWork required on Sundays, UAE public holidays, or beyond the agreed working hours shall be subject to prior agreement and additional charges, where applicable.\nFortress Surveying Engineering Services L.L.C. shall provide the agreed survey equipment, standard accessories and qualified personnel. Any additional or specialized equipment such as GNSS/GPS, Digital Level, Robotic Total Station, Laser Scanner or additional Total Station shall be quoted separately unless specifically included.\nAll survey equipment supplied by Fortress shall remain the property of Fortress Surveying Engineering Services L.L.C. and shall be operated only by authorized personnel unless otherwise agreed.\nThe Client shall provide a safe and suitable working environment for the Surveyor and equipment. Any loss or damage caused by unauthorized handling, client/third-party negligence, unsafe site conditions, theft due to inadequate site security, or misuse may be charged based on the actual repair or replacement cost, subject to verification of responsibility.\nThe Client shall provide safe and unobstructed site access, required permits, site inductions, security passes, approved drawings, coordinates, benchmarks/control points and other necessary project information.\nSurvey work shall be carried out based on the latest approved drawings, coordinates, benchmarks and instructions provided by the Client/project team. Fortress shall not be responsible for errors resulting from incorrect, incomplete, outdated or unapproved information supplied by others.\nAny additional scope, additional manpower, additional equipment, additional drawings/reports or services outside the agreed monthly scope shall be quoted and charged separately.\nAny repeat survey or rework resulting from design changes, revised drawings, site modifications, disturbed/removed survey points, incorrect information or changes requested by the Client may be charged separately.\nAny delay or idle time caused by site restrictions, unavailable work fronts, access/permit delays, other contractors, client instructions, equipment restrictions, adverse site conditions or circumstances beyond Fortress's reasonable control shall not reduce the agreed monthly rate.\nSurvey equipment shall be subject to normal inspection, calibration and maintenance requirements. Where necessary, Fortress may temporarily replace an instrument with suitable equivalent equipment to maintain continuity of service.\nTransportation of the Surveyor and equipment shall be included/excluded as specifically stated in the quotation. Any transportation outside the agreed project location or additional mobilization shall be charged separately.\nAccommodation, food and other personnel-related site facilities shall be included/excluded/provided by the Client as specifically stated in the quotation.\nIn case the assigned Surveyor or equipment becomes unavailable due to illness, breakdown, maintenance or other unavoidable circumstances, Fortress shall make reasonable efforts to arrange a suitable replacement as soon as reasonably practicable.\nThe Surveyor shall remain under the employment/management of Fortress Surveying Engineering Services L.L.C. Day-to-day site instructions may be provided by the Client within the agreed scope; however, changes to scope, manpower, equipment or commercial conditions must be agreed with Fortress.\nAll authority fees, NOCs, permits, security clearances, access cards, approvals and third-party costs are excluded unless specifically mentioned in the quotation and shall be arranged/borne by the Client.\nAny drawings, coordinates, reports or other deliverables included in the monthly scope shall be provided in the agreed format. Additional deliverables or revisions outside the agreed scope may be charged separately.\nEither party may terminate the monthly deployment by providing 30 days' written notice, unless otherwise agreed in the contract/PO. All outstanding amounts for services already provided shall remain payable.\nAny dispute arising from the services shall be governed by the applicable laws of the UAE and subject to the jurisdiction of the competent courts of Dubai, unless otherwise agreed in the executed contract";
+const QI_SAMPLES=[
+ {kind:'Quotation',name:'Land demarcation (lumpsum)',project:'Land Demarcation',items:[{description:'Demarcation of plot boundary using GPS/DVRS',unit:'lumpsum',qty:1,unitPrice:1500}]},
+ {kind:'Quotation',name:'Internal survey – existing building',project:'Internal surveying services of existing building',items:[{description:'Internal surveying services for existing building as shown in the attached PDF drawing (including drawing) – 5 Days work',unit:'lumpsum',qty:1,unitPrice:12500}]},
+ {kind:'Quotation',name:'Total station & site survey',project:'Land survey',items:[{description:'Total Station Survey and Site Survey',unit:'lumpsum',qty:1,unitPrice:7000}]},
+ {kind:'Quotation',name:'Setting-out points (per point)',project:'Setting-out points',items:[{description:'Setting-out points for 125 points',unit:'point',qty:125,unitPrice:100}]},
+ {kind:'Quotation',name:'Gate level marking at site',project:'Gate level marking',items:[{description:'Gate Level Marking at site',unit:'lumpsum',qty:1,unitPrice:700}]},
+ {kind:'Quotation',name:'Checking depth of site excavation',project:'Excavation depth check',items:[{description:'Checking the depth of site excavation',unit:'lumpsum',qty:1,unitPrice:800}]},
+ {kind:'Quotation',name:'Monthly surveyor (without equipment)',project:'Monthly Surveyor',items:[{description:'Monthly surveyor for Infrastructure work',unit:'month',qty:1,unitPrice:10500}],block:MONTHLY_BLOCK(false),terms:MONTHLY_TERMS_NOEQ,tcTitle:'TERMS & CONDITIONS – MONTHLY SURVEYOR DEPLOYMENT'},
+ {kind:'Quotation',name:'Monthly surveyor with equipment',project:'Monthly Surveyor with Equipment',items:[{description:'Monthly surveyor for Infrastructure work',unit:'month',qty:1,unitPrice:14000}],block:MONTHLY_BLOCK(true),terms:MONTHLY_TERMS_EQ,tcTitle:'TERMS & CONDITIONS – MONTHLY SURVEYOR WITH EQUIPMENT'},
+ {kind:'Invoice',name:'Levels invoice (gate level + excavation)',project:'Provisional demarcation heights as per site provisions.',items:[{description:'Gate Level Marking at site',unit:'Lumpsum',qty:1,unitPrice:700},{description:'Checking the depth of site excavation',unit:'Lumpsum',qty:1,unitPrice:1000}],discount:200,paid:700},
+ {kind:'Invoice',name:'Land demarcation invoice',project:'Land Demarcation',items:[{description:'Demarcation Heights',unit:'lumpsum',qty:1,unitPrice:1500}],discount:300},
+ {kind:'Invoice',name:'Monthly surveyor invoice',project:'Monthly Surveyor',items:[{description:'Monthly surveyor for Infrastructure work',unit:'month',qty:1,unitPrice:10500}]},
+ {kind:'Invoice',name:'Survey services (blank)',project:'',items:[{description:'',unit:'lumpsum',qty:1,unitPrice:''}]}
+];
+function TemplatePicker({kind,draft,setDraft}){
+  const [mine,setMine]=useState(()=>ld('ftc:qtemplates',[]));
+  const list=[...QI_SAMPLES.filter(t=>t.kind===kind),...mine.filter(t=>t.kind===kind).map(t=>({...t,mine:true}))];
+  const apply=name=>{const t=list.find(x=>x.name===name);if(!t)return;
+    setDraft(d=>{const nx={...d,projectDetails:t.project||d.projectDetails||'',items:(t.items||[]).map((x,i)=>({no:i+1,description:x.description,unit:x.unit||'',qty:x.qty,unitPrice:x.unitPrice})),terms:t.terms,deployBlock:t.block||'',tcTitle:t.tcTitle,discount:t.discount||'',paid:t.paid||''};if(nx.terms===undefined)delete nx.terms;delete nx.customBodyHtml;return nx;});};
+  const saveT=()=>{const name=prompt('Name for this template:');if(!name)return;const t={kind,name,project:draft.projectDetails||'',items:(draft.items||[]).map(({description,unit,qty,unitPrice})=>({description,unit,qty,unitPrice})),terms:draft.terms,block:draft.deployBlock,tcTitle:draft.tcTitle,discount:draft.discount,paid:draft.paid};const nx=[...mine.filter(x=>!(x.kind===kind&&x.name===name)),t];setMine(nx);sv('ftc:qtemplates',nx);};
+  const delT=()=>{const name=prompt('Delete which saved template? (type its exact name)');if(!name)return;const nx=mine.filter(x=>!(x.kind===kind&&x.name===name));setMine(nx);sv('ftc:qtemplates',nx);};
+  return h('div',{style:{...C.card,marginBottom:14,borderLeft:'3px solid var(--brand)'}},
+    h('div',{style:{...C.btw,flexWrap:'wrap',gap:8}},h('div',{style:{fontWeight:500,fontSize:13}},'Start from a sample / saved template'),h('div',{style:{display:'flex',gap:6}},h(Btn,{ch:'💾 Save current as template',sm:true,onClick:saveT}),mine.some(t=>t.kind===kind)&&h(Btn,{ch:'Delete template',sm:true,onClick:delT}))),
+    h('select',{value:'',onChange:e=>apply(e.target.value),style:{marginTop:8}},h('option',{value:''},'— choose a template to fill items, scope & terms (you can still edit everything) —'),list.map(t=>h('option',{key:t.name,value:t.name},(t.mine?'★ ':'')+t.name))),
+    h('div',{style:{marginTop:10}},h(Inp2,{label:'Extra details block (optional — e.g. deployment details, one “Label: value” per line)',value:draft.deployBlock||'',onChange:e=>setDraft(d=>({...d,deployBlock:e.target.value})),rows:3})));
+}
+function dlWordHtml(html,name){
+  const doc='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>'+name+'</title><style>@page{size:A4;margin:16mm 14mm}body{font-family:Arial,sans-serif;font-size:12px}table{border-collapse:collapse}img{max-width:100%}</style></head><body>'+html+'</body></html>';
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff',doc],{type:'application/msword'}));a.download=(name||'document').replace(/[^\w.-]+/g,'_')+'.doc';a.click();
+}
+function dlWordFromPage(name){const p=document.querySelector('.page-surface');if(!p)return alert('Open the document first.');dlWordHtml(stripEditingChrome(p.innerHTML),name);}
+function loadScript(urls){return new Promise((res,rej)=>{let i=0;const next=()=>{if(i>=urls.length)return rej(new Error('Could not load the converter library — check your internet connection.'));const s=document.createElement('script');s.src=urls[i++];s.onload=res;s.onerror=()=>{s.remove();next();};document.head.appendChild(s);};next();});}
+const escH=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const IMGH=src=>'<span class="img-holder" contenteditable="false"><img src="'+src+'" style="width:60mm;display:block"/><div class="rs-handle" contenteditable="false" data-rs="img"></div></span>';
+async function pdfToHtml(file,snap){
+  if(!window.pdfjsLib){await loadScript(['https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js','https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js']);window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}
+  const pdf=await window.pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;let out='',textCount=0;
+  for(let p=1;p<=pdf.numPages;p++){
+    const page=await pdf.getPage(p);const tc=await page.getTextContent();
+    if(p>1)out+='<div style="page-break-before:always"><br></div>';
+    if(snap){const vp=page.getViewport({scale:1.4});const cv=document.createElement('canvas');cv.width=vp.width;cv.height=vp.height;await page.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;out+='<div>'+IMGH(cv.toDataURL('image/jpeg',0.82)).replace('width:60mm','width:175mm')+'</div>';}
+    const items=tc.items.filter(i=>i.str&&i.str.trim()).map(i=>({s:i.str,x:i.transform[4],y:i.transform[5],w:i.width,h:Math.abs(i.transform[3])||i.height||10}));
+    textCount+=items.length;items.sort((a,b)=>b.y-a.y||a.x-b.x);
+    const lines=[];for(const it of items){const L=lines[lines.length-1];if(L&&Math.abs(L.y-it.y)<Math.max(2,it.h*0.45))L.it.push(it);else lines.push({y:it.y,it:[it]});}
+    const hs=items.map(i=>i.h).sort((a,b)=>a-b);const base=hs[Math.floor(hs.length/2)]||10;
+    const rows=lines.map(L=>{L.it.sort((a,b)=>a.x-b.x);const segs=[];let cur=null;for(const it of L.it){if(cur&&it.x-cur.x2<Math.max(it.h*0.9,6)){cur.t+=(it.x-cur.x2>it.h*0.15?' ':'')+it.s;cur.x2=it.x+it.w;}else{cur={t:it.s,x2:it.x+it.w};segs.push(cur);}}return{y:L.y,size:Math.max(...L.it.map(i=>i.h)),segs};});
+    for(let i=0;i<rows.length;){
+      const r=rows[i];if(i>0&&rows[i-1].y-r.y>r.size*2.4)out+='<div><br></div>';
+      if(r.segs.length>=2){let j=i;while(j<rows.length&&rows[j].segs.length===r.segs.length)j++;
+        if(j-i>=2){out+='<table style="width:100%;border-collapse:collapse;margin:6px 0">'+rows.slice(i,j).map(q=>'<tr>'+q.segs.map(s=>'<td style="border:1px solid #999;padding:4px">'+escH(s.t)+'</td>').join('')+'</tr>').join('')+'</table><div><br></div>';i=j;continue;}}
+      const big=r.size>base*1.2,fs=Math.min(28,Math.max(7,Math.round((big?r.size:base)*10)/10));
+      out+='<div dir="auto" style="font-size:'+fs+'pt;'+(big?'font-weight:bold;':'')+'">'+r.segs.map(s=>escH(s.t)).join(' &nbsp;&nbsp;&nbsp; ')+'</div>';i++;
+    }
+  }
+  return{html:out,textCount};
+}
+async function docxToHtml(file){
+  if(!window.mammoth)await loadScript(['https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js','https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js']);
+  const r=await window.mammoth.convertToHtml({arrayBuffer:await file.arrayBuffer()});
+  return r.value.replace(/<table>/g,'<table style="width:100%;border-collapse:collapse;margin:6px 0">').replace(/<(td|th)([^>]*)>/g,'<$1$2 style="border:1px solid #999;padding:4px">').replace(/<img\s+([^>]*?)\/?>/g,(m,a)=>'<span class="img-holder" contenteditable="false"><img '+a+' style="max-width:100%"/><div class="rs-handle" contenteditable="false" data-rs="img"></div></span>');
+}
+function ImportDoc({docs,saveDocs}){
+  const [draft,setDraft]=useDraft('ftc:draftImport',{});const [busy,setBusy]=useState(false),[msg,setMsg]=useState(''),[snap,setSnap]=useState(false),[rt,setRt]=useState(0);
+  const pick=async e=>{
+    const f=e.target.files[0];if(!f)return;setBusy(true);setMsg('Converting “'+f.name+'” …');
+    try{
+      const isPdf=/\.pdf$/i.test(f.name),isDocx=/\.docx$/i.test(f.name);
+      if(!isPdf&&!isDocx)throw new Error('Please choose a PDF or a Word (.docx) file.');
+      let html,note='';
+      if(isPdf){const r=await pdfToHtml(f,snap);html=r.html;if(!r.textCount)note=' No selectable text found (scanned PDF) — tick “insert page snapshots” and retry, then add text over it.';}
+      else html=await docxToHtml(f);
+      setDraft({title:f.name.replace(/\.[^.]+$/,''),customBodyHtml:html,templateVersion:TEMPLATE_VERSION});setRt(x=>x+1);setMsg('Converted.'+note);
+    }catch(err){setMsg('⚠ '+(err.message||err));}
+    setBusy(false);e.target.value='';
+  };
+  const raw=()=>{const p=document.querySelector('.page-surface');return p?p.innerHTML:draft.customBodyHtml;};
+  const title=draft.title||'Imported document';
+  const save=()=>{const data={refNo:title,clientDetails:'Imported document',customBodyHtml:raw(),templateVersion:TEMPLATE_VERSION};
+    if(draft._editId)saveDocs(docs.map(r=>r.id===draft._editId?{...r,data}:r));else saveDocs([...docs,{id:uid(),type:'Imported',createdAt:new Date().toISOString(),data}]);
+    setDraft(d=>({...d,_editId:d._editId||undefined}));setMsg('Saved to History.');};
+  if(!draft.customBodyHtml)return h('div',{style:{...C.card,maxWidth:680}},
+    h('div',{style:{fontWeight:600,fontSize:14,marginBottom:6}},'Import a PDF or Word file → edit it as a document'),
+    h('div',{style:{fontSize:12,color:'var(--tx2)',marginBottom:12,lineHeight:1.6}},'Upload any PDF or .docx. It is converted into a fully editable page: change any text, table, image, size or position, then save to History, download as Word, or print to PDF. Everything is converted in your browser — nothing is uploaded to a server.'),
+    h('input',{type:'file',accept:'.pdf,.docx',onChange:pick,disabled:busy,style:{marginBottom:10}}),
+    h('label',{style:{display:'flex',gap:8,alignItems:'center',fontSize:12,marginBottom:8}},h('input',{type:'checkbox',checked:snap,onChange:e=>setSnap(e.target.checked),style:{width:'auto'}}),'PDF only: also insert each page as a picture (keeps logos, stamps & signatures; delete it when not needed)'),
+    msg&&h('div',{style:{fontSize:12,color:msg[0]==='⚠'?'var(--txD)':'var(--txS)',marginBottom:8}},msg),
+    h('div',{style:{fontSize:11,color:'var(--tx3)'}},'Tip: PDFs are rebuilt from their text, so very complex layouts, Arabic text order and tables may need a quick touch-up. Word (.docx) files convert most accurately.'),
+    h('div',{style:{marginTop:12}},h(Btn,{ch:'Start with a blank page',onClick:()=>{setDraft({title:'New document',customBodyHtml:'<div><br></div>',templateVersion:TEMPLATE_VERSION});setRt(x=>x+1);}})));
+  return h('div',{},
+    h('div',{style:{...C.btw,marginBottom:10,flexWrap:'wrap',gap:8}},
+      h('input',{value:title,onChange:e=>setDraft(d=>({...d,title:e.target.value})),style:{width:260,fontWeight:600}}),
+      h('div',{style:{display:'flex',gap:8,flexWrap:'wrap'}},
+        h(Btn,{ch:'💾 Save to History',pri:true,onClick:save}),h(Btn,{ch:'⇩ Word (.doc)',onClick:()=>dlWordFromPage(title)}),
+        h(Btn,{ch:'🖨 Print / PDF',onClick:()=>printDocHTML(buildQIHTML('Imported',{customBodyHtml:raw(),templateVersion:TEMPLATE_VERSION,refNo:title}),title)}),
+        h(Btn,{ch:'✕ Close',onClick:()=>{if(confirm('Close this document? Unsaved changes are lost.')){setDraft({});setMsg('');}}}))),
+    msg&&h('div',{style:{fontSize:12,color:'var(--txS)',marginBottom:8}},msg),
+    h(WysiwygEditor,{buildBody:()=>draft.customBodyHtml,draft,setDraft,resetToken:rt}));
 }
 
 // ══════════════════════════ ROOT APP ══════════════════════════
