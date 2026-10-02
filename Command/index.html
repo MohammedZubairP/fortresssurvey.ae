@@ -275,7 +275,7 @@ function SettingsPanel({onClose}){
   );
 }
 // ══════════════════════════ EXPORT / IMPORT ══════════════════════════
-function ExportPanel({accounts,daily,weeks,receivables,plan13,docs,projects,employees,counters,onImport,onClose}){
+function ExportPanel({accounts,daily,weeks,receivables,plan13,docs,projects,employees,certs,counters,onImport,onClose}){
   const [msg,setMsg]=useState('');const[ok,setOk]=useState(false);
   const expAccounts=()=>{
     const rows=[['Company','Category','Sector/Service','Contact','Role','Phone','Email','Status','Assigned To','Registration','Next Action','Next Action Date','Notes']];
@@ -297,7 +297,7 @@ function ExportPanel({accounts,daily,weeks,receivables,plan13,docs,projects,empl
     receivables.forEach(r=>rows.push([r.client,r.project||'',r.invoiceValue||0,r.received||0,(+r.invoiceValue||0)-(+r.received||0),r.dueDate||'',r.status||'',r.notes||'']));
     dlCSV('receivables_'+tod()+'.csv',rows);
   };
-  const expAll=()=>dlJSON('fortress_command_backup_'+tod()+'.json',{accounts,daily,weeks,receivables,plan13,docs,projects,employees,docCounters:counters,exportedAt:new Date().toISOString()});
+  const expAll=()=>dlJSON('fortress_command_backup_'+tod()+'.json',{accounts,daily,weeks,receivables,plan13,docs,projects,employees,certs,docCounters:counters,exportedAt:new Date().toISOString()});
   const impAll=e=>{
     const file=e.target.files[0];if(!file)return;
     const reader=new FileReader();
@@ -576,6 +576,7 @@ function AccountForm({initial,onSave,onClose}){
     h('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'0 14px'}},h(Inp2,{label:'Status',value:f.status,onChange:s('status'),opts:ACC_STATUS}),h(Inp2,{label:'Vendor Registration',value:f.registration,onChange:s('registration'),opts:REG_STATUS})),
     h('div',{style:{display:'grid',gridTemplateColumns:'2fr 1fr',gap:'0 14px'}},h(Inp2,{label:'Next Action',value:f.nextAction,onChange:s('nextAction')}),h(Inp2,{label:'Next Action Date',value:f.nextActionDate,onChange:s('nextActionDate'),type:'date'})),
     h('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'0 14px'}},h(Inp2,{label:'Priority',value:f.priority||'',onChange:s('priority'),opts:['High','Medium','Low']}),h(Inp2,{label:'Lead source',value:f.source||'',onChange:s('source'),opts:['Referral','Cold call','Email','LinkedIn','Existing client','Tender / portal','Other']}),h(Inp2,{label:'Est. deal value (AED)',value:f.dealValue||'',onChange:s('dealValue'),type:'number'})),
+    h(CustomFields,{space:'accounts',f,setF}),
     h(Inp2,{label:'Notes',value:f.notes,onChange:s('notes'),rows:2}),
     h('div',{style:{display:'flex',justifyContent:'flex-end',gap:8}},h(Btn,{ch:'Cancel',onClick:onClose}),h(Btn,{ch:'Save Account',pri:true,onClick:()=>{if(f.company)onSave(f);}}))
   );
@@ -746,11 +747,11 @@ function ReceivableForm({initial,onSave,onClose}){
     h('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'0 14px'}},h(Inp2,{label:'Client',value:f.client,onChange:s('client'),req:true}),h(Inp2,{label:'Project',value:f.project,onChange:s('project')})),
     h('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'0 14px'}},h(Inp2,{label:'Invoice Value (AED)',value:f.invoiceValue,onChange:s('invoiceValue'),type:'number'}),h(Inp2,{label:'Received (AED)',value:f.received,onChange:s('received'),type:'number'})),
     h('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'0 14px'}},h(Inp2,{label:'Due Date',value:f.dueDate,onChange:s('dueDate'),type:'date'}),h(Inp2,{label:'Status',value:f.status,onChange:s('status'),opts:['Current','Overdue','Paid']})),
-    h(Inp2,{label:'Notes',value:f.notes,onChange:s('notes'),rows:2}),
+    h(CustomFields,{space:'finance',f,setF}),h(Inp2,{label:'Notes',value:f.notes,onChange:s('notes'),rows:2}),
     h('div',{style:{display:'flex',justifyContent:'flex-end',gap:8}},h(Btn,{ch:'Cancel',onClick:onClose}),h(Btn,{ch:'Save',pri:true,onClick:()=>{if(f.client)onSave(f);}}))
   );
 }
-function FinanceSection({receivables,saveReceivables}){
+function FinanceSection({receivables,saveReceivables,goto}){
   const [modal,setModal]=useState(false);const[edit,setEdit]=useState(null);
   const save=f=>{if(edit){saveReceivables(receivables.map(r=>r.id===edit.id?{...r,...f}:r));}else{saveReceivables([...receivables,{id:uid(),...f}]);}setModal(false);setEdit(null);};
   const del=id=>saveReceivables(receivables.filter(r=>r.id!==id));
@@ -762,20 +763,20 @@ function FinanceSection({receivables,saveReceivables}){
     h('div',{style:{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:16}},
       h(Stat,{label:'Total Invoiced',val:fM(totalInv)}),h(Stat,{label:'Total Received',val:fM(totalRecv),c:'#3B6D11'}),h(Stat,{label:'Outstanding',val:fM(totalOut),c:totalOut>0?'#854F0B':'#3B6D11'}),h(Stat,{label:'Overdue Invoices',val:overdue.length,c:overdue.length>0?'#A32D2D':'#3B6D11'})
     ),
-    h('div',{style:{...C.btw,marginBottom:10}},h('div',{style:{fontSize:12,color:'var(--tx2)'}},'Track every invoice until it is fully collected — 100% of due / overdue invoices must be followed up weekly.'),h(Btn,{ch:'+ Add Invoice',pri:true,onClick:()=>{setEdit(null);setModal(true);}})),
+    h('div',{style:{...C.btw,marginBottom:10}},h('div',{style:{fontSize:12,color:'var(--tx2)'}},'Includes invoices from Project Status and Certificate Services automatically. Track every invoice until it is fully collected — 100% of due / overdue invoices must be followed up weekly.'),h(Btn,{ch:'+ Add Invoice',pri:true,onClick:()=>{setEdit(null);setModal(true);}})),
     h('div',{style:{...C.card,overflow:'auto',padding:0}},
       h('table',{style:{width:'100%',borderCollapse:'collapse',fontSize:12}},
         h(TH,{cols:[{l:'Client',w:'20%'},{l:'Project',w:'20%'},{l:'Invoice',w:'12%',r:true},{l:'Received',w:'12%',r:true},{l:'Outstanding',w:'12%',r:true},{l:'Due Date',w:'10%'},{l:'Status',w:'8%'},{l:'',w:'6%'}]}),
         h('tbody',{},receivables.length===0?h('tr',{},h('td',{colSpan:8,style:{textAlign:'center',padding:24,color:'var(--tx2)'}},'No invoices logged yet')):
           receivables.map(r=>{const out=(+r.invoiceValue||0)-(+r.received||0);const od=r.dueDate&&isOD(r.dueDate)&&out>0;return h('tr',{key:r.id,style:{borderBottom:'0.5px solid var(--bd)'}},
-            h('td',{style:{padding:'8px'}},r.client),
+            h('td',{style:{padding:'8px'}},r.client,r.src&&h('span',{style:{marginLeft:6,fontSize:10,color:'var(--txI)'}},r.src==='project'?'· Project Status':'· Certificate Services')),
             h('td',{style:{padding:'8px',color:'var(--tx2)'}},r.project||'—'),
             h('td',{style:{padding:'8px',textAlign:'right'}},fM(r.invoiceValue)),
             h('td',{style:{padding:'8px',textAlign:'right',color:'#3B6D11'}},fM(r.received)),
             h('td',{style:{padding:'8px',textAlign:'right',color:out>0?'#A32D2D':'var(--tx2)'}},fM(out)),
             h('td',{style:{padding:'8px',color:od?'var(--txD)':'var(--tx2)'}},r.dueDate?fD(r.dueDate):'—'),
             h('td',{style:{padding:'8px'}},h(Chip,{l:od?'Overdue':(r.status||'Current'),c:od?'#A32D2D':(r.status==='Paid'?'#3B6D11':'#185FA5'),bg:od?'#FCEBEB':(r.status==='Paid'?'#EAF3DE':'#E6F1FB')})),
-            h('td',{style:{padding:'8px',textAlign:'right',whiteSpace:'nowrap'}},h('button',{onClick:()=>{setEdit(r);setModal(true);},style:{background:'none',border:'none',cursor:'pointer',color:'var(--txI)',fontSize:11,marginRight:6}},'Edit'),h('button',{onClick:()=>del(r.id),style:{background:'none',border:'none',cursor:'pointer',color:'var(--tx3)',fontSize:15}},'×'))
+            h('td',{style:{padding:'8px',textAlign:'right',whiteSpace:'nowrap'}},r.src?h('button',{onClick:()=>goto(r.src==='project'?'projects':'certs'),style:{background:'none',border:'none',cursor:'pointer',color:'var(--txI)',fontSize:11}},'Open ↗'):h(Fragment,null,h('button',{onClick:()=>{setEdit(r);setModal(true);},style:{background:'none',border:'none',cursor:'pointer',color:'var(--txI)',fontSize:11,marginRight:6}},'Edit'),h('button',{onClick:()=>del(r.id),style:{background:'none',border:'none',cursor:'pointer',color:'var(--tx3)',fontSize:15}},'×')))
           );})
         )
       )
@@ -2012,20 +2013,21 @@ const PSTAT=['Enquiry','Quotation Sent','Approved','Survey Scheduled','Report in
 const PAYST=['Unpaid','Partial','Paid'],CERTST=['Not Issued','Issued','Delivered'];
 const PGROUPS=[{t:'Project',f:[{k:'project',l:'Project'},{k:'client',l:'Client'},{k:'poc',l:'Point of contact'},{k:'status',l:'Status',o:PSTAT},{k:'by',l:'Data collected by'},{k:'sDate',l:'Date of survey',t:'date'}]},
 {t:'Quotation',f:[{k:'qDate',l:'Quotation sent date',t:'date'},{k:'qRef',l:'Quotation ref no'},{k:'qAmt',l:'Quotation amount (AED)',t:'number'}]},
-{t:'Payment',f:[{k:'amt',l:'Amount (AED)',t:'number'},{k:'payMethod',l:'Payment method'},{k:'paidTo',l:'Payment paid to'},{k:'amtStatus',l:'Amount status',o:PAYST},{k:'surAmt',l:'Surveyor amount',t:'number'},{k:'surStatus',l:'Surveyor amount status',o:PAYST},{k:'invNo',l:'Invoice no'}]},
+{t:'Payment',f:[{k:'amt',l:'Amount (AED)',t:'number'},{k:'payMethod',l:'Payment method'},{k:'paidTo',l:'Payment paid to'},{k:'amtStatus',l:'Amount status',o:PAYST},{k:'paidAmt',l:'Amount received so far (if Partial)',t:'number'},{k:'dueDate',l:'Payment due date',t:'date'},{k:'surAmt',l:'Surveyor amount',t:'number'},{k:'surStatus',l:'Surveyor amount status',o:PAYST},{k:'invNo',l:'Invoice no'}]},
 {t:'Certificate',f:[{k:'certNo',l:'Certificate no'},{k:'certStatus',l:'Certificate status',o:CERTST},{k:'certDate',l:'Certificate issue date',t:'date'}]},
 {t:'Notes',f:[{k:'comments',l:'Comments',rows:3}]}];
-function GForm({groups,initial,onSave,onClose,extra}){
+function GForm({groups,initial,onSave,onClose,extra,space}){
   const [f,setF]=useState(initial||{});const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
   return h('div',{},groups.map(g=>h('div',{key:g.t},h('div',{style:{fontWeight:600,fontSize:12,color:'var(--brand)',margin:'8px 0 4px'}},g.t),h('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'0 12px'}},g.f.map(x=>h('div',{key:x.k,style:{gridColumn:x.rows?'1 / -1':undefined}},h(Inp2,{label:x.l,value:f[x.k]??'',onChange:s(x.k),type:x.t||'text',opts:x.o,rows:x.rows})))))),
     extra&&extra(f,setF),
+    space&&h(CustomFields,{space,f,setF}),
     h('div',{style:{display:'flex',justifyContent:'flex-end',gap:8,marginTop:10}},h(Btn,{ch:'Cancel',onClick:onClose}),h(Btn,{ch:'Save',pri:true,onClick:()=>onSave(f)})));
 }
 function ProjectsSection({projects,saveProjects}){
   const [q,setQ]=useState(''),[sf,setSf]=useState(''),[m,setM]=useState(null);
   const fil=projects.filter(p=>(!q||(p.project+' '+p.client+' '+(p.qRef||'')).toLowerCase().includes(q.toLowerCase()))&&(!sf||p.status===sf));
   const sum=k=>projects.reduce((s,p)=>s+(+p[k]||0),0);
-  const paid=projects.filter(p=>p.amtStatus==='Paid').reduce((s,p)=>s+(+p.amt||0),0);
+  const paid=projects.reduce((s,p)=>s+projPaid(p),0);
   const upd=(id,k,v)=>saveProjects(projects.map(p=>p.id===id?{...p,[k]:v}:p));
   const save=d=>{saveProjects(d.id?projects.map(p=>p.id===d.id?d:p):[...projects,{...d,id:uid()}]);setM(null);};
   const exp=()=>dlCSV('project_status_'+tod()+'.csv',[['Project','Client','Contact','Status','Quotation Date','Quotation Ref','Quotation Amt','Collected By','Survey Date','Amount','Pay Method','Paid To','Amount Status','Surveyor Amt','Surveyor Status','Cert No','Cert Status','Cert Date','Invoice No','Comments']].concat(projects.map(p=>['project','client','poc','status','qDate','qRef','qAmt','by','sDate','amt','payMethod','paidTo','amtStatus','surAmt','surStatus','certNo','certStatus','certDate','invNo','comments'].map(k=>p[k]??''))));
@@ -2034,15 +2036,15 @@ function ProjectsSection({projects,saveProjects}){
     h('div',{style:{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:12}},h(Stat,{label:'Projects',val:projects.length}),h(Stat,{label:'Quoted',val:fM(sum('qAmt'))}),h(Stat,{label:'Collected',val:fM(paid),c:'var(--txS)'}),h(Stat,{label:'Pending',val:fM(sum('amt')-paid),c:'var(--txW)'})),
     h('div',{style:{...C.btw,marginBottom:12,flexWrap:'wrap',gap:8}},h('div',{style:{display:'flex',gap:8}},h('input',{value:q,onChange:e=>setQ(e.target.value),placeholder:'Search project, client, ref…',style:{width:230}}),h('select',{value:sf,onChange:e=>setSf(e.target.value),style:{width:170}},h('option',{value:''},'All statuses'),PSTAT.map(s=>h('option',{key:s},s)))),h('div',{style:{display:'flex',gap:8}},h(Btn,{ch:'⇩ Export CSV',onClick:exp}),h(Btn,{ch:'+ Add Project',pri:true,onClick:()=>setM({})}))),
     h('div',{style:{...C.card,overflow:'auto',padding:0}},h('table',{style:{width:'100%',borderCollapse:'collapse',fontSize:12,minWidth:1100}},
-      h(TH,{cols:[{l:'#'},{l:'Project'},{l:'Client'},{l:'Status'},{l:'Quotation',r:true},{l:'Survey date'},{l:'Amount',r:true},{l:'Payment'},{l:'Certificate'},{l:'Comments'},{l:''}]}),
-      h('tbody',{},fil.length===0?h('tr',{},h('td',{colSpan:11,style:{textAlign:'center',padding:26,color:'var(--tx2)'}},'No projects found')):fil.map((p,i)=>h('tr',{key:p.id,style:{borderBottom:'0.5px solid var(--bd)'}},
+      h(TH,{cols:[{l:'#'},{l:'Project'},{l:'Client'},{l:'Status'},{l:'Quotation',r:true},{l:'Survey date'},{l:'Amount',r:true},{l:'Payment'},{l:'Certificate'},{l:'Comments'},{l:'Extra'},{l:''}]}),
+      h('tbody',{},fil.length===0?h('tr',{},h('td',{colSpan:12,style:{textAlign:'center',padding:26,color:'var(--tx2)'}},'No projects found')):fil.map((p,i)=>h('tr',{key:p.id,style:{borderBottom:'0.5px solid var(--bd)'}},
         td(i+1),td(h('b',{style:{cursor:'pointer',color:'var(--txI)'},onClick:()=>setM(p)},p.project||'—')),td(p.client||'—'),
         td(h(IE,{value:p.status,opts:PSTAT,onSave:v=>upd(p.id,'status',v)})),td(p.qAmt?fM(p.qAmt):'—',{textAlign:'right'}),td(fD(p.sDate)),td(p.amt?fM(p.amt):'—',{textAlign:'right'}),
         td(h(IE,{value:p.amtStatus||'Unpaid',opts:PAYST,onSave:v=>upd(p.id,'amtStatus',v)})),td(h(IE,{value:p.certStatus||'Not Issued',opts:CERTST,onSave:v=>upd(p.id,'certStatus',v)})),
-        td(p.comments,{maxWidth:220,fontSize:11,color:'var(--tx2)'}),
+        td(p.comments,{maxWidth:220,fontSize:11,color:'var(--tx2)'}),td(cfList('projects',p),{fontSize:11,color:'var(--tx2)'}),
         td(h('span',{style:{whiteSpace:'nowrap'}},h('button',{title:'Edit',onClick:()=>setM(p),style:{background:'none',border:'none',cursor:'pointer'}},'✎'),h('button',{title:'Duplicate',onClick:()=>saveProjects([...projects,{...p,id:uid(),project:p.project+' (copy)'}]),style:{background:'none',border:'none',cursor:'pointer'}},'⧉'),h('button',{title:'Delete',onClick:()=>{if(confirm('Delete this project?'))saveProjects(projects.filter(x=>x.id!==p.id));},style:{background:'none',border:'none',cursor:'pointer',color:'var(--txD)'}},'×')))
       ))))),
-    m&&h(Modal,{title:m.id?'Edit Project':'Add Project',onClose:()=>setM(null),w:760},h(GForm,{groups:PGROUPS,initial:m,onSave:save,onClose:()=>setM(null)})));
+    m&&h(Modal,{title:m.id?'Edit Project':'Add Project',onClose:()=>setM(null),w:760},h(GForm,{groups:PGROUPS,space:'projects',initial:m,onSave:save,onClose:()=>setM(null)})));
 }
 // ── Employees (PIN-protected)
 const EGROUPS=[{t:'Personal',f:[{k:'name',l:'Full name'},{k:'empId',l:'Employee ID'},{k:'designation',l:'Designation'},{k:'dept',l:'Department'},{k:'nationality',l:'Nationality'},{k:'dob',l:'Date of birth',t:'date'},{k:'phone',l:'Phone'},{k:'email',l:'Email'},{k:'joinDate',l:'Joining date',t:'date'},{k:'status',l:'Status',o:['Active','On leave','Resigned','Terminated']},{k:'emergency',l:'Emergency contact'}]},
@@ -2085,7 +2087,7 @@ function EmployeesInner({employees,saveEmployees}){
         h('td',{style:{padding:8}},e.status||'Active'),h('td',{style:{padding:8}},ex(e.visaExpiry)),h('td',{style:{padding:8}},ex(e.eidExpiry)),h('td',{style:{padding:8}},ex(e.passportExpiry)),
         h('td',{style:{padding:8}},leaveBal(e)+' d'),h('td',{style:{padding:8,textAlign:'right'}},show?fM(salTotal(e)):'••••'),
         h('td',{style:{padding:8,whiteSpace:'nowrap'}},h('button',{onClick:()=>setM(e),style:{background:'none',border:'none',cursor:'pointer'}},'✎'),h('button',{onClick:()=>{if(confirm('Delete '+(e.name||'this employee')+'?'))saveEmployees(employees.filter(x=>x.id!==e.id));},style:{background:'none',border:'none',cursor:'pointer',color:'var(--txD)'}},'×'))))))),
-    m&&h(Modal,{title:m.id?'Edit Employee':'Add Employee',onClose:()=>setM(null),w:820},h(GForm,{groups:EGROUPS,initial:m,onSave:save,onClose:()=>setM(null),extra:(f,setF)=>[h('div',{key:'tot',style:{...C.surf,fontSize:12,marginTop:6}},'Net monthly salary: ',h('b',{},fM(salTotal(f)))),h(LeaveLog,{key:'ll',f,setF})]})));
+    m&&h(Modal,{title:m.id?'Edit Employee':'Add Employee',onClose:()=>setM(null),w:820},h(GForm,{groups:EGROUPS,space:'employees',initial:m,onSave:save,onClose:()=>setM(null),extra:(f,setF)=>[h('div',{key:'tot',style:{...C.surf,fontSize:12,marginTop:6}},'Net monthly salary: ',h('b',{},fM(salTotal(f)))),h(LeaveLog,{key:'ll',f,setF})]})));
 }
 function EmployeesSection(p){return h(HRGate,{},h(EmployeesInner,p));}
 // ══════════════════════════ NEW ACCOUNT QUICK VIEW ══════════════════════════
@@ -2117,6 +2119,61 @@ function AccountQuickView({acc,onClose,onAddAct,onSaveAll}){
     h('div',{style:{display:'flex',justifyContent:'flex-end',marginTop:12}},h(Btn,{ch:'Close',onClick:onClose})));
 }
 
+// ══════════════════════════ CUSTOM FIELDS / LINKED SUMMARY / CERTIFICATE SERVICES ══════════════════════════
+const ibs={background:'none',border:'none',cursor:'pointer',color:'var(--tx3)',fontSize:13,padding:'0 3px'};
+const projPaid=p=>p.amtStatus==='Paid'?(+p.amt||0):p.amtStatus==='Partial'?(+p.paidAmt||0):0;
+const cfList=(space,r)=>ld('ftc:schema:'+space,[]).filter(x=>r[x.k]).map(x=>x.l+': '+r[x.k]).join(' · ');
+function CustomFields({space,f,setF}){
+  const key='ftc:schema:'+space;const [sc,setSc]=useState(()=>ld(key,[]));const [nf,setNf]=useState(null);
+  const save=v=>{setSc(v);sv(key,v);};
+  const add=()=>{if(!nf||!nf.l.trim())return;save([...sc,{k:'cf_'+uid(),l:nf.l.trim(),t:nf.t,o:nf.t==='dropdown'?(nf.o||'').split(',').map(x=>x.trim()).filter(Boolean):undefined}]);setNf(null);};
+  return h('div',{style:{marginTop:12,borderTop:'0.5px dashed var(--bdm)',paddingTop:8}},
+    h('div',{style:{...C.btw,marginBottom:6}},h('span',{style:{fontWeight:600,fontSize:12,color:'var(--brand)'}},'Extra fields (your own)'),h(Btn,{ch:'+ Add field',sm:true,onClick:()=>setNf({l:'',t:'text',o:''})})),
+    nf&&h('div',{style:{display:'flex',gap:6,marginBottom:8,flexWrap:'wrap'}},h('input',{value:nf.l,placeholder:'Field name',onChange:e=>setNf({...nf,l:e.target.value}),style:{width:170}}),h('select',{value:nf.t,onChange:e=>setNf({...nf,t:e.target.value}),style:{width:110}},['text','number','date','dropdown','long text'].map(t=>h('option',{key:t},t))),nf.t==='dropdown'&&h('input',{value:nf.o,placeholder:'Options, comma separated',onChange:e=>setNf({...nf,o:e.target.value}),style:{width:210}}),h(Btn,{ch:'Add',sm:true,pri:true,onClick:add}),h(Btn,{ch:'Cancel',sm:true,onClick:()=>setNf(null)})),
+    sc.length===0&&!nf&&h('div',{style:{fontSize:11,color:'var(--tx3)'}},'Need another detail? Click “+ Add field” — it appears on every record in this space.'),
+    h('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'0 12px'}},sc.map(x=>h('div',{key:x.k,style:{gridColumn:x.t==='long text'?'1 / -1':undefined}},
+      h('div',{style:C.btw},h('label',{style:{fontSize:12,color:'var(--tx2)',marginBottom:3}},x.l),h('span',{},h('button',{title:'Rename',onClick:()=>{const n=prompt('Rename field',x.l);if(n)save(sc.map(y=>y.k===x.k?{...y,l:n}:y));},style:ibs},'✎'),h('button',{title:'Remove field',onClick:()=>{if(confirm('Remove “'+x.l+'” from all records?'))save(sc.filter(y=>y.k!==x.k));},style:ibs},'×'))),
+      h(Inp2,{value:f[x.k]??'',onChange:e=>setF(p=>({...p,[x.k]:e.target.value})),type:x.t==='number'||x.t==='date'?x.t:'text',opts:x.t==='dropdown'?x.o:undefined,rows:x.t==='long text'?2:undefined})))));
+}
+function ProjSummary({projects,certs,goto,full}){
+  const act=projects.filter(p=>!['Completed','Cancelled'].includes(p.status)).length;
+  const billed=projects.reduce((s,p)=>s+(+p.amt||0),0),coll=projects.reduce((s,p)=>s+projPaid(p),0);
+  const cOpen=certs.filter(c=>c.status!=='Delivered').length,cChg=certs.reduce((s,c)=>s+(+c.charge||0),0),cColl=certs.reduce((s,c)=>s+certPaid(c),0);
+  const counts=PSTAT.map(s=>({s,n:projects.filter(p=>p.status===s).length})),mx=Math.max(...counts.map(c=>c.n),1);
+  return h('div',{style:{...C.card,marginBottom:16}},
+    h('div',{style:{...C.btw,marginBottom:10}},h('b',{style:{fontSize:13}},'Projects & Certificate Services'),h('span',{},h(Btn,{ch:'Project Status →',sm:true,onClick:()=>goto('projects')}),' ',h(Btn,{ch:'Certificate Services →',sm:true,onClick:()=>goto('certs')}))),
+    h('div',{style:{display:'grid',gridTemplateColumns:'repeat(6,1fr)',gap:8}},h(Stat,{label:'Active projects',val:act}),h(Stat,{label:'Quotations awaiting',val:projects.filter(p=>p.status==='Quotation Sent').length,c:'var(--txW)'}),h(Stat,{label:'Project billed',val:fM(billed)}),h(Stat,{label:'Project collected',val:fM(coll),c:'var(--txS)'}),h(Stat,{label:'Certificates open',val:cOpen,c:cOpen?'var(--txW)':undefined}),h(Stat,{label:'Cert charges due',val:fM(cChg-cColl),c:cChg-cColl>0?'var(--txD)':'var(--txS)'})),
+    full&&h('div',{style:{marginTop:12}},counts.filter(c=>c.n).map(c=>h('div',{key:c.s,style:{marginBottom:6}},h('div',{style:{...C.btw,fontSize:12,marginBottom:2}},h('span',{},c.s),h('b',{},c.n)),h(Bar,{pct:Math.round(c.n/mx*100),c:'#8a5323'})))));
+}
+const CTYPES=['Gate Level','SSL','DTM / Contours','Boundary / Demarcation','Setting-Out','Other'],CSTAT=['Received','In progress','Issued','Delivered','Re-work'];
+const certPaid=c=>c.payStatus==='Paid'?(+c.charge||0):c.payStatus==='Partial'?(+c.paidAmt||0):0;
+const CGROUPS=[{t:'Where we got it from',f:[{k:'fromCompany',l:'Company (requested by)'},{k:'fromContact',l:'Contact person'},{k:'recvVia',l:'Received via',o:['WhatsApp','Email','Hand delivery','Portal','Phone']},{k:'recvDate',l:'Date received',t:'date'},{k:'recvBy',l:'Received by (our staff)'},{k:'project',l:'Project / site'}]},
+{t:'Certificate',f:[{k:'certType',l:'Certificate type',o:CTYPES},{k:'certNo',l:'Certificate no'},{k:'status',l:'Status',o:CSTAT},{k:'dataBy',l:'Survey data provided by'},{k:'madeBy',l:'Certificate made by'},{k:'madeDate',l:'Date made',t:'date'}]},
+{t:'Delivery',f:[{k:'delDate',l:'Date delivered',t:'date'},{k:'delTo',l:'Delivered to'},{k:'delVia',l:'Delivered via',o:['WhatsApp','Email','Hand delivery','Portal']}]},
+{t:'Charges (certificate making only)',f:[{k:'charge',l:'Charge (AED)',t:'number'},{k:'payStatus',l:'Payment status',o:PAYST},{k:'paidAmt',l:'Received so far (if Partial)',t:'number'},{k:'dueDate',l:'Payment due date',t:'date'},{k:'paidDate',l:'Date paid',t:'date'},{k:'invNo',l:'Invoice no'}]},
+{t:'Notes',f:[{k:'notes',l:'Notes',rows:3}]}];
+function CertServicesSection({certs,saveCerts}){
+  const [q,setQ]=useState(''),[sf,setSf]=useState(''),[m,setM]=useState(null);
+  const fil=certs.filter(c=>(!q||((c.fromCompany||'')+(c.certNo||'')+(c.project||'')+(c.madeBy||'')).toLowerCase().includes(q.toLowerCase()))&&(!sf||c.status===sf));
+  const tot=certs.reduce((s,c)=>s+(+c.charge||0),0),got=certs.reduce((s,c)=>s+certPaid(c),0);
+  const upd=(id,k,v)=>saveCerts(certs.map(c=>c.id===id?{...c,[k]:v,...(k==='status'&&v==='Delivered'&&!c.delDate?{delDate:tod()}:{})}:c));
+  const save=d=>{saveCerts(d.id?certs.map(c=>c.id===d.id?d:c):[...certs,{...d,id:uid(),recvDate:d.recvDate||tod()}]);setM(null);};
+  const exp=()=>dlCSV('certificate_services_'+tod()+'.csv',[['From company','Contact','Received via','Received','Received by','Project','Type','Cert no','Status','Data by','Made by','Made on','Delivered','Delivered to','Charge','Payment','Received amt','Due','Notes']].concat(certs.map(c=>['fromCompany','fromContact','recvVia','recvDate','recvBy','project','certType','certNo','status','dataBy','madeBy','madeDate','delDate','delTo','charge','payStatus','paidAmt','dueDate','notes'].map(k=>c[k]??''))));
+  const td=(c,st)=>h('td',{style:{padding:8,...st}},c);
+  return h('div',{},
+    h('div',{style:{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:10,marginBottom:12}},h(Stat,{label:'Certificates',val:certs.length}),h(Stat,{label:'Delivered',val:certs.filter(c=>c.status==='Delivered').length,c:'var(--txS)'}),h(Stat,{label:'Pending delivery',val:certs.filter(c=>c.status!=='Delivered').length,c:'var(--txW)'}),h(Stat,{label:'Charges',val:fM(tot)}),h(Stat,{label:'Outstanding',val:fM(tot-got),c:tot-got>0?'var(--txD)':'var(--txS)'})),
+    h('div',{style:{...C.btw,marginBottom:12,flexWrap:'wrap',gap:8}},h('div',{style:{display:'flex',gap:8}},h('input',{value:q,onChange:e=>setQ(e.target.value),placeholder:'Search company, cert no, project, maker…',style:{width:280}}),h('select',{value:sf,onChange:e=>setSf(e.target.value),style:{width:150}},h('option',{value:''},'All statuses'),CSTAT.map(s=>h('option',{key:s},s)))),h('div',{style:{display:'flex',gap:8}},h(Btn,{ch:'⇩ Export CSV',onClick:exp}),h(Btn,{ch:'+ Add Certificate',pri:true,onClick:()=>setM({status:'Received',payStatus:'Unpaid',recvDate:tod()})}))),
+    h('div',{style:{...C.card,overflow:'auto',padding:0}},h('table',{style:{width:'100%',borderCollapse:'collapse',fontSize:12,minWidth:1150}},
+      h(TH,{cols:[{l:'From company'},{l:'Certificate'},{l:'Received'},{l:'Made by'},{l:'Delivered'},{l:'Status'},{l:'Charge',r:true},{l:'Payment'},{l:'Extra'},{l:''}]}),
+      h('tbody',{},fil.length===0?h('tr',{},h('td',{colSpan:10,style:{textAlign:'center',padding:26,color:'var(--tx2)'}},'No certificates yet — click “+ Add Certificate”')):fil.map(c=>h('tr',{key:c.id,style:{borderBottom:'0.5px solid var(--bd)'}},
+        td(h('b',{style:{cursor:'pointer',color:'var(--txI)'},onClick:()=>setM(c)},c.fromCompany||'—')),td(h('div',{},c.certType||'—',h('div',{style:{fontSize:11,color:'var(--tx2)'}},[c.certNo,c.project].filter(Boolean).join(' · ')))),
+        td(h('div',{},fD(c.recvDate),h('div',{style:{fontSize:11,color:'var(--tx2)'}},[c.recvVia,c.recvBy].filter(Boolean).join(' · ')))),td(c.madeBy||'—'),td(c.delDate?fD(c.delDate):'—'),
+        td(h(IE,{value:c.status||'Received',opts:CSTAT,onSave:v=>upd(c.id,'status',v)})),td(c.charge?fM(c.charge):'—',{textAlign:'right'}),td(h(IE,{value:c.payStatus||'Unpaid',opts:PAYST,onSave:v=>upd(c.id,'payStatus',v)})),
+        td(cfList('certs',c),{fontSize:11,color:'var(--tx2)'}),
+        td(h('span',{style:{whiteSpace:'nowrap'}},h('button',{title:'Edit',onClick:()=>setM(c),style:ibs},'✎'),h('button',{title:'Duplicate',onClick:()=>saveCerts([...certs,{...c,id:uid(),certNo:'',status:'Received',delDate:'',payStatus:'Unpaid'}]),style:ibs},'⧉'),h('button',{title:'Delete',onClick:()=>{if(confirm('Delete this certificate record?'))saveCerts(certs.filter(x=>x.id!==c.id));},style:{...ibs,color:'var(--txD)'}},'×')))))))),
+    m&&h(Modal,{title:m.id?'Edit Certificate':'Add Certificate (for another company)',onClose:()=>setM(null),w:800},h(GForm,{groups:CGROUPS,initial:m,space:'certs',onSave:save,onClose:()=>setM(null)})));
+}
+
 // ══════════════════════════ ROOT APP ══════════════════════════
 function App(){
   const [loggedIn,setLoggedIn]=useState(()=>{try{return localStorage.getItem('ftc:session')==='active';}catch{return false;}});
@@ -2126,7 +2183,7 @@ function App(){
   const [showExport,setShowExport]=useState(false);
   useEffect(()=>{
     if(!loggedIn)return;
-    setData({accounts:ld('ftc:accounts',[]),daily:ld('ftc:daily',[]),weeks:ld('ftc:weeks',[]),receivables:ld('ftc:receivables',[]),plan13:ld('ftc:plan13',{}),quarterNotes:ld('ftc:qnotes',{}),docs:ld('ftc:docs',[]),docCounters:ld('ftc:docCounters',{}),projects:(()=>{let p=ld('ftc:projects',null);if(!p){p=[{"project":"Gate Level Marking at site","client":"ICONIC SPACES CONTRACTING L.L.C.","poc":"Engineer Hussam Abu Awwad","status":"Report in-progress","qDate":"","qRef":"","qAmt":700,"by":"Yasir","sDate":"2026-09-18","amt":700,"payMethod":"Cash","paidTo":"Zubair","amtStatus":"Paid","surAmt":"","surStatus":"","certNo":"FGC-YIS-20260926-0001","certStatus":"Delivered","certDate":"2026-09-27","invNo":"YIS - 20260924 - 0001","comments":"Clients wants to change the gate level values and corrections, As he informed the gate level value in whatsapp that’s 55.430","id":"seed1"},{"project":"Checking the depth of site excavation","client":"ICONIC SPACES CONTRACTING L.L.C.","poc":"Engineer Hussam Abu Awwad","status":"Report in-progress","qDate":"","qRef":"","qAmt":885,"by":"Yasir","sDate":"2026-09-22","amt":885,"payMethod":"Zubair account","paidTo":"Zubair","amtStatus":"Paid","surAmt":"","surStatus":"","certNo":"FGC-YIS-20260926-0001","certStatus":"Delivered","certDate":"2026-09-27","invNo":"YIS - 20260924 - 0002","comments":"Clients wants to change the gate level values and corrections","id":"seed2"},{"project":"Demarcation Heights","client":"ICONIC SPACES CONTRACTING L.L.C.","poc":"Engineer Hussam Abu Awwad","status":"Report in-progress","qDate":"2026-09-24","qRef":"YIS-20260924-001","qAmt":1275,"by":"Yasir","sDate":"2026-09-26","amt":1275,"payMethod":"Zubair account","paidTo":"Zubair","amtStatus":"Paid","surAmt":"","surStatus":"","certNo":"LDC-YIS-20260926-0002","certStatus":"Delivered","certDate":"2026-09-27","invNo":"","comments":"Clients wants to change the gate level values and corrections","id":"seed3"},{"project":"Internal surveying services for existing building","client":"SENSE design Architecture + Engineering Consultant","poc":"Mohammed Samer","status":"Quotation Sent","qDate":"2026-09-17","qRef":"SSD-20260917-001","qAmt":13125,"by":"","sDate":"","amt":"","payMethod":"","paidTo":"","amtStatus":"","surAmt":"","surStatus":"","certNo":"","certStatus":"","certDate":"","invNo":"","comments":"Reminder Sent on 28 Sep 2026","id":"seed4"},{"project":"Checking the depth of site excavation","client":"ICONIC SPACES CONTRACTING L.L.C.","poc":"Engineer Hussam Abu Awwad","status":"Report in-progress","qDate":"","qRef":"","qAmt":500,"by":"Yasir","sDate":"2026-09-29","amt":500,"payMethod":"","paidTo":"","amtStatus":"","surAmt":"","surStatus":"","certNo":"","certStatus":"","certDate":"","invNo":"","comments":"","id":"seed5"},{"project":"Demarcation Heights","client":"ICONIC SPACES CONTRACTING L.L.C.","poc":"Engineer Hussam Abu Awwad","status":"Report in-progress","qDate":"","qRef":"","qAmt":500,"by":"Yasir","sDate":"2026-10-01","amt":500,"payMethod":"","paidTo":"","amtStatus":"","surAmt":"","surStatus":"","certNo":"","certStatus":"","certDate":"","invNo":"","comments":"","id":"seed6"}];sv('ftc:projects',p);}return p;})(),employees:ld('ftc:employees',[])});
+    setData({accounts:ld('ftc:accounts',[]),daily:ld('ftc:daily',[]),weeks:ld('ftc:weeks',[]),receivables:ld('ftc:receivables',[]),plan13:ld('ftc:plan13',{}),quarterNotes:ld('ftc:qnotes',{}),docs:ld('ftc:docs',[]),docCounters:ld('ftc:docCounters',{}),projects:(()=>{let p=ld('ftc:projects',null);if(!p){p=[{"project":"Gate Level Marking at site","client":"ICONIC SPACES CONTRACTING L.L.C.","poc":"Engineer Hussam Abu Awwad","status":"Report in-progress","qDate":"","qRef":"","qAmt":700,"by":"Yasir","sDate":"2026-09-18","amt":700,"payMethod":"Cash","paidTo":"Zubair","amtStatus":"Paid","surAmt":"","surStatus":"","certNo":"FGC-YIS-20260926-0001","certStatus":"Delivered","certDate":"2026-09-27","invNo":"YIS - 20260924 - 0001","comments":"Clients wants to change the gate level values and corrections, As he informed the gate level value in whatsapp that’s 55.430","id":"seed1"},{"project":"Checking the depth of site excavation","client":"ICONIC SPACES CONTRACTING L.L.C.","poc":"Engineer Hussam Abu Awwad","status":"Report in-progress","qDate":"","qRef":"","qAmt":885,"by":"Yasir","sDate":"2026-09-22","amt":885,"payMethod":"Zubair account","paidTo":"Zubair","amtStatus":"Paid","surAmt":"","surStatus":"","certNo":"FGC-YIS-20260926-0001","certStatus":"Delivered","certDate":"2026-09-27","invNo":"YIS - 20260924 - 0002","comments":"Clients wants to change the gate level values and corrections","id":"seed2"},{"project":"Demarcation Heights","client":"ICONIC SPACES CONTRACTING L.L.C.","poc":"Engineer Hussam Abu Awwad","status":"Report in-progress","qDate":"2026-09-24","qRef":"YIS-20260924-001","qAmt":1275,"by":"Yasir","sDate":"2026-09-26","amt":1275,"payMethod":"Zubair account","paidTo":"Zubair","amtStatus":"Paid","surAmt":"","surStatus":"","certNo":"LDC-YIS-20260926-0002","certStatus":"Delivered","certDate":"2026-09-27","invNo":"","comments":"Clients wants to change the gate level values and corrections","id":"seed3"},{"project":"Internal surveying services for existing building","client":"SENSE design Architecture + Engineering Consultant","poc":"Mohammed Samer","status":"Quotation Sent","qDate":"2026-09-17","qRef":"SSD-20260917-001","qAmt":13125,"by":"","sDate":"","amt":"","payMethod":"","paidTo":"","amtStatus":"","surAmt":"","surStatus":"","certNo":"","certStatus":"","certDate":"","invNo":"","comments":"Reminder Sent on 28 Sep 2026","id":"seed4"},{"project":"Checking the depth of site excavation","client":"ICONIC SPACES CONTRACTING L.L.C.","poc":"Engineer Hussam Abu Awwad","status":"Report in-progress","qDate":"","qRef":"","qAmt":500,"by":"Yasir","sDate":"2026-09-29","amt":500,"payMethod":"","paidTo":"","amtStatus":"","surAmt":"","surStatus":"","certNo":"","certStatus":"","certDate":"","invNo":"","comments":"","id":"seed5"},{"project":"Demarcation Heights","client":"ICONIC SPACES CONTRACTING L.L.C.","poc":"Engineer Hussam Abu Awwad","status":"Report in-progress","qDate":"","qRef":"","qAmt":500,"by":"Yasir","sDate":"2026-10-01","amt":500,"payMethod":"","paidTo":"","amtStatus":"","surAmt":"","surStatus":"","certNo":"","certStatus":"","certDate":"","invNo":"","comments":"","id":"seed6"}];sv('ftc:projects',p);}return p;})(),employees:ld('ftc:employees',[]),certs:ld('ftc:certs',[])});
   },[loggedIn]);
   useEffect(()=>{
     if(!loggedIn)return;let t;const ev=['mousemove','keydown','click','touchstart'];
@@ -2137,8 +2194,10 @@ function App(){
   if(!loggedIn)return h(LoginScreen,{onLogin:()=>{try{localStorage.setItem('ftc:session','active');}catch{}setLoggedIn(true);}});
   if(!data)return h('div',{style:{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,color:'var(--tx2)'}},'Loading…');
   const t=tod();
+  const linked=[...data.projects.filter(p=>+p.amt>0).map(p=>({id:'p_'+p.id,src:'project',client:p.client,project:p.project,invoiceValue:+p.amt,received:projPaid(p),dueDate:p.dueDate||'',status:p.amtStatus==='Paid'?'Paid':'Current'})),...data.certs.filter(c=>+c.charge>0).map(c=>({id:'c_'+c.id,src:'cert',client:c.fromCompany,project:(c.certType||'Certificate')+(c.project?' — '+c.project:''),invoiceValue:+c.charge,received:certPaid(c),dueDate:c.dueDate||'',status:c.payStatus==='Paid'?'Paid':'Current'}))];
+  const allRec=[...data.receivables,...linked];
   const overdueAcc=data.accounts.filter(a=>a.nextActionDate&&isOD(a.nextActionDate)&&!['Won','Lost'].includes(a.status)).length;
-  const overdueInv=data.receivables.filter(r=>r.dueDate&&isOD(r.dueDate)&&((+r.invoiceValue||0)-(+r.received||0))>0).length;
+  const overdueInv=allRec.filter(r=>r.dueDate&&isOD(r.dueDate)&&((+r.invoiceValue||0)-(+r.received||0))>0).length;
   const NAV=[
     {id:'dashboard',icon:'◈',label:'Dashboard'},
     {id:'scorecard',icon:'◐',label:'Weekly Scorecard'},
@@ -2148,13 +2207,14 @@ function App(){
     {id:'accounts',icon:'◉',label:'Target Accounts'},
     {id:'documents',icon:'▧',label:'Documents'},
     {id:'projects',icon:'▣',label:'Project Status'},
+    {id:'certs',icon:'✎',label:'Certificate Services'},
     {id:'employees',icon:'☺',label:'Employees (HR)'},
     {id:'finance',icon:'◈',label:'Collections & Finance',badge:overdueInv},
     {id:'reports',icon:'◐',label:'Reports'}
   ];
-  const pp={...data,saveAccounts:v=>upd('accounts',v),saveDaily:v=>upd('daily',v),saveWeeks:v=>upd('weeks',v),saveReceivables:v=>upd('receivables',v),saveProjects:v=>upd('projects',v),saveEmployees:v=>upd('employees',v),savePlan13:v=>upd('plan13',v),saveQNotes:v=>upd('quarterNotes',v),goto:setSec};
+  const pp={...data,receivables:allRec,saveCerts:v=>upd('certs',v),saveAccounts:v=>upd('accounts',v),saveDaily:v=>upd('daily',v),saveWeeks:v=>upd('weeks',v),saveReceivables:v=>upd('receivables',v.filter(r=>!r.src)),saveProjects:v=>upd('projects',v),saveEmployees:v=>upd('employees',v),savePlan13:v=>upd('plan13',v),saveQNotes:v=>upd('quarterNotes',v),goto:setSec};
   const dp={docs:data.docs,saveDocs:v=>upd('docs',v),counters:data.docCounters,saveCounters:v=>upd('docCounters',v)};
-  const importData=d=>{upd('accounts',d.accounts||[]);upd('daily',d.daily||[]);upd('weeks',d.weeks||[]);upd('receivables',d.receivables||[]);upd('plan13',d.plan13||{});if(d.projects)upd('projects',d.projects);if(d.employees)upd('employees',d.employees);if(d.docs)upd('docs',d.docs);if(d.docCounters)upd('docCounters',d.docCounters);};
+  const importData=d=>{upd('accounts',d.accounts||[]);upd('daily',d.daily||[]);upd('weeks',d.weeks||[]);upd('receivables',d.receivables||[]);upd('plan13',d.plan13||{});if(d.projects)upd('projects',d.projects);if(d.certs)upd('certs',d.certs);if(d.employees)upd('employees',d.employees);if(d.docs)upd('docs',d.docs);if(d.docCounters)upd('docCounters',d.docCounters);};
   return h('div',{style:{display:'flex',minHeight:'100vh',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif'}},
     h('div',{style:{width:220,flexShrink:0,background:'var(--bg2)',borderRight:'0.5px solid var(--bd)',display:'flex',flexDirection:'column',position:'sticky',top:0,height:'100vh'}},
       h('div',{style:{padding:'16px 16px 14px',borderBottom:'0.5px solid var(--bd)'}},
@@ -2175,10 +2235,10 @@ function App(){
     h('div',{style:{flex:1,display:'flex',flexDirection:'column',overflow:'hidden'}},
       h('div',{style:{padding:'12px 24px',borderBottom:'0.5px solid var(--bd)',background:'var(--bg1)',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}},
         h('span',{style:{fontWeight:600,fontSize:15}},NAV.find(n=>n.id===sec)?.label),
-        h('div',{style:{fontSize:12,color:'var(--tx2)'}},[data.accounts.length+' accounts',data.daily.length+' daily entries',data.docs.length+' documents',data.projects.length+' projects'].join(' · '))
+        h('div',{style:{fontSize:12,color:'var(--tx2)'}},[data.accounts.length+' accounts',data.daily.length+' daily entries',data.docs.length+' documents',data.projects.length+' projects',data.certs.length+' certificates'].join(' · '))
       ),
       h('div',{style:{flex:1,overflowY:'auto',padding:'20px 24px'}},
-        sec==='dashboard'&&h(Dashboard,pp),
+        sec==='dashboard'&&h(Fragment,null,h(ProjSummary,pp),h(Dashboard,pp)),
         sec==='scorecard'&&h(ScorecardSection,pp),
         sec==='plan'&&h(Plan13Section,pp),
         sec==='roadmap'&&h(RoadmapSection,pp),
@@ -2186,13 +2246,14 @@ function App(){
         sec==='accounts'&&h(AccountsSection,pp),
         sec==='documents'&&h(DocumentsSection,dp),
         sec==='projects'&&h(ProjectsSection,pp),
+        sec==='certs'&&h(CertServicesSection,pp),
         sec==='employees'&&h(EmployeesSection,pp),
         sec==='finance'&&h(FinanceSection,pp),
-        sec==='reports'&&h(ReportsSection,pp)
+        sec==='reports'&&h(Fragment,null,h(ProjSummary,{...pp,full:true}),h(ReportsSection,pp))
       )
     ),
     showSettings&&h(Modal,{title:'Settings',onClose:()=>setShowSettings(false),w:480},h(SettingsPanel,{onClose:()=>setShowSettings(false)})),
-    showExport&&h(Modal,{title:'Export & Import Data',onClose:()=>setShowExport(false),w:560},h(ExportPanel,{...pp,...dp,onImport:importData,onClose:()=>setShowExport(false)}))
+    showExport&&h(Modal,{title:'Export & Import Data',onClose:()=>setShowExport(false),w:560},h(ExportPanel,{...pp,...dp,receivables:data.receivables,onImport:importData,onClose:()=>setShowExport(false)}))
   );
 }
 ReactDOM.createRoot(document.getElementById('root')).render(h(App));
