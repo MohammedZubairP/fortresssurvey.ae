@@ -134,7 +134,7 @@ const IMG_STAMP='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAaQAAAGkCAYAAAB+T
 // auto-included stamp/signature). Any cached customBodyHtml saved under an
 // older version is ignored and regenerated fresh, so stale drafts can never
 // resurrect old template behavior.
-const TEMPLATE_VERSION=4;
+const TEMPLATE_VERSION=5;
 const DEFAULT_TERMS=[
  'This quotation is valid for 30 days from the date of issue.',
  'Prices are in UAE Dirhams (AED) and exclusive of 5% VAT unless stated.',
@@ -148,13 +148,14 @@ const DEFAULT_TERMS=[
  'Any disputes/disagreement shall be resolved under Dubai jurisdiction and UAE law, under the relevant clause.'
 ].join('\n');
 const CERT_TYPES=[
- {v:'SSL',en:'Confirmation of SSL Certificate',ar:'شهادة تأكيد مستوى البلاطة الإنشائية',kw:'SSL'},
- {v:'GATE',en:'Confirmation of Gate Level Certificate',ar:'شهادة تأكيد منسوب البوابة',kw:'Gate Level'},
- {v:'DTM',en:'Confirmation of DTM / Contours Certificate',ar:'شهادة تأكيد النموذج الرقمي للتضاريس',kw:'DTM'},
- {v:'BOUNDARY',en:'Confirmation of Boundary / Demarcation Certificate',ar:'شهادة تأكيد الحدود',kw:'boundary demarcation'},
- {v:'SETOUT',en:'Confirmation of Setting-Out Certificate',ar:'شهادة تأكيد التخطيط الموقعي',kw:'setting-out'},
- {v:'CUSTOM',en:'',ar:'',kw:''}
+ {v:'SSL',en:'Confirmation of SSL Certificate',ar:'شهادة تأكيد مستوى البلاطة الإنشائية',kw:'confirmation of SSL',pre:'SLC'},
+ {v:'GATE',en:'Gate Level Certificate',ar:'شهادة مستوى البوابة',kw:'marking of gate level',pre:'GLC'},
+ {v:'DTM',en:'Confirmation of DTM / Contours Certificate',ar:'شهادة تأكيد النموذج الرقمي للتضاريس',kw:'confirmation of DTM / contours',pre:'DTC'},
+ {v:'BOUNDARY',en:'Confirmation of Boundary / Demarcation Certificate',ar:'شهادة تأكيد الحدود',kw:'confirmation of boundary demarcation',pre:'LDC'},
+ {v:'SETOUT',en:'Confirmation of Setting-Out Certificate',ar:'شهادة تأكيد التخطيط الموقعي',kw:'setting-out',pre:'SOC'},
+ {v:'CUSTOM',en:'',ar:'',kw:'',pre:'FMC'}
 ];
+const certPrefix=(t,code)=>{const ct=CERT_TYPES.find(x=>x.v===t)||CERT_TYPES[0];return ct.pre+(code?'-'+code:'');};
 const DEFAULT_VERIFY_PARA='The marked level has been verified and executed with due care and accuracy, under the responsibility of the site surveyor. Any discrepancies, errors, or omissions arising from this survey work, if needed, shall be rectified accordingly.';
 const DEFAULT_CHECK_PARA='The Client must check and verify all values before commencement of works and report any changes immediately.';
 const numFmt=n=>(Math.round((Number(n)||0)*100)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -927,21 +928,22 @@ function buildQIHTML(kind,d){
   const body=useCached?stripEditingChrome(d.customBodyHtml):buildQIBody(kind,{...d,editable:false});
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${kind}-${d.refNo||''}</title><style>${PRINT_BASE_CSS}</style></head><body>${body}</body></html>`;
 }
-const CERT_DEFAULT_POS={stampPos:{x:2,y:86},sig1Pos:{x:40,y:88},sig2Pos:{x:70,y:88},photoPos:{x:2,y:58}};
+const CERT_DEFAULT_POS={stampPos:{x:30,y:81},sig1Pos:{x:42,y:83},sig2Pos:{x:70,y:88},photoPos:{x:2,y:58},namePos:{x:2,y:90}};
 const CERT_DEFAULT_SIZE={stampSize:30,sig1Size:42,sig2Size:42,photoSize:65};
 function buildCertBody(d){
   const editable=!!d.editable;
   const verifyPara=d.verifyPara===undefined?DEFAULT_VERIFY_PARA:d.verifyPara;
   const checkPara=d.checkPara===undefined?DEFAULT_CHECK_PARA:d.checkPara;
-  const tableNote=d.tableNote===undefined?'All values in meters.':d.tableNote;
-  const signeeName=d.signeeName===undefined?'':d.signeeName;
-  const signeeTitle=d.signeeTitle===undefined?'':d.signeeTitle;
-  const signeeContact=d.signeeContact===undefined?'':d.signeeContact;
-  const photoCaption=d.photoCaption===undefined?'Photo 1: Reference':d.photoCaption;
+  const tableNote=d.tableNote===undefined?'All values are in meters.':d.tableNote;
+  const signeeName=d.signeeName===undefined?'Mohammed Zubair Pasha':d.signeeName;
+  const signeeTitle=d.signeeTitle===undefined?'Manager':d.signeeTitle;
+  const signeeContact=d.signeeContact===undefined?'+971503099162':d.signeeContact;
+  const photoCaption=d.photoCaption===undefined?('Photo No.1: '+(d.certType==='GATE'?'Gate Level':'Reference')):d.photoCaption;
   const stampPos=d.stampPos||CERT_DEFAULT_POS.stampPos;
   const sig1Pos=d.sig1Pos||CERT_DEFAULT_POS.sig1Pos;
   const sig2Pos=d.sig2Pos||CERT_DEFAULT_POS.sig2Pos;
   const photoPos=d.photoPos||CERT_DEFAULT_POS.photoPos;
+  const namePos=d.namePos||CERT_DEFAULT_POS.namePos;
   const stampSize=d.stampSize||CERT_DEFAULT_SIZE.stampSize;
   const sig1Size=d.sig1Size||CERT_DEFAULT_SIZE.sig1Size;
   const sig2Size=d.sig2Size||CERT_DEFAULT_SIZE.sig2Size;
@@ -955,20 +957,21 @@ function buildCertBody(d){
   const stampInner=d.stampDataUrl?`<span class="img-holder"><img class="stamp" src="${d.stampDataUrl}" style="width:${stampSize}mm"/>${rs('stampSize')}</span>`:(editable?`<span class="add-ph stamp-ph" contenteditable="false" data-add="stamp">+ Stamp</span>`:'');
   const sigInner=d.signeeSigDataUrl?`<span class="img-holder"><img class="sig" src="${d.signeeSigDataUrl}" style="width:${sig1Size}mm"/>${rs('sig1Size')}</span>`:(editable?`<span class="add-ph" contenteditable="false" data-add="sig">+ Signature</span>`:'');
   const signSection=`<div style="${ps(stampPos)}"${drag('stampPos')}>${stampInner}</div>
-    <div style="${ps(sig1Pos)}"${drag('sig1Pos')}><div class="signatory">${sigInner}<div style="margin-left:6px"><b>${efield(editable,'signeeName',signeeName)}</b>${signeeTitle?` (${efield(editable,'signeeTitle',signeeTitle)})`:''}${signeeContact?`<br/>Contact No: ${efield(editable,'signeeContact',signeeContact)}`:''}</div></div></div>
+    <div style="${ps(sig1Pos)}"${drag('sig1Pos')}><div class="signatory">${sigInner}</div></div>
+    ${(signeeName||signeeContact||editable)?`<div style="${ps(namePos)}padding:6px 8px;"${drag('namePos')}><div><b>${efield(editable,'signeeName',signeeName)}</b>${signeeTitle?` (${efield(editable,'signeeTitle',signeeTitle)})`:''}${signeeContact?`<br/>Contact No: ${efield(editable,'signeeContact',signeeContact)}`:''}</div></div>`:''}
     ${sig2Html}`;
   return `
   <div style="text-align:center;margin-bottom:12px"><span class="img-holder" contenteditable="false"><img class="hdr-logo" src="${IMG_LOGO}" style="width:${d.logoSize||55}mm"/>${editable?'<div class="rs-handle" contenteditable="false" data-rs="logo"></div>':''}</span></div>
   <div class="co-row"><div><b>Fortress Survey Engineering Services L.L.C.</b><b>Dubai – U.A.E</b></div><div class="co-ar">فورتريس لخدمات الهندسة المساحية ش.ذ.م.م<br/>دبي – الإمارات العربية المتحدة</div></div>
-  <div class="cert-ref"><div>Reference No. &nbsp;<b>${efield(editable,'refNo',d.refNo)}</b></div><div>Date: ${docWeekdayDate(d.date||tod())}</div></div>
+  <div class="cert-ref"><div>Reference No. &nbsp;${efield(editable,'refNo',d.refNo)}</div><div>Date: ${docWeekdayDate(d.date||tod()).replace(/^(\w+),/,'$1')}.</div></div>
   <div class="cert-title"><div class="en">${efield(editable,'certTitleEn',d.certTitleEn)}</div><div class="ar">${efield(editable,'certTitleAr',d.certTitleAr)}</div></div>
-  <div class="cert-block"><span class="lbl">Client Details:</span><br/><b>${efield(editable,'clientDetails',d.clientDetails)}</b></div>
+  <div class="cert-block">Client Details: <b>${efield(editable,'clientDetails',d.clientDetails)}</b></div>
   <div class="cert-block"><b>Project Details:</b> ${efield(editable,'projectDetails',d.projectDetails)}</div>
   <div class="cert-block">${d.parcelId!==undefined?`<b>Parcel ID:</b> ${efield(editable,'parcelId',d.parcelId)} &nbsp; `:''}${d.community!==undefined?`Community: <b>${efield(editable,'community',d.community)}</b> &nbsp; `:''}${d.owner!==undefined?`Owner: <b>${efield(editable,'owner',d.owner)}</b>`:''}</div>
   ${d.consultant!==undefined?`<div class="cert-block">Consultant: <b>${efield(editable,'consultant',d.consultant)}</b></div>`:''}
-  <div class="cert-block">This is to certify that on behalf of M/S Fortress Survey Engineering Services L.L.C. the site surveyor has completed the confirmation of ${efield(editable,'certKeyword',d.certKeyword)} for the above-mentioned project in accordance with the values provided.</div>
+  <div class="cert-block">This is to certify that the site surveyor has completed the ${efield(editable,'certKeyword',d.certKeyword)} on behalf of M/S Fortress Survey Engineering Services L.L.C. for the above mentioned project in accordance with the provided values.</div>
   <table class="survey-table"><caption colspan="5">Site Survey Details</caption><thead><tr><th>Point No.</th><th>Northing _DLTM (m)</th><th>Easting _DLTM (m)</th><th>Level (m)</th><th>REMARKS</th></tr></thead><tbody>${rows}</tbody></table>
-  <div class="cert-block"><b>Table (1):</b> ${efield(editable,'tableNote',tableNote)}${d.dmGateLevel!==undefined?` <b>DM Required Gate Level = ${efield(editable,'dmGateLevel',d.dmGateLevel)}</b>`:''}</div>
+  <div class="cert-block"><b>Table (1):</b> ${efield(editable,'tableNote',tableNote)}${d.dmGateLevel!==undefined?` <b>Approved Gate Level = ${efield(editable,'dmGateLevel',d.dmGateLevel)}</b>`:''}</div>
   <div class="cert-block" style="white-space:pre-wrap">${efield(editable,'verifyPara',verifyPara,'div')}</div>
   <div class="cert-block" style="white-space:pre-wrap">${efield(editable,'checkPara',checkPara,'div')}</div>
   ${photoBlock}
@@ -1814,8 +1817,8 @@ function QIReview({kind,draft,setDraft,counters,onBack,onConfirm}){
 }
 function CertFormFields({draft,setDraft,counters}){
   const p=k=>e=>setDraft(d=>({...d,[k]:e&&e.target?e.target.value:e}));
-  useEffect(()=>{if(!draft.refNo){const{ref}=nextRefNo('FMC',counters);setDraft(d=>({...d,refNo:ref}));}},[]);
-  const applyCertType=v=>{const ct=CERT_TYPES.find(x=>x.v===v);setDraft(d=>({...d,certType:v,certTitleEn:ct.en,certTitleAr:ct.ar,certKeyword:ct.kw}));};
+  useEffect(()=>{if(!draft.refNo&&draft.certTitleEn!==undefined)setDraft(d=>({...d,refNo:nextRefNo(certPrefix(d.certType||'SSL',d.issuerCode===undefined?'OAM':d.issuerCode),counters).ref}));},[]);
+  const applyCertType=v=>{const ct=CERT_TYPES.find(x=>x.v===v);setDraft(d=>({...d,certType:v,certTitleEn:ct.en,certTitleAr:ct.ar,certKeyword:ct.kw,refNo:d.refManual?d.refNo:nextRefNo(certPrefix(v,d.issuerCode===undefined?'OAM':d.issuerCode),counters).ref}));};
   useEffect(()=>{if(draft.certTitleEn===undefined)applyCertType(draft.certType||'SSL');},[]);
   const rows=draft.rows&&draft.rows.length?draft.rows:[];
   const updRow=(i,patch)=>setDraft(d=>({...d,rows:rows.map((r,idx)=>idx===i?{...r,...patch}:r)}));
@@ -1831,11 +1834,12 @@ function CertFormFields({draft,setDraft,counters}){
       h('div',{style:{fontWeight:500,fontSize:13,marginBottom:10}},'Certificate Type & Reference'),
       h('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'0 14px'}},
         h(Inp2,{label:'Certificate Type',value:draft.certType||'SSL',onChange:e=>applyCertType(e.target.value),opts:CERT_TYPES.map(c=>({v:c.v,l:c.en||'Custom…'}))}),
-        h(Inp2,{label:'Reference No.',value:draft.refNo||'',onChange:p('refNo')}),
+        h(Inp2,{label:'Reference No. (auto: type-code-date-no.)',value:draft.refNo||'',onChange:e=>setDraft(d=>({...d,refNo:e.target.value,refManual:true}))}),
+        h(Inp2,{label:'Issuer code in reference (e.g. OAM)',value:draft.issuerCode===undefined?'OAM':draft.issuerCode,onChange:e=>{const v=e.target.value.toUpperCase();setDraft(d=>({...d,issuerCode:v,refNo:d.refManual?d.refNo:nextRefNo(certPrefix(d.certType||'SSL',v),counters).ref}));}}),
         h(Inp2,{label:'Title (English)',value:draft.certTitleEn||'',onChange:p('certTitleEn')}),
         h(Inp2,{label:'Title (Arabic)',value:draft.certTitleAr||'',onChange:p('certTitleAr'),style:{direction:'rtl'}}),
         h(Inp2,{label:'Date',value:draft.date||tod(),onChange:p('date'),type:'date'}),
-        h(Inp2,{label:'Certification Keyword (used in the paragraph, e.g. "SSL")',value:draft.certKeyword||'',onChange:p('certKeyword')})
+        h(Inp2,{label:'Work description in the paragraph (e.g. "marking of gate level")',value:draft.certKeyword||'',onChange:p('certKeyword')})
       )
     ),
     h('div',{style:{...C.card,marginBottom:14}},
@@ -1870,8 +1874,8 @@ function CertFormFields({draft,setDraft,counters}){
       ),
       h(Btn,{ch:'+ Add Point',sm:true,onClick:addRow}),
       h('div',{style:{display:'grid',gridTemplateColumns:'2fr 1fr',gap:'0 14px',marginTop:10}},
-        h(Inp2,{label:'Table Note',value:draft.tableNote===undefined?'All values in meters.':draft.tableNote,onChange:p('tableNote')}),
-        h(Inp2,{label:'DM Required Gate Level (optional)',value:draft.dmGateLevel||'',onChange:p('dmGateLevel'),ph:'+70.440 m'})
+        h(Inp2,{label:'Table Note',value:draft.tableNote===undefined?'All values are in meters.':draft.tableNote,onChange:p('tableNote')}),
+        h(Inp2,{label:'Approved Gate Level (optional)',value:draft.dmGateLevel||'',onChange:p('dmGateLevel'),ph:'+70.440 m'})
       )
     ),
     h('div',{style:{...C.card,marginBottom:14}},
@@ -1883,14 +1887,14 @@ function CertFormFields({draft,setDraft,counters}){
       h('div',{style:{fontWeight:500,fontSize:13,marginBottom:10}},'Site Photo (optional)'),
       h('input',{type:'file',accept:'image/*',onChange:onPhoto,style:{marginBottom:10}}),
       draft.photoDataUrl&&h('img',{src:draft.photoDataUrl,style:{maxWidth:200,display:'block',marginBottom:8,border:'1px solid var(--bd)'}}),
-      draft.photoDataUrl&&h(Inp2,{label:'Photo Caption',value:draft.photoCaption||'Photo 1: Reference',onChange:p('photoCaption')})
+      draft.photoDataUrl&&h(Inp2,{label:'Photo Caption',value:draft.photoCaption||'Photo No.1: Reference',onChange:p('photoCaption')})
     ),
     h('div',{style:{...C.card,marginBottom:14}},
       h('div',{style:{fontWeight:500,fontSize:13,marginBottom:10}},'Sign-Off'),
       h('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'0 14px'}},
-        h(Inp2,{label:'Signee Name',value:draft.signeeName===undefined?'':draft.signeeName,onChange:p('signeeName')}),
-        h(Inp2,{label:'Signee Title',value:draft.signeeTitle===undefined?'':draft.signeeTitle,onChange:p('signeeTitle')}),
-        h(Inp2,{label:'Contact No.',value:draft.signeeContact===undefined?'':draft.signeeContact,onChange:p('signeeContact')})
+        h(Inp2,{label:'Signee Name',value:draft.signeeName===undefined?'Mohammed Zubair Pasha':draft.signeeName,onChange:p('signeeName')}),
+        h(Inp2,{label:'Signee Title',value:draft.signeeTitle===undefined?'Manager':draft.signeeTitle,onChange:p('signeeTitle')}),
+        h(Inp2,{label:'Contact No.',value:draft.signeeContact===undefined?'+971503099162':draft.signeeContact,onChange:p('signeeContact')})
       ),
       h('div',{style:{fontSize:11,color:'var(--tx2)',marginBottom:10}},'The stamp and signature are NOT added automatically — upload them here, or add them directly in the document later (only someone with the actual files should do this).'),
       h('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'0 14px'}},
@@ -1935,7 +1939,7 @@ function CertReview({draft,setDraft,counters,onBack,onConfirm}){
   const [resetToken,setResetToken]=useState(0);
   const valid=draft.clientDetails&&draft.certTitleEn;
   const resetDoc=()=>{
-    setDraft(d=>{const nx={...d};['customBodyHtml','stampPos','sig1Pos','sig2Pos','photoPos','stampSize','sig1Size','sig2Size','photoSize'].forEach(k=>delete nx[k]);return nx;});
+    setDraft(d=>{const nx={...d};['customBodyHtml','stampPos','sig1Pos','sig2Pos','photoPos','namePos','stampSize','sig1Size','sig2Size','photoSize'].forEach(k=>delete nx[k]);return nx;});
     setResetToken(t=>t+1);
   };
   return h('div',{},
@@ -1986,7 +1990,7 @@ function DocumentsSection({docs,saveDocs,counters,saveCounters}){
   const [cStep,setCStep]=useState('form');const[cDraft,setCDraft]=useDraft('ftc:draftCertificate',{});
   const [viewDoc,setViewDoc]=useState(null);
   const finalize=(type,draft,resetDraft,setStep)=>{
-    const prefix=type==='Quotation'?'FSE-QTN':type==='Invoice'?'FSE-INV':'FMC';
+    const prefix=type==='Quotation'?'FSE-QTN':type==='Invoice'?'FSE-INV':certPrefix(draft.certType||'SSL',draft.issuerCode===undefined?'OAM':draft.issuerCode);
     const{n}=nextRefNo(prefix,counters);
     const rec={id:uid(),type,createdAt:new Date().toISOString(),data:draft};
     saveDocs([...docs,rec]);
